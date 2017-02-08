@@ -1,0 +1,7 @@
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/uart_console.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ram_console.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/rtt_console.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ipm_console_receiver.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ipm_console_sender.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/uart_pipe.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/telnet_console.c)

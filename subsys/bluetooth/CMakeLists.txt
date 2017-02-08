@@ -1,0 +1,2 @@
+add_subdirectory_ifdef(CONFIG_BLUETOOTH_HCI host)
+add_subdirectory_ifdef(CONFIG_BLUETOOTH_CONTROLLER controller)

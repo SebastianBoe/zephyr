@@ -1,0 +1,10 @@
+target_sources_ifdef(CONFIG_HPET_TIMER  zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/hpet.c)
+target_sources_ifdef(CONFIG_ARCV2_TIMER zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/arcv2_timer0.c)
+
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/loapic_timer.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/altera_avalon_timer.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/nrf_rtc_timer.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/pulpino_timer.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/riscv_machine_timer.c)
+target_sources_if_kconfig(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/cortex_m_systick.c)
+target_sources(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/sys_clock_init)

@@ -5,6 +5,7 @@ import os
 import re
 import yaml
 import pprint
+import argparse
 
 from devicetree import parse_file
 
@@ -535,18 +536,30 @@ def generate_include_file(defs):
            print_key_value(prop, defs[node].get(prop), maxtabstop)
        sys.stdout.write("\n")
 
-    sys.stdout.write("#endif\n");
+
+
+def arguments_parse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', dest='output_file',
+        help='to put generated output files',)
+    parser.add_argument('filename')
+    parser.add_argument('path_to_yaml')
+    parser.add_argument('-f', dest="fixup")
+
+    return parser.parse_args()
+
 
 def main(args):
-  if len(args) < 2:
-    print('Usage: %s filename.dts path_to_yaml' % args[0])
-    return 1
+  args = arguments_parse()
+
+  if args.output_file:
+    sys.stdout = open(args.output_file, "w")
 
   try:
-    with open(args[1], "r") as fd:
+    with open(args.filename, "r") as fd:
       d = parse_file(fd)
   except:
-     raise Exception("Input file " + os.path.abspath(args[1]) + " does not exist.")
+     raise Exception("Input file " + os.path.abspath(args.filename) + " does not exist.")
 
   # compress list to nodes w/ paths, add interrupt parent
   compress_nodes(d['/'], '/')
@@ -568,7 +581,7 @@ def main(args):
 
   # scan YAML files and find the ones we are interested in
   yaml_files = []
-  for (dirpath, dirnames, filenames) in walk(args[2]):
+  for (dirpath, dirnames, filenames) in walk(args.path_to_yaml):
     yaml_files.extend([f for f in filenames if re.match('.*\.yaml\Z', f)])
     yaml_files = [dirpath + '/' + t for t in yaml_files]
     break
@@ -625,6 +638,19 @@ def main(args):
 
   # generate include file
   generate_include_file(defs)
+
+  if args.fixup:
+
+    sys.stdout.write("\n")
+    sys.stdout.write("/* Following definitions fixup the generated include */\n")
+    sys.stdout.write("\n")
+
+    with open(args.fixup, 'r') as file:
+      for line in file:
+        sys.stdout.write(line)
+
+  sys.stdout.write("\n");
+  sys.stdout.write("#endif\n");
 
 if __name__ == '__main__':
   # test1.py executed as script

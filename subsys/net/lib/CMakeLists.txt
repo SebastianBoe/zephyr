@@ -1,0 +1,4 @@
+add_subdirectory_ifdef(CONFIG_ZOAP zoap)
+add_subdirectory_ifdef(CONFIG_DNS_RESOLVER dns)
+add_subdirectory_ifdef(CONFIG_MQTT_LIB mqtt)
+add_subdirectory_ifdef(CONFIG_HTTP_PARSER http)
