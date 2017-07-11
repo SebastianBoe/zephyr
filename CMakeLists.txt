@@ -64,10 +64,12 @@ include_directories(
   ${STDINCLUDE}
 )
 
-# TODO dependency of -include <file>.h not supported by makefile generator
-# Possible workaround: (implies that autoconf.h cannot include other files)
-# make it a configuration time dependency ... generate a hash of the file ...
-# create a global preprocessor definition which uses the hash as a value
+# TODO dependency of -include <file>.h not supported by makefile
+# generator Possible workaround: (implies that autoconf.h cannot
+# include other files, which is currently true) make it a
+# configuration time dependency ... generate a hash of the file ...
+# create a global preprocessor definition which uses the hash as a
+# value
 add_definitions(
   -DKERNEL
   -D__ZEPHYR__=1
