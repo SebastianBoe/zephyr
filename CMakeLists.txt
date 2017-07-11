@@ -238,7 +238,6 @@ add_custom_command(
   VERBATIM
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 )
-
 add_custom_target(
   linker_script
   DEPENDS linker.cmd
@@ -247,6 +246,7 @@ add_custom_target(
 if(TOOLCHAIN_DO_PASS2)
   include(${CMAKE_TOOLCHAIN_FILE})
 endif()
+
 add_subdirectory(kernel)
 
 set(zephyr_lnk
@@ -289,8 +289,19 @@ endif()
 
 add_custom_command(
   OUTPUT isr_tables.c
-  COMMAND ${CMAKE_OBJCOPY} -I ${OUTPUT_FORMAT} -O binary --only-section=.intList $<TARGET_FILE:zephyr_prebuilt> isrList.bin
-  COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/arch/common/gen_isr_tables.py --output-source isr_tables.c --intlist isrList.bin --debug --sw-isr-table --vector-table
+  COMMAND ${CMAKE_OBJCOPY}
+  -I ${OUTPUT_FORMAT}
+  -O binary
+  --only-section=.intList
+  $<TARGET_FILE:zephyr_prebuilt>
+  isrList.bin
+  COMMAND ${PYTHON_EXECUTABLE}
+  ${PROJECT_SOURCE_DIR}/arch/common/gen_isr_tables.py
+  --output-source isr_tables.c
+  --intlist isrList.bin
+  --debug
+  --sw-isr-table
+  --vector-table
   DEPENDS zephyr_prebuilt
 )
 

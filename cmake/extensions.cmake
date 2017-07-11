@@ -6,6 +6,8 @@ include(CheckCCompilerFlag)
 
 # Conditionally executing CMake functions with oneliners
 # e.g. if(x) sqrt(10); would be sqrt_ifdef(x 10)
+#
+# <function-name>_ifdef()
 function(add_subdirectory_ifdef feature_toggle dir)
   if(${${feature_toggle}})
     add_subdirectory(${dir})
@@ -30,6 +32,16 @@ function(target_compile_option_ifdef feature_toggle target scope option)
   endif()
 endfunction()
 
+# <function-name>_ifndef()
+function(set_ifndef variable value)
+  if(NOT ${variable})
+    set(${variable} ${value} PARENT_SCOPE)
+  endif()
+endfunction()
+
+#
+# Misc.
+#
 function(cc_option option)
   string(MAKE_C_IDENTIFIER check${option} check)
   check_c_compiler_flag(${option} ${check})
@@ -55,12 +67,6 @@ function(ld_option option)
   # if(${check})
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${option}" PARENT_SCOPE)
   # endif()
-endfunction()
-
-function(set_ifndef variable value)
-  if(NOT ${variable})
-    set(${variable} ${value} PARENT_SCOPE)
-  endif()
 endfunction()
 
 function(target_object_link_libraries target)
