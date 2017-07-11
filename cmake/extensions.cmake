@@ -32,6 +32,12 @@ function(target_compile_option_ifdef feature_toggle target scope option)
   endif()
 endfunction()
 
+function(cc_option_ifdef feature_toggle option)
+  if(${feature_toggle})
+    cc_option_ifdef(${option})
+  endif()
+endfunction()
+
 # <function-name>_ifndef()
 function(set_ifndef variable value)
   if(NOT ${variable})
