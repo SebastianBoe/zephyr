@@ -90,18 +90,14 @@ add_compile_options(
 
 add_compile_options(
   $<$<COMPILE_LANGUAGE:C>:-std=c99>
-)
 
-add_compile_options(
   $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>
   $<$<COMPILE_LANGUAGE:CXX>:-fcheck-new>
   $<$<COMPILE_LANGUAGE:CXX>:-ffunction-sections>
   $<$<COMPILE_LANGUAGE:CXX>:-fdata-sections>
   $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
   $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-)
 
-add_compile_options(
   $<$<COMPILE_LANGUAGE:ASM>:-xassembler-with-cpp>
   $<$<COMPILE_LANGUAGE:ASM>:-D_ASMLANGUAGE>
 )
