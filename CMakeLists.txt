@@ -149,9 +149,7 @@ else() # GCC assumed
   endif()
 endif()
 
-if(CONFIG_DEBUG_SECTION_MISMATCH)
-  cc_option(-fno-inline-functions-called-once)
-endif()
+cc_option_ifdef(CONFIG_DEBUG_SECTION_MISMATCH -fno-inline-functions-called-once)
 
 add_compile_options(-nostdinc)
 include_directories(SYSTEM ${NOSTDINC})
@@ -159,9 +157,7 @@ include_directories(SYSTEM ${NOSTDINC})
 cc_disable_warning(pointer-sign)
 cc_option(-fno-strict-overflow)
 
-if(CONFIG_STACK_USAGE)
-  cc_option(-fstack-usage)
-endif()
+cc_option_ifdef(CONFIG_STACK_USAGE -fstack-usage)
 
 # disallow errors like 'EXPORT_GPL(foo);' with missing header
 cc_option(-Werror=implicit-int)
