@@ -8,9 +8,11 @@ enable_language(C CXX ASM)
 
 # Do not generate make install target.
 set(CMAKE_SKIP_INSTALL_RULES ON)
+
 set(CMAKE_EXECUTABLE_SUFFIX .elf)
 
 set(AUTOCONF_H ${PROJECT_BINARY_DIR}/include/generated/autoconf.h)
+
 find_package(PythonInterp 3.4)
 
 if(NOT PREBUILT_HOST_TOOLS)
