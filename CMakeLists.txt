@@ -150,7 +150,7 @@ else() # GCC assumed
 endif()
 
 if(CONFIG_DEBUG_SECTION_MISMATCH)
-  cc_option(-fno-linline-functions-called-once)
+  cc_option(-fno-inline-functions-called-once)
 endif()
 
 add_compile_options(-nostdinc)
