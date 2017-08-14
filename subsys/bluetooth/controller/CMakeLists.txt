@@ -2,7 +2,8 @@
 # conditionally include ll_adv, ll_scan, ll_master, etc., like KBuild
 # did?
 
-add_library(subsys__bluetooth__controller STATIC
+zephyr_library()
+zephyr_library_sources(
   util/mem.c
   util/memq.c
   util/mayfly.c
@@ -15,13 +16,14 @@ add_library(subsys__bluetooth__controller STATIC
   ll_sw/ctrl.c
   ll_sw/crypto.c
   ll_sw/ll.c
-  ll_sw/ll_adv.c
   ll_sw/ll_filter.c
   hci/hci_driver.c
   hci/hci.c
   )
 
-zephyr_library(subsys__bluetooth__controller)
+target_sources_ifdef(CONFIG_BT_BROADCASTER subsys__bluetooth__controller PRIVATE ll_sw/ll_adv.c)
+target_sources_ifdef(CONFIG_BT_OBSERVER    subsys__bluetooth__controller PRIVATE ll_sw/ll_scan.c)
+target_sources_ifdef(CONFIG_BT_CENTRAL     subsys__bluetooth__controller PRIVATE ll_sw/ll_master.c)
 
 target_include_directories(subsys__bluetooth__controller PRIVATE
   .

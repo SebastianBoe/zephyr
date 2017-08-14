@@ -1,4 +1,12 @@
-cmake_minimum_required(VERSION 3.7)
+if(DEFINED ENV{BOARD})
+  set(BOARD $ENV{BOARD})
+else()
+  set(BOARD qemu_x86)
+endif()
 
-add_subdirectory($ENV{ZEPHYR_BASE} ${CMAKE_CURRENT_BINARY_DIR}/zephyr)
-target_sources(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c)
+include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
+project(NONE)
+
+target_link_libraries(app subsys__bluetooth)
+
+target_sources(app PRIVATE src/main.c)

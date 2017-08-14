@@ -20,6 +20,24 @@ function(target_sources_ifdef feature_toggle target scope item)
   endif()
 endfunction()
 
+function(target_compile_definitions_ifdef feature_toggle target scope item)
+  if(${${feature_toggle}})
+    target_compile_definitions(${target} ${scope} ${item} ${ARGN})
+  endif()
+endfunction()
+
+function(target_include_directories_ifdef feature_toggle target scope item)
+  if(${${feature_toggle}})
+    target_include_directories(${target} ${scope} ${item} ${ARGN})
+  endif()
+endfunction()
+
+function(target_link_libraries_ifdef feature_toggle target item)
+  if(${${feature_toggle}})
+    target_link_libraries(${target} ${item} ${ARGN})
+  endif()
+endfunction()
+
 function(add_compile_option_ifdef feature_toggle option)
   if(${${feature_toggle}})
     add_compile_options(${option})
@@ -32,9 +50,33 @@ function(target_compile_option_ifdef feature_toggle target scope option)
   endif()
 endfunction()
 
+function(target_cc_option_ifdef feature_toggle target scope option)
+  if(${feature_toggle})
+    target_cc_options(${target} ${scope} ${option})
+  endif()
+endfunction()
+
 function(cc_option_ifdef feature_toggle option)
   if(${feature_toggle})
-    cc_option_ifdef(${option})
+    cc_option(${option})
+  endif()
+endfunction()
+
+function(zephyr_library_sources_ifdef feature_toggle source)
+  if(${${feature_toggle}})
+    zephyr_library_sources(${source} ${ARGN})
+  endif()
+endfunction()
+
+function(zephyr_sources_ifdef feature_toggle)
+  if(${${feature_toggle}})
+    zephyr_sources(${ARGN})
+  endif()
+endfunction()
+
+function(zephyr_library_compile_definitions_ifdef feature_toggle item)
+  if(${${feature_toggle}})
+    zephyr_library_compile_definitions(${item} ${ARGN})
   endif()
 endfunction()
 
@@ -42,6 +84,12 @@ endfunction()
 function(set_ifndef variable value)
   if(NOT ${variable})
     set(${variable} ${value} PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(target_cc_option_ifndef feature_toggle target scope option)
+  if(NOT ${feature_toggle})
+    target_cc_option(${target} ${scope} ${option})
   endif()
 endfunction()
 
@@ -137,8 +185,90 @@ endfunction()
 # Zephyr-aware extensions
 ########################################################
 
+# Zephyr-library-aware extentions
+#
+# Zephyr libraries use CMake's library concept and a set of
+# assumptions about how zephyr code is organized to cut down on
+# boilerplate code.
+#
+# Zephyr libraries are created and modified by the below functions.
+#
+
+macro(zephyr_library)
+  # Remove the prefix (/home/sebo/zephyr/driver/serial/CMakeLists.txt => driver/serial/CMakeLists.txt)
+  file(RELATIVE_PATH name $ENV{ZEPHYR_BASE} ${CMAKE_CURRENT_LIST_FILE})
+
+  # Remove the filename (driver/serial/CMakeLists.txt => driver/serial)
+  get_filename_component(name ${name} DIRECTORY)
+
+  # Replace / with __ (driver/serial => driver__serial)
+  string(REGEX REPLACE "/" "__" name ${name})
+
+  zephyr_library_named(${name})
+endmacro()
+
+macro(zephyr_library_named name)
+  # This is a macro because we need add_library() to be executed
+  # within the scope of the caller.
+  set(ZEPHYR_CURRENT_LIBRARY ${name})
+  add_library(${name} STATIC "")
+
+  zephyr_append_cmake_library(${name})
+
+  if(${name} STREQUAL "zephyr")
+  else()
+    target_link_libraries(${name} zephyr)
+  endif()
+endmacro()
+
+#
+# zephyr_library versions of normal CMake target_<func> functions
+#
+function(zephyr_library_sources source)
+  target_sources(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${source} ${ARGN})
+endfunction()
+
+function(zephyr_library_include_directories scope item)
+  target_include_directories(${ZEPHYR_CURRENT_LIBRARY} ${scope} ${item} ${ARGN})
+endfunction()
+
+function(zephyr_library_link_libraries item)
+  target_link_libraries(${ZEPHYR_CURRENT_LIBRARY} ${item} ${ARGN})
+endfunction()
+
+function(zephyr_library_compile_definitions item)
+  target_compile_definitions(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${item} ${ARGN})
+endfunction()
+
 # Add the existing CMake library 'library' to the global list of
-# Zephyr CMake libraries.
-function(zephyr_library library)
+# Zephyr CMake libraries. This done automatically by zephyr_library()
+# but must called explicitly on CMake libraries that are not created
+# by zephyr_library().
+function(zephyr_append_cmake_library library)
   set_property(GLOBAL APPEND PROPERTY ZEPHYR_LIBS ${library})
+endfunction()
+
+# zephyr-aware extentions
+#
+# The following functions are for modifying the Zephyr library called
+# "zephyr". zephyr is a catchall CMake library for source files that
+# can be built purely with the include paths, defines, and other
+# compiler flags that all zephyr source files use.
+#
+
+# Usage:
+# zephyr_sources(
+#   random_esp32.c
+#   utils.c
+#   )
+#
+# Is short for:
+# target_sources(zephyr PRIVATE
+#   ${CMAKE_CURRENT_SOURCE_DIR}/random_esp32.c
+#   ${CMAKE_CURRENT_SOURCE_DIR}/utils.c
+#  )
+function(zephyr_sources)
+  foreach(arg ${ARGV})
+    target_sources(zephyr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
+  endforeach()
 endfunction()

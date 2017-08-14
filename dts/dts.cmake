@@ -25,19 +25,20 @@ if(CONFIG_HAS_DTS)
   # intermediary file *.dts.pre.tmp
   execute_process(
     COMMAND ${CMAKE_C_COMPILER}
-    -x assembler-with-cpp 
-    -nostdinc 
-    ${ZEPHYR_INCLUDES} 
-    -I${PROJECT_SOURCE_DIR}/arch/${ARCH}/source_group 
-    -isystem ${PROJECT_SOURCE_DIR}/dts/${ARCH} 
-    -isystem ${PROJECT_SOURCE_DIR}/dts 
-    -include ${AUTOCONF_H} 
-    -I${PROJECT_SOURCE_DIR}/dts/common 
-    -I${PROJECT_SOURCE_DIR}/drivers/of/testcase-data 
+    -x assembler-with-cpp
+    -nostdinc
+    ${ZEPHYR_INCLUDES}
+    -I${PROJECT_SOURCE_DIR}/arch/${ARCH}/source_group
+    -isystem ${PROJECT_SOURCE_DIR}/dts/${ARCH}
+    -isystem ${PROJECT_SOURCE_DIR}/dts
+    -include ${AUTOCONF_H}
+    -I${PROJECT_SOURCE_DIR}/dts/common
+    -I${PROJECT_SOURCE_DIR}/drivers/of/testcase-data
     -undef -D__DTS__
     -P
-    -E ${DTS_SOURCE} 
+    -E ${DTS_SOURCE}
     -o ${BOARD_NAME}.dts.pre.tmp
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
 
   # Run the DTC on *.dts.pre.tmp to create the intermediary file *.dts_compiled
@@ -47,6 +48,7 @@ if(CONFIG_HAS_DTS)
     -o ${BOARD_NAME}.dts_compiled
     -b 0
     ${BOARD_NAME}.dts.pre.tmp
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
 
   # Run extract_dts_includes.py for the header file
@@ -63,6 +65,7 @@ if(CONFIG_HAS_DTS)
   execute_process(
     COMMAND ${CMD_EXTRACT_DTS_INCLUDES}
     OUTPUT_VARIABLE STDOUT
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
 
   # extract_dts_includes.py writes the header file contents to stdout,
@@ -75,6 +78,7 @@ if(CONFIG_HAS_DTS)
   execute_process(
     COMMAND ${CMD_EXTRACT_DTS_INCLUDES} --keyvalue
     OUTPUT_VARIABLE STDOUT
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     )
   file(WRITE ${GENERATED_DTS_BOARD_CONF} "${STDOUT}" )
   import_kconfig(${GENERATED_DTS_BOARD_CONF})
