@@ -48,7 +48,8 @@ target_include_directories(zephyr PUBLIC
   kernel/include
   arch/${ARCH}/include
   arch/${ARCH}/soc/${SOC_PATH}
-  boards/${ARCH}/${BOARD_NAME}
+  arch/${ARCH}/soc/${SOC_FAMILY}/include
+  ${BOARD_DIR}
   include
   lib/libc/minimal/include
   ${PROJECT_BINARY_DIR}/include/generated
@@ -205,7 +206,7 @@ if(CONFIG_HAVE_CUSTOM_LINKER_SCRIPT)
   endif()
 else()
   # Try a board specific linker file
-  set(LINKER_SCRIPT $ENV{ZEPHYR_BASE}/boards/${ARCH}/${BOARD_NAME}/linker.ld)
+  set(LINKER_SCRIPT ${BOARD_DIR}/linker.ld)
   if(NOT EXISTS ${LINKER_SCRIPT})
     # If not available, try an SoC specific linker file
     set(LINKER_SCRIPT $ENV{ZEPHYR_BASE}/arch/${ARCH}/soc/${SOC_PATH}/linker.ld)
@@ -229,6 +230,7 @@ add_subdirectory(ext)
 add_subdirectory(subsys)
 add_subdirectory(arch)
 add_subdirectory(drivers)
+add_subdirectory(tests)
 
 # Generate offsets.c.obj from offsets.c
 # Generate offsets.h     from offsets.c.obj
