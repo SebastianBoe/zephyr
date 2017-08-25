@@ -1,10 +1,10 @@
 
 zephyr_library_include_directories(PRIVATE ${PROJECT_SOURCE_DIR}/drivers)
 
-if(CONFIG_SOC_QUARK_SE_C1000)
+if(CONFIG_SOC_QUARK_D2000)
   target_compile_definitions(zephyr PUBLIC
     QM_LAKEMONT
-    -DSOC_SERIES=quark_se
+    -DSOC_SERIES=quark_d2000
     )
 endif()
 
@@ -15,11 +15,3 @@ if(CONFIG_X86_IAMCU)
   set_property(GLOBAL        PROPERTY PROPERTY_OUTPUT_FORMAT         "elf32-iamcu")
   set_property(GLOBAL        PROPERTY PROPERTY_OUTPUT_ARCH           "iamcu:intel")
 endif()
-
-target_sources(zephyr PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/soc.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/soc_config.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/eoi.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/power.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/soc_power.S
-  )
