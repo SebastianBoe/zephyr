@@ -15,6 +15,8 @@ set(DTS_SOURCE ${PROJECT_SOURCE_DIR}/dts/${ARCH}/${BOARD_NAME}.dts)
 message(STATUS "Generating zephyr/include/generated/generated_dts_board.h")
 
 if(CONFIG_HAS_DTS)
+  zephyr_get_include_directories(ZEPHYR_INCLUDES)
+
   # TODO: Cut down on CMake configuration time by avoiding
   # regeneration of generated_dts_board.h on every configure. How
   # challenging is this? What are the dts dependencies? We run the
@@ -39,7 +41,12 @@ if(CONFIG_HAS_DTS)
     -E ${DTS_SOURCE}
     -o ${BOARD_NAME}.dts.pre.tmp
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    RESULT_VARIABLE result_variable
     )
+
+  if(result_variable)
+    message(FATAL_ERROR "Preprocessing ${DTS_SOURCE} failed.")
+  endif()
 
   # Run the DTC on *.dts.pre.tmp to create the intermediary file *.dts_compiled
   execute_process(

@@ -21,6 +21,42 @@ endif()
 
 # TODO fetch from environment
 if("${ARCH}" STREQUAL "arm")
+  if    (CONFIG_CPU_CORTEX_M0)
+    set(GCC_M_CPU cortex-m0)
+  elseif(CONFIG_CPU_CORTEX_M0PLUS)
+    set(GCC_M_CPU cortex-m0plus)
+  elseif(CONFIG_CPU_CORTEX_M3)
+    set(GCC_M_CPU cortex-m3)
+  elseif(CONFIG_CPU_CORTEX_M4)
+    set(GCC_M_CPU cortex-m4)
+  elseif(CONFIG_CPU_CORTEX_M7)
+    set(GCC_M_CPU cortex-m7)
+  elseif(CONFIG_CPU_CORTEX_M23)
+    set(GCC_M_CPU cortex-m23)
+  elseif(CONFIG_CPU_CORTEX_M33)
+    set(GCC_M_CPU cortex-m33)
+  else()
+    message(FATAL_ERROR "Expected CONFIG_CPU_CORTEX_x to be defined")
+  endif()
+
+  set(FPU_FOR_cortex-m4      fpv4-sp-d16)
+  set(FPU_FOR_cortex-m7      fpv5-d16)
+  set(FPU_FOR_cortex-m33     fpv5-d16)
+
+  set(TOOLCHAIN_C_FLAGS
+    -mthumb
+    -mcpu=${GCC_M_CPU}
+    )
+
+  if(CONFIG_FLOAT)
+    list(APPEND TOOLCHAIN_C_FLAGS -mfpu=${FPU_FOR_${GCC_M_CPU}})
+    if    (CONFIG_FP_SOFTABI)
+      list(APPEND TOOLCHAIN_C_FLAGS -mfloat-abi=soft)
+    elseif(CONFIG_FP_HARDABI)
+      list(APPEND TOOLCHAIN_C_FLAGS -mfloat-abi=hard)
+    endif()
+  endif()
+
   set(CROSS_COMPILE_TARGET arm-${TOOLCHAIN_VENDOR}-eabi)
   set(SYSROOT_TARGET armv5-${TOOLCHAIN_VENDOR}-eabi)
   set(CROSS_COMPILE ${TOOLCHAIN_HOME}/usr/bin/${CROSS_COMPILE_TARGET}/${CROSS_COMPILE_TARGET}-)
@@ -82,8 +118,14 @@ list(APPEND NOSTDINC ${_OUTPUT})
 set(SYSROOT_DIR ${ZEPHYR_SDK_INSTALL_DIR}/sysroots/${SYSROOT_TARGET})
 
 execute_process(
-  COMMAND ${CMAKE_C_COMPILER} --sysroot ${SYSROOT_DIR} --print-libgcc-file-name
+  COMMAND ${CMAKE_C_COMPILER} ${TOOLCHAIN_C_FLAGS} --sysroot ${SYSROOT_DIR} --print-libgcc-file-name
   OUTPUT_VARIABLE LIBGCC_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+execute_process(
+  COMMAND ${CMAKE_C_COMPILER} ${TOOLCHAIN_C_FLAGS} --sysroot ${SYSROOT_DIR} --print-multi-directory
+  OUTPUT_VARIABLE NEWLIB_DIR
   OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
@@ -114,4 +156,10 @@ set(BUILD_SHARED_LIBS OFF)
 #
 # CMake checks compiler flags with check_c_compiler_flag() (Which we
 # wrap with target_cc_option() in extentions.cmake)
-set(CMAKE_REQUIRED_FLAGS "-nostartfiles -nostdlib --sysroot=${SYSROOT_DIR}")
+set(CMAKE_REQUIRED_FLAGS "-nostartfiles -nostdlib --sysroot=${SYSROOT_DIR} -Wl,--unresolved-symbols=ignore-in-object-files")
+
+
+set(LIBC_INCLUDE_DIR ${SYSROOT_DIR}/usr/include)
+set(LIBC_LIBRARY_DIR ${SYSROOT_DIR}/usr/lib/${NEWLIB_DIR})
+
+set(COMPILER gcc)

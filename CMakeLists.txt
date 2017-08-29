@@ -27,7 +27,8 @@ set(KERNEL_BIN_NAME   ${KERNEL_NAME}.bin)
 set(KERNEL_HEX_NAME   ${KERNEL_NAME}.hex)
 set(KERNEL_MAP_NAME   ${KERNEL_NAME}.map)
 set(KERNEL_LST_NAME   ${KERNEL_NAME}.lst)
-set(KERNEL_STAT_NAME  ${KERNEL_NAME}.stat)
+set(KERNEL_S19_NAME   ${KERNEL_NAME}.s19)
+set(KERNEL_STAT_NAME  ${KERNEL_NAME}.stat) # TODO: Port this
 set(KERNEL_STRIP_NAME ${KERNEL_NAME}.strip)
 
 if(NOT PROPERTY_LINKER_SCRIPT_DEFINES)
@@ -37,33 +38,37 @@ endif()
 define_property(GLOBAL PROPERTY PROPERTY_OUTPUT_FORMAT BRIEF_DOCS " " FULL_DOCS " ")
 set_property(   GLOBAL PROPERTY PROPERTY_OUTPUT_FORMAT elf32-little${ARCH})
 
+# zephyr_interface is a source-less library that has all the global
+# compiler options needed by all source files. All zephyr libraries,
+# including the library named "zephyr" link with this library to
+# obtain these flags.
+add_library(zephyr_interface INTERFACE)
+
 # zephyr is a catchall CMake library for source files that can be
 # built purely with the include paths, defines, and other compiler
-# flags that all zephyr source files use.
+# flags that come with zephyr_interface.
 zephyr_library_named(zephyr)
 
-include(dts/dts.cmake)
-
-target_include_directories(zephyr PUBLIC
+zephyr_include_directories(
   kernel/include
   arch/${ARCH}/include
   arch/${ARCH}/soc/${SOC_PATH}
   arch/${ARCH}/soc/${SOC_FAMILY}/include
   ${BOARD_DIR}
   include
-  lib/libc/minimal/include
+  include/drivers
   ${PROJECT_BINARY_DIR}/include/generated
   ${USERINCLUDE}
   ${STDINCLUDE}
 )
 
-target_compile_definitions(zephyr PUBLIC
+zephyr_compile_definitions(
   KERNEL
   __ZEPHYR__=1
   _FORTIFY_SOURCE=2
 )
 
-target_compile_options(zephyr PUBLIC
+zephyr_compile_options(
   -Os # TODO: allow config to override this
   -g # TODO: build configuration enough?
   -Wall
@@ -75,7 +80,7 @@ target_compile_options(zephyr PUBLIC
   -include ${AUTOCONF_H}
 )
 
-target_compile_options(zephyr PUBLIC
+zephyr_compile_options(
   $<$<COMPILE_LANGUAGE:C>:-std=c99>
 
   $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>
@@ -89,7 +94,7 @@ target_compile_options(zephyr PUBLIC
   $<$<COMPILE_LANGUAGE:ASM>:-D_ASMLANGUAGE>
 )
 
-target_link_libraries(zephyr PUBLIC
+zephyr_link_libraries(
   -nostartfiles
   -nodefaultlibs
   -nostdlib
@@ -107,81 +112,86 @@ separate_arguments(EXTRA_CXXFLAGS_AS_LIST UNIX_COMMAND ${EXTRA_CXXFLAGS})
 separate_arguments(EXTRA_AFLAGS_AS_LIST   UNIX_COMMAND ${EXTRA_AFLAGS})
 
 if(EXTRA_CPPFLAGS)
-  target_compile_definitions(zephyr PUBLIC ${EXTRA_CPPFLAGS_AS_LIST})
+  zephyr_compile_definitions(${EXTRA_CPPFLAGS_AS_LIST})
 endif()
 if(EXTRA_LDFLAGS)
-  target_link_libraries(zephyr PUBLIC ${EXTRA_LDFLAGS_AS_LIST})
+  zephyr_link_libraries(${EXTRA_LDFLAGS_AS_LIST})
 endif()
 if(EXTRA_CFLAGS)
   foreach(F ${EXTRA_CFLAGS_AS_LIST})
-    target_compile_options(zephyr PUBLIC $<$<COMPILE_LANGUAGE:C>:${F}>)
+    zephyr_compile_options($<$<COMPILE_LANGUAGE:C>:${F}>)
   endforeach()
 endif()
 if(EXTRA_CXXFLAGS)
   foreach(F ${EXTRA_CXXFLAGS_AS_LIST})
-    target_compile_options(zephyr PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${F}>)
+    zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${F}>)
   endforeach()
 endif()
 if(EXTRA_AFLAGS)
   foreach(F ${EXTRA_AFLAGS_AS_LIST})
-    target_compile_options(zephyr PUBLIC $<$<COMPILE_LANGUAGE:ASM>:${F}>)
+    zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:${F}>)
   endforeach()
 endif()
 
 if(CONFIG_READABLE_ASM)
-  target_cc_option(zephyr PUBLIC -fno-reorder-blocks)
-  target_cc_option(zephyr PUBLIC -fno-ipa-cp-clone)
-  target_cc_option(zephyr PUBLIC -fno-partial-inlining)
+  zephyr_cc_option(-fno-reorder-blocks)
+  zephyr_cc_option(-fno-ipa-cp-clone)
+  zephyr_cc_option(-fno-partial-inlining)
 endif()
 
-target_cc_option(zephyr PUBLIC -fno-asynchronous-unwind-tables)
-target_cc_option(zephyr PUBLIC -fno-pie)
-target_cc_option(zephyr PUBLIC -fno-pic)
-target_cc_option(zephyr PUBLIC -fno-strict-overflow)
-target_cc_option(zephyr PUBLIC -Wno-pointer-sign)
+zephyr_cc_option(-fno-asynchronous-unwind-tables)
+zephyr_cc_option(-fno-pie)
+zephyr_cc_option(-fno-pic)
+zephyr_cc_option(-fno-strict-overflow)
+zephyr_cc_option(-Wno-pointer-sign)
 
 if(CONFIG_STACK_CANARIES)
-  target_cc_option(zephyr PUBLIC -fstack-protector-all)
+  zephyr_cc_option(-fstack-protector-all)
 else()
-  target_cc_option(zephyr PUBLIC -fno-stack-protector)
+  zephyr_cc_option(-fno-stack-protector)
 endif()
 
 if(CONFIG_OVERRIDE_FRAME_POINTER_DEFAULT)
   if(CONFIG_OMIT_FRAME_POINTER)
-    target_cc_option(zephyr PUBLIC -fomit-frame-pointer)
+    zephyr_cc_option(-fomit-frame-pointer)
   else()
-    target_cc_option(zephyr PUBLIC -fno-omit-frame-pointer)
+    zephyr_cc_option(-fno-omit-frame-pointer)
   endif()
 endif()
 
 # TODO: Handle default to Os
-target_compile_options(zephyr PUBLIC ${CONFIG_COMPILER_OPT})
+zephyr_compile_options(${CONFIG_COMPILER_OPT})
 
 # TODO: Include arch compiler options at this point.
 
+# TODO: This Clang check is broken
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-  target_cc_option(zephyr PUBLIC -Wno-unknown-warning-option)
-  target_cc_option(zephyr PUBLIC -Wno-unused-variable)
-  target_cc_option(zephyr PUBLIC -Wno-format-invalid-specifier)
-  target_cc_option(zephyr PUBLIC -Wno-gnu)
-  # comparison of unsigned expression < 0 is always false
-  target_cc_option(zephyr PUBLIC -Wtautological-compare)
+  zephyr_cc_option(
+    -Wno-unknown-warning-option
+    -Wno-unused-variable
+    -Wno-format-invalid-specifier
+    -Wno-gnu
+    # comparison of unsigned expression < 0 is always false
+    -Wno-tautological-compare
+    )
 else() # GCC assumed
-  target_cc_option(zephyr PUBLIC -Wno-unused-but-set-variable)
-  target_cc_option(zephyr PUBLIC -fno-reorder-functions)
+  zephyr_cc_option(
+    -Wno-unused-but-set-variable
+    -fno-reorder-functions
+    )
   if(NOT ${ZEPHYR_GCC_VARIANT} STREQUAL "xcc")
-    target_cc_option(zephyr PUBLIC -fno-defer-pop)
+    zephyr_cc_option(-fno-defer-pop)
   endif()
 endif()
 
-target_cc_option_ifdef(CONFIG_DEBUG_SECTION_MISMATCH zephyr PUBLIC -fno-inline-functions-called-once)
-target_cc_option_ifdef(CONFIG_STACK_USAGE zephyr PUBLIC -fstack-usage)
+zephyr_cc_option_ifdef(CONFIG_DEBUG_SECTION_MISMATCH -fno-inline-functions-called-once)
+zephyr_cc_option_ifdef(CONFIG_STACK_USAGE            -fstack-usage)
 
-target_compile_options(zephyr PUBLIC -nostdinc)
-target_include_directories(zephyr SYSTEM PUBLIC ${NOSTDINC})
+zephyr_compile_options(-nostdinc)
+zephyr_system_include_directories(${NOSTDINC})
 
 # Force an error when things like SYS_INIT(foo, ...) occur with a missing header.
-target_cc_option(zephyr PUBLIC -Werror=implicit-int)
+zephyr_cc_option(-Werror=implicit-int)
 
 # Prohibit date/time macros, which would make the build non-deterministic
 # cc-option(-Werror=date-time)
@@ -194,10 +204,12 @@ if(IS_TEST)
 endif()
 
 set_ifndef(LINKERFLAGPREFIX -Wl)
-target_link_libraries(zephyr PUBLIC ${LINKERFLAGPREFIX},-X)
-target_link_libraries(zephyr PUBLIC ${LINKERFLAGPREFIX},-N)
-target_link_libraries(zephyr PUBLIC ${LINKERFLAGPREFIX},--gc-sections)
-target_link_libraries(zephyr PUBLIC ${LINKERFLAGPREFIX},--build-id=none)
+zephyr_link_libraries(
+  ${LINKERFLAGPREFIX},-X
+  ${LINKERFLAGPREFIX},-N
+  ${LINKERFLAGPREFIX},--gc-sections
+  ${LINKERFLAGPREFIX},--build-id=none
+  )
 
 if(CONFIG_HAVE_CUSTOM_LINKER_SCRIPT)
   set(LINKER_SCRIPT ${PROJECT_BASE}/${CONFIG_CUSTOM_LINKER_SCRIPT})
@@ -232,6 +244,11 @@ add_subdirectory(arch)
 add_subdirectory(drivers)
 add_subdirectory(tests)
 
+# DTS is placed behind ext/ because
+# /home/sebo/zephyr/dts/arm/ti/cc32xx.dtsi depends on include
+# directories from ext/hal/ti/simplelink
+include(dts/dts.cmake)
+
 # Generate offsets.c.obj from offsets.c
 # Generate offsets.h     from offsets.c.obj
 
@@ -239,8 +256,8 @@ set(OFFSETS_C_PATH $ENV{ZEPHYR_BASE}/arch/${ARCH}/core/offsets/offsets.c)
 set(OFFSETS_O_PATH ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/offsets.dir/arch/${ARCH}/core/offsets/offsets.c.obj)
 set(OFFSETS_H_PATH ${PROJECT_BINARY_DIR}/include/generated/offsets.h)
 
-add_library(offsets OBJECT ${OFFSETS_C_PATH})
-target_object_link_libraries(offsets zephyr)
+add_library(offsets STATIC ${OFFSETS_C_PATH})
+target_link_libraries(offsets zephyr_interface)
 
 add_custom_command(
   OUTPUT ${OFFSETS_H_PATH}
@@ -251,13 +268,7 @@ add_custom_command(
 )
 add_custom_target(offsets_h DEPENDS ${OFFSETS_H_PATH})
 
-add_dependencies(zephyr offsets_h)
-
-# Get ZEPHYR_INCLUDE for preprocessing, with cmake 3.8 this should be possible with generator expressions.
-get_property(ZEPHYR_INCLUDES_LIST TARGET zephyr PROPERTY INCLUDE_DIRECTORIES)
-foreach(INCLUDE ${ZEPHYR_INCLUDES_LIST})
-  list(APPEND ZEPHYR_INCLUDES -I${INCLUDE})
-endforeach()
+zephyr_get_include_directories(ZEPHYR_INCLUDES)
 
 # Run the pre-processor on the linker script
 #
@@ -311,6 +322,11 @@ add_subdirectory(kernel)
 # Read list content
 get_property(ZEPHYR_LIBS_PROPERTY GLOBAL PROPERTY ZEPHYR_LIBS)
 
+foreach(zephyr_lib ${ZEPHYR_LIBS_PROPERTY})
+  # TODO: Could this become an INTERFACE property of zephyr_interface?
+  add_dependencies(${zephyr_lib} offsets_h)
+endforeach()
+
 get_property(OUTPUT_FORMAT        GLOBAL PROPERTY PROPERTY_OUTPUT_FORMAT)
 
 set(zephyr_lnk
@@ -323,11 +339,11 @@ set(zephyr_lnk
   ${ZEPHYR_LIBS_PROPERTY}
   ${LINKERFLAGPREFIX},--no-whole-archive
   kernel
-  ${OFFSETS_O_PATH} # Try just offsets_o
+  ${OFFSETS_O_PATH}
   ${LINKERFLAGPREFIX},--end-group
   ${LIB_INCLUDE_DIR}
   ${TOOLCHAIN_LIBS}
-)
+  )
 
 if(CONFIG_GEN_ISR_TABLES)
   # isr_tables.c is generated from zephyr_prebuilt by
@@ -357,6 +373,7 @@ endif()
 get_property(GKOF GLOBAL PROPERTY GENERATED_KERNEL_OBJECT_FILES)
 get_property(GKSF GLOBAL PROPERTY GENERATED_KERNEL_SOURCE_FILES)
 
+# FIXME: Is there any way to get rid of dummy.c?
 add_executable(       zephyr_prebuilt dummy.c)
 target_link_libraries(zephyr_prebuilt -T${PROJECT_BINARY_DIR}/linker.cmd ${zephyr_lnk})
 set_property(TARGET   zephyr_prebuilt PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker.cmd)
@@ -412,6 +429,7 @@ add_custom_command(
   COMMAND ${PYTHON_EXECUTABLE} $ENV{ZEPHYR_BASE}/scripts/check_link_map.py ${KERNEL_MAP_NAME}
   COMMAND ${CMAKE_OBJCOPY} -S -Oihex   -R .comment -R COMMON -R .eh_frame  ${KERNEL_ELF_NAME}    ${KERNEL_HEX_NAME}
   COMMAND ${CMAKE_OBJCOPY} -S -Obinary -R .comment -R COMMON -R .eh_frame  ${KERNEL_ELF_NAME}    ${KERNEL_BIN_NAME}
+  COMMAND ${CMAKE_OBJCOPY} --srec-len 1 --output-target=srec               ${KERNEL_ELF_NAME}    ${KERNEL_S19_NAME}
   COMMAND ${CMAKE_OBJDUMP} -S                                              ${KERNEL_ELF_NAME} >  ${KERNEL_LST_NAME}
   COMMAND ${CMAKE_STRIP}   --strip-all                                     ${KERNEL_ELF_NAME} -o ${KERNEL_STRIP_NAME}
   COMMENT "Generating zephyr.{hex,bin,lst,strip} from zephyr.elf"
@@ -428,3 +446,5 @@ else()
 	===================================================\
     ")
 endif()
+
+include(cmake/ccache.cmake)
