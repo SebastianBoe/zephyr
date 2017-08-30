@@ -95,6 +95,10 @@ function(zephyr_cc_option)
   endforeach()
 endfunction()
 
+function(zephyr_cc_option_fallback option1 option2)
+    target_cc_option_fallback(zephyr_interface INTERFACE ${option1} ${option2})
+endfunction()
+
 macro(zephyr_get_include_directories includes)
   # With cmake 3.8 this should be possible with generator expressions.
   get_property(__l TARGET zephyr_interface PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
@@ -176,6 +180,12 @@ endfunction()
 
 function(zephyr_library_compile_definitions item)
   target_compile_definitions(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${item} ${ARGN})
+endfunction()
+
+function(zephyr_library_cc_option)
+  foreach(arg ${ARGV})
+     target_cc_option(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${arg})
+  endforeach()
 endfunction()
 
 # Add the existing CMake library 'library' to the global list of
@@ -361,6 +371,12 @@ function(zephyr_sources_ifdef feature_toggle)
   endif()
 endfunction()
 
+function(zephyr_sources_ifndef feature_toggle)
+   if(NOT ${feature_toggle})
+    zephyr_sources(${ARGN})
+  endif()
+endfunction()
+
 function(zephyr_cc_option_ifdef feature_toggle)
   if(${${feature_toggle}})
     zephyr_cc_option(${ARGN})
@@ -430,12 +446,22 @@ endfunction()
 # cc-option in
 # https://www.kernel.org/doc/Documentation/kbuild/makefiles.txt
 #
-# TODO: Support an optional second option for when the first option is
-# not supported.
 function(target_cc_option target scope option)
   string(MAKE_C_IDENTIFIER check${option} check)
   check_c_compiler_flag(${option} ${check})
   target_compile_option_ifdef(${check} ${target} ${scope} ${option})
+endfunction()
+
+# Support an optional second option for when the first option is
+# not supported.
+function(target_cc_option_fallback target scope option1 option2)
+  string(MAKE_C_IDENTIFIER check${option1} check)
+  check_c_compiler_flag(${option1} ${check})
+  if(${check})
+    target_compile_options(${target} ${scope} ${option1})
+  else()
+    target_compile_options(${target} ${scope} ${option2})
+  endif()
 endfunction()
 
 function(ld_option option)

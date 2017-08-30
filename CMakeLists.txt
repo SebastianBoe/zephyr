@@ -53,6 +53,7 @@ zephyr_include_directories(
   kernel/include
   arch/${ARCH}/include
   arch/${ARCH}/soc/${SOC_PATH}
+  arch/${ARCH}/soc/${SOC_PATH}/include
   arch/${ARCH}/soc/${SOC_FAMILY}/include
   ${BOARD_DIR}
   include
@@ -61,6 +62,7 @@ zephyr_include_directories(
   ${USERINCLUDE}
   ${STDINCLUDE}
 )
+
 
 zephyr_compile_definitions(
   KERNEL
@@ -267,6 +269,8 @@ add_custom_command(
   DEPENDS offsets
 )
 add_custom_target(offsets_h DEPENDS ${OFFSETS_H_PATH})
+
+zephyr_include_directories(${TOOLCHAIN_INCLUDES})
 
 zephyr_get_include_directories(ZEPHYR_INCLUDES)
 
