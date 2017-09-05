@@ -30,6 +30,8 @@ set(AUTOCONF_H ${__build_dir}/include/generated/autoconf.h)
 # Re-configure (Re-execute all CMakeLists.txt code) when autoconf.h changes
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${AUTOCONF_H})
 
+include($ENV{ZEPHYR_BASE}/cmake/extensions.cmake)
+
 find_package(PythonInterp 3.4)
 
 if(NOT PREBUILT_HOST_TOOLS)
@@ -47,6 +49,18 @@ if(NOT ZEPHYR_GCC_VARIANT)
   message(FATAL_ERROR "ZEPHYR_GCC_VARIANT not set")
 endif()
 
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+  message(FATAL_ERROR "Source directory equals build directory.\
+ In-source builds are not supported.\
+ Please specify a build directory, e.g. cmake -Bbuild -H.")
+endif()
+
+add_custom_target(
+  pristine
+  COMMAND ${CMAKE_COMMAND} -P $ENV{ZEPHYR_BASE}/cmake/pristine.cmake
+  # Equivalent to rm -rf build/*
+  )
+
 if(NOT BOARD)
   set(BOARD $ENV{BOARD})
 endif()
@@ -56,10 +70,11 @@ if(NOT BOARD)
 endif()
 message(STATUS "Selected BOARD ${BOARD}")
 
+# Use BOARD to search zephyr/boards/** for a _defconfig file,
+# e.g. zephyr/boards/arm/96b_carbon_nrf51/96b_carbon_nrf51_defconfig. When
+# found, use that path to infer the ARCH we are building for.
 find_path(BOARD_DIR NAMES "${BOARD}_defconfig" PATHS $ENV{ZEPHYR_BASE}/boards/*/* NO_DEFAULT_PATH)
-if(NOT BOARD_DIR)
-  message(FATAL_ERROR "No board named '${BOARD}' found")
-endif()
+assert(BOARD_DIR "No board named '${BOARD}' found")
 
 get_filename_component(BOARD_ARCH_DIR ${BOARD_DIR} DIRECTORY)
 get_filename_component(ARCH ${BOARD_ARCH_DIR} NAME)
@@ -91,7 +106,6 @@ if(match)
 endif()
 
 include($ENV{ZEPHYR_BASE}/cmake/version.cmake)
-include($ENV{ZEPHYR_BASE}/cmake/extensions.cmake)
 include($ENV{ZEPHYR_BASE}/cmake/host-tools-${ZEPHYR_GCC_VARIANT}.cmake)
 if(NOT PREBUILT_HOST_TOOLS)
   if (NOT KCONFIG_CONF)
