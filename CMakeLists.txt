@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.7)
 project(Zephyr-Kernel VERSION ${PROJECT_VERSION})
 enable_language(C CXX ASM)
 
+# Verify that the toolchain can compile a dummy file, if it is not we
+# won't be able to test test for compatiblity with certain C flags.
+check_c_compiler_flag("" toolchain_is_ok)
+assert(toolchain_is_ok "The toolchain is unable to build a dummy C file. See CMakeError.log.")
+
 # Do not generate make install target.
 set(CMAKE_SKIP_INSTALL_RULES ON)
 
@@ -94,7 +99,7 @@ zephyr_compile_options(
   $<$<COMPILE_LANGUAGE:ASM>:-D_ASMLANGUAGE>
 )
 
-zephyr_link_libraries(
+zephyr_ld_options(
   -nostartfiles
   -nodefaultlibs
   -nostdlib
@@ -203,7 +208,7 @@ if(IS_TEST)
 endif()
 
 set_ifndef(LINKERFLAGPREFIX -Wl)
-zephyr_link_libraries(
+zephyr_ld_options(
   ${LINKERFLAGPREFIX},-X
   ${LINKERFLAGPREFIX},-N
   ${LINKERFLAGPREFIX},--gc-sections
@@ -214,6 +219,9 @@ if(CONFIG_HAVE_CUSTOM_LINKER_SCRIPT)
   set(LINKER_SCRIPT ${PROJECT_BASE}/${CONFIG_CUSTOM_LINKER_SCRIPT})
   if(NOT EXISTS LINKER_SCRIPT)
     set(LINKER_SCRIPT ${CONFIG_CUSTOM_LINKER_SCRIPT})
+    if(NOT EXISTS LINKER_SCRIPT)
+      message(FATAL_ERROR "CONFIG_HAVE_CUSTOM_LINKER_SCRIPT was set, but no linker script was found at '${CONFIG_CUSTOM_LINKER_SCRIPT}'")
+    endif()
   endif()
 else()
   # Try a board specific linker file
@@ -225,7 +233,7 @@ else()
 endif()
 
 if(NOT EXISTS ${LINKER_SCRIPT})
-  message(FATAL_ERROR "Could not find linker script ${LINKER_SCRIPT}")
+  message(FATAL_ERROR "Could not find linker script: '${LINKER_SCRIPT}'. Corrupted configuration?")
 endif()
 
 configure_file(version.h.in ${PROJECT_BINARY_DIR}/include/generated/version.h)

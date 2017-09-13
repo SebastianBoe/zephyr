@@ -6,13 +6,9 @@
 # provided for different OSes and sepearately from the toolchain.
 
 
-if(NOT ZEPHYR_SDK_INSTALL_DIR)
-  set(ZEPHYR_SDK_INSTALL_DIR $ENV{ZEPHYR_SDK_INSTALL_DIR})
-endif()
-set(ZEPHYR_SDK_INSTALL_DIR ${ZEPHYR_SDK_INSTALL_DIR} CACHE PATH "Zephyr SDK install directory")
-if(NOT ZEPHYR_SDK_INSTALL_DIR)
-  message(FATAL_ERROR "ZEPHYR_SDK_INSTALL_DIR is not set")
-endif()
+set_ifndef(ZEPHYR_SDK_INSTALL_DIR $ENV{ZEPHYR_SDK_INSTALL_DIR})
+set(       ZEPHYR_SDK_INSTALL_DIR ${ZEPHYR_SDK_INSTALL_DIR} CACHE PATH "Zephyr SDK install directory")
+assert(    ZEPHYR_SDK_INSTALL_DIR "ZEPHYR_SDK_INSTALL_DIR is not set")
 
 set(REQUIRED_SDK_VER 0.9.1)
 set(TOOLCHAIN_VENDOR zephyr)
@@ -33,15 +29,9 @@ else()
   set(TOOLCHAIN_HOME ${ZEPHYR_SDK_INSTALL_DIR}/sysroots/${TOOLCHAIN_ARCH}-pokysdk-linux)
 endif()
 
-set(DTC       		${TOOLCHAIN_HOME}/usr/bin/dtc)
-if(${SDK_VERSION} VERSION_GREATER "0.9.1")
-  set(KCONFIG_CONF       	${TOOLCHAIN_HOME}/usr/bin/conf)
-  set(KCONFIG_MCONF      	${TOOLCHAIN_HOME}/usr/bin/mconf)
-endif()
-set(QEMU_BIOS 		${TOOLCHAIN_HOME}/usr/share/qemu)
+# Path used for searching by the find_*() functions, with appropriate
+# suffixes added. Ensures that the SDK's host tools will be found when
+# we call, e.g. find_program(QEMU qemu-system-x86)
+list(APPEND CMAKE_PREFIX_PATH ${TOOLCHAIN_HOME}/usr)
 
-if("${ARCH}" STREQUAL "x86")
-  set(QEMU ${TOOLCHAIN_HOME}/usr/bin/qemu-system-i386)
-else()
-  set(QEMU ${TOOLCHAIN_HOME}/usr/bin/qemu-system-${ARCH})
-endif()
+set(QEMU_BIOS 		${TOOLCHAIN_HOME}/usr/share/qemu)
