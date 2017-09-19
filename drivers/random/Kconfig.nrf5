@@ -1,0 +1,33 @@
+# Kconfig.nrf5 - nRF5 random number generator driver configuration
+#
+# Copyright (c) 2017 Exati Tecnologia Ltda.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# FIXME: nRF5 RNG driver can't co-exist with Bluetooth's HAL implementation yet
+menuconfig RANDOM_NRF5_RNG
+	bool "nRF5 RNG driver"
+	depends on RANDOM_GENERATOR && !BT
+	select RANDOM_HAS_DRIVER
+	help
+	  This option enables the RNG peripheral, which is a random number
+	  generator, based on internal thermal noise, that provides a
+	  random 8-bit value to the host when read.
+
+	  Run time per byte is as follows:
+	    nRF51822 - 167 uS
+	    nRF52832 - 30 uS
+	    nRF52840 - 30 uS
+
+config RANDOM_NRF5_BIAS_CORRECTION
+	bool "Enable bias correction (uniform distribution)"
+	depends on RANDOM_NRF5_RNG
+	help
+	  This option enables the RNG bias correction, which guarantees a
+	  uniform distribution of 0 and 1. When this option is enabled, the time
+	  to generate a byte cannot be guaranteed.
+
+	  When this option is enabled, run time per byte is usually as follows:
+	    nRF51822 - 677 uS
+	    nRF52832 - 120 uS
+	    nRF52840 - 120 uS
