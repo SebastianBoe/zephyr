@@ -1,7 +1,11 @@
 # Configures CMake for using GCC, this script is re-used by several
 # GCC-based toolchains
 
-set(CMAKE_C_COMPILER   ${CROSS_COMPILE}gcc     CACHE INTERNAL " " FORCE)
+# Some toolchains have different names for gcc
+set_ifndef(C_COMPILER_SUFFIX   gcc)
+set_ifndef(CXX_COMPILER_SUFFIX g++)
+
+set(CMAKE_C_COMPILER   ${CROSS_COMPILE}${C_COMPILER_SUFFIX}     CACHE INTERNAL " " FORCE)
 set(CMAKE_OBJCOPY      ${CROSS_COMPILE}objcopy CACHE INTERNAL " " FORCE)
 set(CMAKE_OBJDUMP      ${CROSS_COMPILE}objdump CACHE INTERNAL " " FORCE)
 #set(CMAKE_LINKER      ${CROSS_COMPILE}ld      CACHE INTERNAL " " FORCE) # Not in use yet
@@ -9,10 +13,10 @@ set(CMAKE_AR           ${CROSS_COMPILE}ar      CACHE INTERNAL " " FORCE)
 set(CMAKE_RANLILB      ${CROSS_COMPILE}ranlib  CACHE INTERNAL " " FORCE)
 
 if(CONFIG_CPLUSPLUS)
-  set(cplusplus_compiler ${CROSS_COMPILE}g++)
+  set(cplusplus_compiler ${CROSS_COMPILE}${CXX_COMPILER_SUFFIX})
 else()
-  if(EXISTS ${CROSS_COMPILE}g++)
-    set(cplusplus_compiler ${CROSS_COMPILE}g++)
+  if(EXISTS ${CROSS_COMPILE}${CXX_COMPILER_SUFFIX})
+    set(cplusplus_compiler ${CROSS_COMPILE}${CXX_COMPILER_SUFFIX})
   else()
     # When the toolchain doesn't support C++, and we aren't building
     # with C++ support just set it to something so CMake doesn't
