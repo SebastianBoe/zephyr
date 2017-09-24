@@ -1,4 +1,8 @@
-set(CONF_FILE "prj_${BOARD}.conf")
+if(DEFINED ENV{BOARD})
+  set(BOARD $ENV{BOARD})
+else()
+  set(BOARD nrf52840_pca10056)
+endif()
 
 include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 project(NONE)
