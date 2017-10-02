@@ -1,8 +1,14 @@
 project(Zephyr-Kernel VERSION ${PROJECT_VERSION})
 enable_language(C CXX ASM)
 
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make usage"
+# More info can be located in ./README.rst
+# Comments in this file are targeted only to the developer, do not
+# expect to learn how to build the kernel reading this file.
+
 # Verify that the toolchain can compile a dummy file, if it is not we
-# won't be able to test test for compatiblity with certain C flags.
+# won't be able to test for compatiblity with certain C flags.
 check_c_compiler_flag("" toolchain_is_ok)
 assert(toolchain_is_ok "The toolchain is unable to build a dummy C file. See CMakeError.log.")
 
@@ -20,17 +26,6 @@ if("${SOC_SERIES}" STREQUAL "")
 else()
   set(SOC_PATH ${SOC_FAMILY}/${SOC_SERIES})
 endif()
-
-set(KERNEL_NAME ${CONFIG_KERNEL_BIN_NAME})
-
-set(KERNEL_ELF_NAME   ${KERNEL_NAME}.elf)
-set(KERNEL_BIN_NAME   ${KERNEL_NAME}.bin)
-set(KERNEL_HEX_NAME   ${KERNEL_NAME}.hex)
-set(KERNEL_MAP_NAME   ${KERNEL_NAME}.map)
-set(KERNEL_LST_NAME   ${KERNEL_NAME}.lst)
-set(KERNEL_S19_NAME   ${KERNEL_NAME}.s19)
-set(KERNEL_STAT_NAME  ${KERNEL_NAME}.stat) # TODO: Port this
-set(KERNEL_STRIP_NAME ${KERNEL_NAME}.strip)
 
 if(NOT PROPERTY_LINKER_SCRIPT_DEFINES)
   set_property(GLOBAL PROPERTY PROPERTY_LINKER_SCRIPT_DEFINES -D__GCC_LINKER_CMD__)
@@ -71,8 +66,25 @@ zephyr_compile_definitions(
   _FORTIFY_SOURCE=2
 )
 
+# We need to set an optimization level.
+# Default to -Os
+# unless CONFIG_DEBUG is set, then it is -Og
+#
+# also, some toolchain's break with -Os, and some toolchain's break
+# with -Og so allow them to override what flag to use
+#
+# Finally, the user can use Kconfig to add compiler options that will
+# come after these options and override them
+set_ifndef(OPTIMIZE_FOR_SIZE_FLAG  "-Os")
+set_ifndef(OPTIMIZE_FOR_DEBUG_FLAG "-Og")
+if(CONFIG_DEBUG)
+  set(OPTIMIZATION_FLAG ${OPTIMIZE_FOR_DEBUG_FLAG})
+else()
+  set(OPTIMIZATION_FLAG ${OPTIMIZE_FOR_SIZE_FLAG}) # Default
+endif()
+
 zephyr_compile_options(
-  -Os
+  ${OPTIMIZATION_FLAG} # Usually -Os
   -g # TODO: build configuration enough?
   -Wall
   -Wformat
@@ -104,6 +116,62 @@ zephyr_ld_options(
   -static
   -no-pie
   )
+
+# ==========================================================================
+#
+# cmake -DW=... settings
+#
+# W=1 - warnings that may be relevant and does not occur too often
+# W=2 - warnings that occur quite often but may still be relevant
+# W=3 - the more obscure warnings, can most likely be ignored
+# ==========================================================================
+if(W MATCHES "1")
+  zephyr_compile_options(
+    -Wextra
+    -Wunused
+    -Wno-unused-parameter
+    -Wmissing-declarations
+    -Wmissing-format-attribute
+    -Wold-style-definition
+    )
+  zephyr_cc_option(
+    -Wmissing-prototypes
+    -Wmissing-include-dirs
+    -Wunused-but-set-variable
+    -Wno-missing-field-initializers
+    )
+endif()
+
+if(W MATCHES "2")
+  zephyr_compile_options(
+    -Waggregate-return
+    -Wcast-align
+    -Wdisabled-optimization
+    -Wnested-externs
+    -Wshadow
+    )
+  zephyr_cc_option(
+    -Wlogical-op
+    -Wmissing-field-initializers
+    )
+endif()
+
+if(W MATCHES "3")
+  zephyr_compile_options(
+    -Wbad-function-cast
+    -Wcast-qual
+    -Wconversion
+    -Wpacked
+    -Wpadded
+    -Wpointer-arith
+    -Wredundant-decls
+    -Wswitch-default
+    )
+  zephyr_cc_option(
+    -Wpacked-bitfield-compat
+    -Wvla
+    )
+endif()
 
 # Allow the user to inject options when calling cmake, e.g.
 # 'cmake -DEXTRA_CFLAGS="-Werror -Wno-deprecated-declarations" ..'
@@ -214,7 +282,7 @@ zephyr_ld_options(
   )
 
 if(CONFIG_HAVE_CUSTOM_LINKER_SCRIPT)
-  set(LINKER_SCRIPT ${PROJECT_BASE}/${CONFIG_CUSTOM_LINKER_SCRIPT})
+  set(LINKER_SCRIPT ${APPLICATION_SOURCE_DIR}/${CONFIG_CUSTOM_LINKER_SCRIPT})
   if(NOT EXISTS LINKER_SCRIPT)
     set(LINKER_SCRIPT ${CONFIG_CUSTOM_LINKER_SCRIPT})
     if(NOT EXISTS LINKER_SCRIPT)
@@ -334,13 +402,38 @@ if(CONFIG_APPLICATION_MEMORY)
     endif()
   endforeach()
 
+  # Create a list ks, with relative paths to kernel space libs.
+  foreach(f ${kernel_object_file_list})
+    get_target_property(target_name       ${f} NAME)
+    get_target_property(target_binary_dir ${f} BINARY_DIR)
+
+    string(REPLACE
+      ${PROJECT_BINARY_DIR}
+      ""
+      fixed_path
+      ${target_binary_dir}
+      )
+
+    # Append / if not empty
+    if(fixed_path)
+      set(fixed_path "${fixed_path}/")
+    endif()
+
+    # Cut off leading / if present
+    if(fixed_path MATCHES "^/.+")
+      string(SUBSTRING ${fixed_path} 1 -1 fixed_path)
+    endif()
+
+    list(APPEND ks "${fixed_path}lib${target_name}.a")
+  endforeach()
+
   # We are done constructing kernel_object_file_list, now we inject this
   # information into the linker script through -D's
   list(LENGTH kernel_object_file_list NUM_KERNEL_OBJECT_FILES)
   list(APPEND LINKER_SCRIPT_DEFINES -DNUM_KERNEL_OBJECT_FILES=${NUM_KERNEL_OBJECT_FILES})
   set(i 0)
-  foreach(f ${kernel_object_file_list})
-    list(APPEND LINKER_SCRIPT_DEFINES -DKERNEL_OBJECT_FILE_${i}=$<TARGET_FILE:${f}>)
+  foreach(f ${ks})
+    list(APPEND LINKER_SCRIPT_DEFINES -DKERNEL_OBJECT_FILE_${i}=${f})
     math(EXPR i "${i}+1")
   endforeach()
 endif() # CONFIG_APPLICATION_MEMORY
@@ -583,20 +676,32 @@ add_custom_command(
   COMMAND ${CMAKE_OBJCOPY} -S -Obinary -R .comment -R COMMON -R .eh_frame  ${KERNEL_ELF_NAME}    ${KERNEL_BIN_NAME}
   COMMAND ${CMAKE_OBJCOPY} --srec-len 1 --output-target=srec               ${KERNEL_ELF_NAME}    ${KERNEL_S19_NAME}
   COMMAND ${CMAKE_OBJDUMP} -S                                              ${KERNEL_ELF_NAME} >  ${KERNEL_LST_NAME}
+  COMMAND ${CMAKE_READELF} -e                                              ${KERNEL_ELF_NAME} >  ${KERNEL_STAT_NAME}
   COMMAND ${CMAKE_STRIP}   --strip-all                                     ${KERNEL_ELF_NAME} -o ${KERNEL_STRIP_NAME}
-  COMMENT "Generating zephyr.{hex,bin,lst,strip} from zephyr.elf for board: ${BOARD}"
+  COMMENT "Generating zephyr.{hex,bin,lst,strip,stat,s19} from zephyr.elf for board: ${BOARD}"
   # NB: COMMENT only works for some CMake-Generators
 )
 
-if(EMU_PLATFORM)
-  # TODO: Support more emulators
-  add_subdirectory(cmake/qemu)
-else()
-  add_custom_target(run COMMENT "\
-    ===================================================\
-	Emulation/Simulation not supported with this board.\
-	===================================================\
-    ")
-endif()
+add_subdirectory(cmake/qemu)
+add_subdirectory(cmake/flash)
+
+add_subdirectory(cmake/usage)
+add_subdirectory(cmake/reports)
 
 include(cmake/ccache.cmake)
+
+if(CONFIG_ASSERT)
+  message(WARNING "
+      ------------------------------------------------------------
+      --- WARNING:  __ASSERT() statements are globally ENABLED ---
+      --- The kernel will run more slowly and uses more memory ---
+      ------------------------------------------------------------"
+)
+endif()
+
+if(CONFIG_BOARD_DEPRECATED)
+  message(WARNING "
+      WARNING:  The board '${BOARD}' is deprecated and will be
+      removed in version ${CONFIG_BOARD_DEPRECATED}"
+)
+endif()

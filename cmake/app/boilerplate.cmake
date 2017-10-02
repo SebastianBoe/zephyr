@@ -32,6 +32,9 @@ set(__build_dir ${CMAKE_CURRENT_BINARY_DIR}/zephyr)
 set(PROJECT_BINARY_DIR ${__build_dir})
 set(PROJECT_SOURCE_DIR $ENV{ZEPHYR_BASE})
 
+set(ZEPHYR_BINARY_DIR ${PROJECT_BINARY_DIR})
+set(ZEPHYR_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+
 set(AUTOCONF_H ${__build_dir}/include/generated/autoconf.h)
 # Re-configure (Re-execute all CMakeLists.txt code) when autoconf.h changes
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${AUTOCONF_H})
@@ -39,6 +42,16 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${AUTOCONF_H})
 include($ENV{ZEPHYR_BASE}/cmake/extensions.cmake)
 
 find_package(PythonInterp 3.4)
+
+# Generate syscall_macros.h at configure-time because it has virtually
+# no dependencies
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/include/generated)
+execute_process_safely(
+  COMMAND
+  ${PYTHON_EXECUTABLE}
+  $ENV{ZEPHYR_BASE}/scripts/gen_syscall_header.py
+  OUTPUT_FILE ${ZEPHYR_BINARY_DIR}/include/generated/syscall_macros.h
+  )
 
 if(NOT PREBUILT_HOST_TOOLS)
   set(PREBUILT_HOST_TOOLS $ENV{PREBUILT_HOST_TOOLS} CACHE PATH "")
@@ -84,6 +97,7 @@ assert(BOARD_DIR "No board named '${BOARD}' found")
 
 get_filename_component(BOARD_ARCH_DIR ${BOARD_DIR} DIRECTORY)
 get_filename_component(ARCH ${BOARD_ARCH_DIR} NAME)
+get_filename_component(BOARD_FAMILY ${BOARD_DIR} NAME)
 
 if(CONF_FILE)
   # CONF_FILE has either been specified on the cmake CLI or is already
@@ -116,15 +130,38 @@ include($ENV{ZEPHYR_BASE}/cmake/host-tools.cmake)
 include($ENV{ZEPHYR_BASE}/cmake/kconfig.cmake)
 include($ENV{ZEPHYR_BASE}/cmake/toolchain.cmake)
 
+set(KERNEL_NAME ${CONFIG_KERNEL_BIN_NAME})
+
+set(KERNEL_ELF_NAME   ${KERNEL_NAME}.elf)
+set(KERNEL_BIN_NAME   ${KERNEL_NAME}.bin)
+set(KERNEL_HEX_NAME   ${KERNEL_NAME}.hex)
+set(KERNEL_MAP_NAME   ${KERNEL_NAME}.map)
+set(KERNEL_LST_NAME   ${KERNEL_NAME}.lst)
+set(KERNEL_S19_NAME   ${KERNEL_NAME}.s19)
+set(KERNEL_STAT_NAME  ${KERNEL_NAME}.stat)
+set(KERNEL_STRIP_NAME ${KERNEL_NAME}.strip)
+
 include(${BOARD_DIR}/board.cmake OPTIONAL)
 
 zephyr_library_named(app)
+
+execute_process_safely(
+  COMMAND
+  ${PYTHON_EXECUTABLE}
+  $ENV{ZEPHYR_BASE}/scripts/gen_syscalls.py
+  --include          $ENV{ZEPHYR_BASE}/include            # Read files from this dir
+  --base-output      include/generated/syscalls           # Write to this dir
+  --syscall-dispatch include/generated/syscall_dispatch.c # Write this file
+  INPUT_FILE         kconfig/include/config/auto.conf     # Read this file from stdin
+  OUTPUT_FILE        include/generated/syscall_list.h     # Write stdout to this file
+  WORKING_DIRECTORY ${ZEPHYR_BINARY_DIR}
+  )
 
 add_subdirectory($ENV{ZEPHYR_BASE} ${__build_dir})
 
 define_property(GLOBAL PROPERTY ZEPHYR_LIBS
     BRIEF_DOCS "Global list of all Zephyr CMake libs that should be linked in"
-    FULL_DOCS "Global list of all Zephyr CMake libs that should be linked in. zephyr_library() appends libs to this list.")
+    FULL_DOCS  "Global list of all Zephyr CMake libs that should be linked in. zephyr_library() appends libs to this list.")
 set_property(GLOBAL PROPERTY ZEPHYR_LIBS "")
 
 define_property(GLOBAL PROPERTY GENERATED_KERNEL_OBJECT_FILES
@@ -140,5 +177,11 @@ define_property(GLOBAL PROPERTY GENERATED_KERNEL_SOURCE_FILES
   FULL_DOCS "\
 Object files that are generated after Zephyr has been linked once.\
 May include isr_tables.c etc."
+  )
+set_property(GLOBAL PROPERTY GENERATED_KERNEL_SOURCE_FILES "")
+
+define_property(GLOBAL PROPERTY FLASH_SCRIPT_ENV_VARS
+  BRIEF_DOCS "Environment variables that should be passed to FLASH_SCRIPT"
+  FULL_DOCS  "Environment variables that should be passed to FLASH_SCRIPT"
   )
 set_property(GLOBAL PROPERTY GENERATED_KERNEL_SOURCE_FILES "")

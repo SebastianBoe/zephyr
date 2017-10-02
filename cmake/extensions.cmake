@@ -6,6 +6,7 @@ include(CheckCCompilerFlag)
 # 1. Zephyr-aware extensions
 # 1.1. zephyr_*
 # 1.2. zephyr_library_*
+# 1.3. generate_inc_*
 # 2. Kconfig-aware extensions
 # 2.1 *_if_kconfig
 # 2.2 Misc
@@ -104,14 +105,134 @@ function(zephyr_ld_options)
     target_ld_options(zephyr_interface INTERFACE ${ARGV})
 endfunction()
 
-macro(zephyr_get_include_directories includes)
-  # With cmake 3.8 this should be possible with generator expressions.
-  get_property(__l TARGET zephyr_interface PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
-  foreach(dir ${__l})
-    list(APPEND ${includes} -I${dir})
+# Getter functions for extracting build information from
+# zephyr_interface. Returning lists, and strings is supported, as is
+# requesting specific categories of build information (defines,
+# includes, options).
+#
+# The naming convention follows:
+# zephyr_get_${build_information}${format}(x)
+# Where
+#  the argument 'x' is written with the result
+# and
+#  ${build_information} can be one of
+#   - include_directories           # -I directories
+#   - system_include_directories    # -isystem directories
+#   - compile_definitions           # -D'efines
+#   - compile_options               # misc. compiler flags
+# and
+#  ${format} can be
+#  the empty string '', signifying that it should be returned as a list
+#  _as_string signifying that it should be returned as a string
+#
+# e.g.
+# zephyr_get_include_directories(x)
+# writes "-Isome_dir;-Isome/other/dir" to x
+
+# Utility macro used by the below macros.
+macro(get_property_and_add_prefix result target property prefix)
+  get_property(target_property TARGET ${target} PROPERTY ${property})
+  foreach(x ${target_property})
+    list(APPEND ${result} ${prefix}${x})
   endforeach()
 endmacro()
 
+macro(zephyr_get_include_directories i)
+  get_property_and_add_prefix(${i} zephyr_interface INTERFACE_INCLUDE_DIRECTORIES -I)
+endmacro()
+
+macro(zephyr_get_system_include_directories i)
+  get_property_and_add_prefix(${i} zephyr_interface INTERFACE_SYSTEM_INCLUDE_DIRECTORIES -isystem)
+endmacro()
+
+macro(zephyr_get_compile_definitions i)
+  get_property_and_add_prefix(${i} zephyr_interface INTERFACE_COMPILE_DEFINITIONS -D)
+endmacro()
+
+macro(zephyr_get_compile_options i)
+  get_property(${i} TARGET zephyr_interface PROPERTY INTERFACE_COMPILE_OPTIONS)
+endmacro()
+
+macro(zephyr_get_include_directories_as_string i)
+  zephyr_get_include_directories(${i})
+
+  string(REPLACE ";"  " "   ${i} ${${i}})
+  string(REPLACE "-I" " -I" ${i} ${${i}})
+endmacro()
+
+macro(zephyr_get_system_include_directories_as_string i)
+  get_property_and_add_prefix(${i} zephyr_interface INTERFACE_SYSTEM_INCLUDE_DIRECTORIES -isystem)
+
+  string(REPLACE ";"  " "               ${i} ${${i}})
+  string(REPLACE "-isystem" " -isystem" ${i} ${${i}})
+endmacro()
+
+macro(zephyr_get_compile_definitions_as_string i)
+  get_property_and_add_prefix(${i} zephyr_interface INTERFACE_COMPILE_DEFINITIONS -D)
+
+  string(REPLACE ";"  " "   ${i} ${${i}})
+  string(REPLACE "-D" " -D" ${i} ${${i}})
+endmacro()
+
+macro(zephyr_get_compile_options_as_string i)
+  zephyr_get_compile_options(j)
+
+  foreach(__opt__ ${j})
+    if(__opt__ MATCHES "<COMPILE_LANGUAGE:")
+      # TODO: Support COMPILE_LANGUAGE generator expressions
+      continue()
+    endif()
+    set(${i} "${${i}} ${__opt__}")
+  endforeach()
+endmacro()
+
+# 1.3 generate_inc_*
+
+# These functions are useful if there is a need to generate a file
+# that can be included into the application at build time. The file
+# can also be compressed automatically when embedding it.
+#
+# See tests/application_development/gen_inc_file for an example of
+# usage.
+function(generate_inc_file
+    source_file    # The source file to be converted to hex
+    generated_file # The generated file
+    )
+  add_custom_command(
+    OUTPUT ${generated_file}
+    COMMAND
+    ${PYTHON_EXECUTABLE}
+    $ENV{ZEPHYR_BASE}/scripts/file2hex.py
+    ${ARGN} # Extra arguments are passed to file2hex.py
+    --file ${source_file}
+    > ${generated_file} # Does pipe redirection work on Windows?
+    DEPENDS ${source_file}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endfunction()
+
+function(generate_inc_file_for_target
+    target          # The cmake target that depends on the generated file
+    source_file     # The source file to be converted to hex
+    generated_file  # The generated file
+                    # Any additional arguments are passed on to file2hex.py
+    )
+  generate_inc_file(${source_file} ${generated_file} ${ARGN})
+
+  # Ensure 'generated_file' is generated before 'target' by creating a
+  # 'custom_target' for it and setting up a dependency between the two
+  # targets
+
+  # But first create a unique name for the custom target
+  # Replace / with _ (driver/serial => driver_serial) and . with _
+  set(generated_target_name ${generated_file})
+
+  string(REPLACE "/" "_" generated_target_name ${generated_target_name})
+  string(REPLACE "." "_" generated_target_name ${generated_target_name})
+
+  add_custom_target(${generated_target_name} DEPENDS ${generated_file})
+  add_dependencies(${target} ${generated_target_name})
+endfunction()
 
 # 2.1 zephyr_library_*
 #
@@ -515,3 +636,33 @@ macro(assert test comment)
     message(FATAL_ERROR "Assertion failed: ${comment}")
   endif()
 endmacro()
+
+# Usage:
+#   assert_exists(CMAKE_READELF)
+#
+# will cause a FATAL_ERROR if there is no file or directory behind the
+# variable
+macro(assert_exists var)
+  if(NOT EXISTS ${${var}})
+    message(FATAL_ERROR "No such file or directory: ${var}: '${${var}}'")
+  endif()
+endmacro()
+
+# Usage:
+#   Same as CMake's built-in execute_process() function except that
+#   RESULT_VARIABLE may not be set.
+#
+#   https://cmake.org/cmake/help/v3.8/command/execute_process.html
+#
+# Will wrap execute_process() and ensure that if the command fails
+# this causes the build to fail as well. As opposed to CMake's default
+# behaviour of silently ignoring the failure.
+function(execute_process_safely)
+  execute_process(
+    ${ARGN}
+    RESULT_VARIABLE ret
+  )
+  if(ret)
+    message(FATAL_ERROR "Executing cmd: '${ARGN}' resulted in error: '${ret}'")
+  endif()
+endfunction()
