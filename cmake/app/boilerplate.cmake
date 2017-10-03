@@ -40,13 +40,6 @@ include($ENV{ZEPHYR_BASE}/cmake/extensions.cmake)
 
 find_package(PythonInterp 3.4)
 
-if(NOT PREBUILT_HOST_TOOLS)
-  set(PREBUILT_HOST_TOOLS $ENV{PREBUILT_HOST_TOOLS} CACHE PATH "")
-  if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-    set(PREBUILT_HOST_TOOLS $ENV{ZEPHYR_BASE}/scripts/prebuilt)
-  endif()
-endif()
-
 if(NOT ZEPHYR_GCC_VARIANT)
   set(ZEPHYR_GCC_VARIANT $ENV{ZEPHYR_GCC_VARIANT})
 endif()
