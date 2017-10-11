@@ -313,6 +313,10 @@ function(zephyr_library_compile_definitions item)
   target_compile_definitions(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${item} ${ARGN})
 endfunction()
 
+function(zephyr_library_compile_options item)
+  target_compile_options(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${item} ${ARGN})
+endfunction()
+
 function(zephyr_library_cc_option)
   foreach(arg ${ARGV})
      target_cc_option(${ZEPHYR_CURRENT_LIBRARY} PRIVATE ${arg})
@@ -322,7 +326,8 @@ endfunction()
 # Add the existing CMake library 'library' to the global list of
 # Zephyr CMake libraries. This is done automatically by the
 # constructor but must called explicitly on CMake libraries that do
-# not use a zephyr library constructor.
+# not use a zephyr library constructor, but have source files that
+# need to be included in the build.
 function(zephyr_append_cmake_library library)
   set_property(GLOBAL APPEND PROPERTY ZEPHYR_LIBS ${library})
 endfunction()
@@ -541,6 +546,12 @@ endfunction()
 function(zephyr_library_compile_definitions_ifdef feature_toggle item)
   if(${${feature_toggle}})
     zephyr_library_compile_definitions(${item} ${ARGN})
+  endif()
+endfunction()
+
+function(zephyr_library_compile_options_ifdef feature_toggle item)
+  if(${${feature_toggle}})
+    zephyr_library_compile_options(${item} ${ARGN})
   endif()
 endfunction()
 
