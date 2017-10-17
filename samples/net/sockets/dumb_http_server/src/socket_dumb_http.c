@@ -29,7 +29,6 @@
 
 static const char content[] = {
 #if USE_BIG_PAYLOAD
-#if 0
     #include <response_big.html.bin.inc>
 #else
     #include <response_small.html.bin.inc>
