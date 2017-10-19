@@ -97,7 +97,8 @@ static void nrf5_rx_thread(void *arg1, void *arg2, void *arg3)
 		 * The last 2 bytes contain LQI or FCS, depending if
 		 * automatic CRC handling is enabled or not, respectively.
 		 */
-#if defined(CONFIG_IEEE802154_NRF5_RAW)
+#if defined(CONFIG_IEEE802154_NRF5_RAW) || \
+	defined(CONFIG_NET_L2_OPENTHREAD)
 		pkt_len = nrf5_radio->rx_psdu[0];
 #else
 		pkt_len = nrf5_radio->rx_psdu[0] -  NRF5_FCS_LENGTH;
@@ -435,6 +436,17 @@ DEVICE_AND_API_INIT(nrf5_154_radio, CONFIG_IEEE802154_NRF5_DRV_NAME,
 		    nrf5_init, &nrf5_data, &nrf5_radio_cfg,
 		    POST_KERNEL, CONFIG_IEEE802154_NRF5_INIT_PRIO,
 		    &nrf5_radio_api);
+#elif defined(CONFIG_NET_L2_OPENTHREAD)
+NET_DEVICE_INIT(nrf5_154_radio, CONFIG_IEEE802154_NRF5_DRV_NAME,
+		nrf5_init, &nrf5_data, &nrf5_radio_cfg,
+		CONFIG_IEEE802154_NRF5_INIT_PRIO,
+		&nrf5_radio_api, OPENTHREAD_L2,
+		NET_L2_GET_CTX_TYPE(OPENTHREAD_L2), 125);
+
+NET_STACK_INFO_ADDR(RX, nrf5_154_radio,
+			CONFIG_IEEE802154_NRF5_RX_STACK_SIZE,
+			CONFIG_IEEE802154_NRF5_RX_STACK_SIZE,
+			nrf5_data.rx_stack, 0);
 #else
 NET_DEVICE_INIT(nrf5_154_radio, CONFIG_IEEE802154_NRF5_DRV_NAME,
 		nrf5_init, &nrf5_data, &nrf5_radio_cfg,
