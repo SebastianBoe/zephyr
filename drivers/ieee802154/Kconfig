@@ -51,4 +51,8 @@ config IEEE802154_UPIPE_DRV_NAME
 	default "IEEE802154_UPIPE"
 	depends on IEEE802154_UPIPE
 
+config NETWORKING_WITH_15_4
+	bool
+	default n
+
 endmenu
