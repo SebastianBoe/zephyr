@@ -10,3 +10,7 @@ endif
 ifdef CONFIG_MBEDTLS_LIBRARY
 include $(srctree)/ext/lib/crypto/mbedtls/Makefile
 endif
+
+ifdef CONFIG_OPENTHREAD_PLAT
+include $(srctree)/ext/lib/openthread/Makefile
+endif

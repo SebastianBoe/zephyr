@@ -1,0 +1,53 @@
+# Kconfig - OpenThread platform
+#
+#
+# Copyright (c) 2017 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+config OPENTHREAD_PLAT
+bool
+depends on NET_L2_OPENTHREAD
+default n
+help
+This option enables OpenThread platform
+
+if OPENTHREAD_PLAT
+
+menuconfig OPENTHREAD_DEBUG
+bool
+default n
+prompt "OpenThread stack log support"
+help
+This option enables log support for OpenThread
+
+if OPENTHREAD_DEBUG
+
+choice
+prompt "OpenThread stack log level"
+depends on OPENTHREAD_L2_DEBUG
+help
+This option selects log level for OpenThread stack.
+
+config OPENTHREAD_LOG_LEVEL_ERROR
+bool "Error"
+config OPENTHREAD_LOG_LEVEL_WARNING
+bool "Warning"
+config OPENTHREAD_LOG_LEVEL_INFO
+bool "Info"
+config OPENTHREAD_LOG_LEVEL_DEBUG
+bool "Debug"
+endchoice
+
+endif
+
+endif
+
+config	OPENTHREAD_LOG_LEVEL
+int 
+default 0
+default 1 if OPENTHREAD_LOG_LEVEL_ERROR
+default 2 if OPENTHREAD_LOG_LEVEL_WARNING
+default 3 if OPENTHREAD_LOG_LEVEL_INFO
+default 4 if OPENTHREAD_LOG_LEVEL_DEBUG	  
