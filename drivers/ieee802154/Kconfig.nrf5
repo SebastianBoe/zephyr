@@ -16,7 +16,6 @@ config IEEE802154_NRF5_DISABLED
 
 config IEEE802154_NRF5
 	bool "Regular mode"
-	select NET_L2_IEEE802154
 	select HAS_NORDIC_DRIVERS
 
 config IEEE802154_NRF5_RAW
