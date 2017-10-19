@@ -1,0 +1,137 @@
+# Kconfig - OpenThread driver configuration options
+#
+#
+# Copyright (c) 2017 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+#
+# OpenThread options
+#
+menuconfig NET_L2_OPENTHREAD
+	bool
+	prompt "OpenThread L2"
+	depends on FLASH
+	depends on FLASH_PAGE_LAYOUT
+	depends on RANDOM_GENERATOR
+	select OPENTHREAD_PLAT
+	select NETWORKING_WITH_15_4
+
+if NET_L2_OPENTHREAD
+
+menuconfig OPENTHREAD_L2_DEBUG
+	bool
+	prompt "OpenThread L2 log support"
+	help
+		This option enables log support for OpenThread
+
+if OPENTHREAD_L2_DEBUG
+choice
+	prompt "OpenThread L2 log level"
+	depends on OPENTHREAD_L2_DEBUG
+	help
+	  This option selects log level for OpenThread driver.
+
+	config OPENTHREAD_L2_LOG_LEVEL_ERROR
+		bool "Error"
+	config OPENTHREAD_L2_LOG_LEVEL_WARNING
+		bool "Warning"
+	config OPENTHREAD_L2_LOG_LEVEL_INFO
+		bool "Info"
+	config OPENTHREAD_L2_LOG_LEVEL_DEBUG
+		bool "Debug"
+endchoice
+
+config OPENTHREAD_L2_DEBUG_DUMP_15_4
+	bool
+	prompt "Dump 802.15.4 packets"
+	help
+		This option enables dumping of 802.15.4 packets
+
+config OPENTHREAD_L2_DEBUG_DUMP_IPV6
+	bool
+	prompt "Dump IPv6 packets"
+	help
+		This option enables dumping of IPv6 packets
+
+endif
+
+config OPENTHREAD_PKT_LIST_SIZE
+	int
+	prompt "List size for Ip6 packet buffering"
+	default 10
+
+config	OPENTHREAD_NAME
+	string "OpenThread Driver name"
+	default "openthread"
+	help
+	  This option sets the driver name
+
+config	OPENTHREAD_L2_LOG_LEVEL
+	int
+	default 0
+	default 1 if OPENTHREAD_L2_LOG_LEVEL_ERROR
+	default 2 if OPENTHREAD_L2_LOG_LEVEL_WARNING
+	default 3 if OPENTHREAD_L2_LOG_LEVEL_INFO
+	default 4 if OPENTHREAD_L2_LOG_LEVEL_DEBUG
+
+config OPENTHREAD_PANID
+	int
+	prompt "Default PAN ID"
+	default 43981
+
+config OPENTHREAD_CHANNEL
+	int
+	prompt "Default Channel"
+	default 11
+
+choice
+	prompt "OpenThread device type"
+	help
+		This option selects Thread network device type
+
+	config OPENTHREAD_FTD
+		bool "FTD - Full Thread Device"
+	config OPENTHREAD_MTD
+		bool "MTD - Minimal Thread Device"
+endchoice
+
+config OPENTHREAD_SHELL
+	bool
+	prompt "Enable OpenThread shell"
+	select CONSOLE_SHELL
+	default y
+
+config OPENTHREAD_DIAG
+	bool
+	prompt "Diagnostic functions support"
+
+config OPENTHREAD_COMMISSIONER
+	bool
+	prompt "Commisioner functions support"
+
+config OPENTHREAD_JOINER
+	bool
+	prompt "Joiner functions support"
+
+config OPENTHREAD_JAM_DETECTION
+	bool
+	prompt "Jam detection support"
+
+config OT_PLAT_FLASH_DEVICE_NAME
+	string
+	prompt "Flash device name"
+	default "NRF5_FLASH"
+
+config OT_PLAT_IEEE802154_RADIO_DEVICE_NAME
+	string
+	prompt "IEEE802.15.4 radio device name"
+	default "IEEE802154_nrf5"
+
+config OT_PLAT_FLASH_PAGES_COUNT
+	int
+	prompt "Flash pages count used by OpenThread platform"
+	default 4
+
+endif
