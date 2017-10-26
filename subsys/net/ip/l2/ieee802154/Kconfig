@@ -7,6 +7,7 @@
 menuconfig NET_L2_IEEE802154
 	bool "Enable IEEE 802.15.4 Radio"
 	select NET_6LO
+	select NETWORKING_WITH_15_4
 	default n
 	help
 	  Add support for low rate WPAN IEEE 802.15.4 technology.
