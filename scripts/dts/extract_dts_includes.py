@@ -3,8 +3,8 @@
 # vim: ai:ts=4:sw=4
 
 import sys
-from os import listdir
-import os, fnmatch
+import os
+import fnmatch
 import re
 import yaml
 import argparse
@@ -251,7 +251,8 @@ def extract_interrupts(node_address, yaml, y_key, names, defs, def_label):
 def extract_reg_prop(node_address, names, defs, def_label, div, post_label):
 
     reg = reduced[node_address]['props']['reg']
-    if type(reg) is not list: reg = [ reg ]
+    if type(reg) is not list:
+        reg = [reg]
     props = list(reg)
 
     address_cells = reduced['/']['props'].get('#address-cells')
@@ -447,7 +448,6 @@ def extract_string_prop(node_address, yaml, key, label, defs):
     node = reduced[node_address]
     prop = node['props'][key]
 
-    k = convert_string_to_label(key).upper()
     prop_def[label] = "\"" + prop + "\""
 
     if node_address in defs:
@@ -510,7 +510,6 @@ def extract_node_include_info(reduced, root_node_address, sub_node_address,
 
     if yaml[node_compat].get('use-property-label', False):
         try:
-            label = y_node['properties']['label']
             label_override = convert_string_to_label(
                                     node['props']['label']).upper()
         except KeyError:
@@ -550,7 +549,6 @@ def extract_node_include_info(reduced, root_node_address, sub_node_address,
                             node_compat, yaml, sub_node_address, c, v, names,
                             prefix, defs, label_override)
 
-    return
 
 def dict_merge(dct, merge_dct):
     # from https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
@@ -570,6 +568,7 @@ def dict_merge(dct, merge_dct):
         else:
             dct[k] = merge_dct[k]
 
+
 def yaml_traverse_inherited(node):
     """ Recursive overload procedure inside ``node``
     ``inherits`` section is searched for and used as node base when found.
@@ -586,9 +585,9 @@ def yaml_traverse_inherited(node):
             node = node['inherits']
             node.pop('inherits')
         except TypeError:
-            #'node['inherits']['inherits'] type is 'list' instead of
-            #expected type 'dtc'
-            #Likely due to use of "-" before attribute in yaml file
+            # 'node['inherits']['inherits'] type is 'list' instead of
+            # expected type 'dtc'
+            # Likely due to use of "-" before attribute in yaml file
             raise Exception("Element '" + str(node['title']) +
                             "' uses yaml 'series' instead of 'mapping'")
     return node
@@ -600,7 +599,7 @@ def yaml_collapse(yaml_list):
 
     for k, v in collapsed.items():
         v = yaml_traverse_inherited(v)
-        collapsed[k]=v
+        collapsed[k] = v
 
     return collapsed
 
@@ -660,7 +659,8 @@ def generate_include_file(defs, args):
         sys.stdout.write('/* ' + node.split('/')[-1] + ' */')
         sys.stdout.write("\n")
 
-        max_dict_key = lambda d: max(len(k) for k in d.keys())
+        def max_dict_key(d):
+            return max(len(k) for k in d.keys())
         maxlength = 0
         if defs[node].get('aliases'):
             maxlength = max_dict_key(defs[node]['aliases'])
@@ -690,7 +690,8 @@ def generate_include_file(defs, args):
             if os.path.exists(fixup):
                 sys.stdout.write("\n")
                 sys.stdout.write(
-                    "/* Following definitions fixup the generated include */\n")
+                    "/* Following definitions fixup the generated include */")
+                sys.stdout.write("\n")
                 try:
                     with open(fixup, "r") as fd:
                         for line in fd.readlines():
