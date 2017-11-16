@@ -9,12 +9,9 @@ endif()
 
 set(JLINK_DEVICE MK64FN1M0xxx12)
 set(PYOCD_TARGET k64f)
-set(OPENOCD_LOAD_CMD "flash write_image erase ${PROJECT_BINARY_DIR}/${KERNEL_BIN_NAME} ${CONFIG_FLASH_BASE_ADDRESS}")
-set(OPENOCD_VERIFY_CMD "verify_image          ${PROJECT_BINARY_DIR}/${KERNEL_BIN_NAME} ${CONFIG_FLASH_BASE_ADDRESS}")
+set(OPENOCD_LOAD_CMD   flash write_image erase ${PROJECT_BINARY_DIR}/${KERNEL_BIN_NAME} ${CONFIG_FLASH_BASE_ADDRESS})
+set(OPENOCD_VERIFY_CMD verify_image            ${PROJECT_BINARY_DIR}/${KERNEL_BIN_NAME} ${CONFIG_FLASH_BASE_ADDRESS})
 
-set_property(GLOBAL APPEND PROPERTY FLASH_SCRIPT_ENV_VARS
-  JLINK_DEVICE
-  PYOCD_TARGET
-  OPENOCD_LOAD_CMD
-  OPENOCD_VERIFY_CMD
-  )
+include($ENV{ZEPHYR_BASE}/boards/common/pyocd.board.cmake)
+include($ENV{ZEPHYR_BASE}/boards/common/jlink.board.cmake)
+include($ENV{ZEPHYR_BASE}/boards/common/openocd.board.cmake)

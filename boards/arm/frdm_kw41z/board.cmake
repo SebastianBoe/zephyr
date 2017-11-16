@@ -10,7 +10,5 @@ endif()
 set(JLINK_DEVICE MKW41Z512xxx4)
 set(PYOCD_TARGET kw41z4)
 
-set_property(GLOBAL APPEND PROPERTY FLASH_SCRIPT_ENV_VARS
-  JLINK_DEVICE
-  PYOCD_TARGET
-  )
+include($ENV{ZEPHYR_BASE}/boards/common/jlink.board.cmake)
+include($ENV{ZEPHYR_BASE}/boards/common/pyocd.board.cmake)

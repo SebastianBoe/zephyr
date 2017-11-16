@@ -1,10 +1,27 @@
+# TODO: can this board just use the usual openocd runner?
 set(BOARD_FLASH_RUNNER em-starterkit)
 set(BOARD_DEBUG_RUNNER em-starterkit)
 
-set(OPENOCD_LOAD_CMD "load_image     ${PROJECT_BINARY_DIR}/${KERNEL_ELF_NAME} ${CONFIG_FLASH_BASE_ADDRESS}")
-set(OPENOCD_VERIFY_CMD "verify_image ${PROJECT_BINARY_DIR}/${KERNEL_ELF_NAME} ${CONFIG_FLASH_BASE_ADDRESS}")
+if(DEFINED EM_STARTERKIT_TUI)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_em_starterkit
+    "--tui"
+    )
+endif()
 
-set_property(GLOBAL APPEND PROPERTY FLASH_SCRIPT_ENV_VARS
-  OPENOCD_LOAD_CMD
-  OPENOCD_VERIFY_CMD
-  )
+if(DEFINED EM_STARTERKIT_GDB_PORT)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_em_starterkit
+    "--gdb-port=${EM_STARTERKIT_GDB_PORT}"
+    )
+endif()
+
+if(DEFINED EM_STARTERKIT_TCL_PORT)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_em_starterkit
+    "--tcl-port=${EM_STARTERKIT_TCL_PORT}"
+    )
+endif()
+
+if(DEFINED EM_STARTERKIT_TELNET_PORT)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_em_starterkit
+    "--telnet-port=${EM_STARTERKIT_TELNET_PORT}"
+    )
+endif()

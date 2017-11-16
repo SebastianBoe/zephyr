@@ -1,0 +1,21 @@
+set_ifndef(BOARD_DEBUG_RUNNER jlink)
+
+assert(JLINK_DEVICE "JLINK_DEVICE is not set")
+
+set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_jlink "--device=${JLINK_DEVICE}")
+
+if(DEFINED JLINK_IFACE)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_jlink "--iface=${JLINK_IFACE}" )
+endif()
+
+if(DEFINED JLINK_GDBSERVER)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_jlink "--gdbserver=${JLINK_GDBSERVER}")
+endif()
+
+if(DEFINED JLINK_GDB_PORT)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_jlink "--gdb-port=${JLINK_GDB_PORT}")
+endif()
+
+if(DEFINED JLINK_TUI)
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_jlink "--tui")
+endif()
