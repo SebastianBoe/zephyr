@@ -1,2 +1,2 @@
-set(FLASH_SCRIPT nios2.sh)
-set(DEBUG_SCRIPT nios2.sh)
+set(BOARD_FLASH_RUNNER nios2)
+set(BOARD_DEBUG_RUNNER nios2)

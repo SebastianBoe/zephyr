@@ -25,6 +25,6 @@ set(QEMU_FLAGS_${ARCH}
   )
 
 # TODO: Support debug
-# set(DEBUG_SCRIPT qemu.sh)
+# set(BOARD_DEBUG_RUNNER qemu)
 # debugserver: QEMU_EXTRA_FLAGS += -s -S
 # debugserver: qemu
