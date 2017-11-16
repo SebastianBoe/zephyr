@@ -239,6 +239,26 @@ include(${BOARD_DIR}/board.cmake OPTIONAL)
 
 zephyr_library_named(app)
 
+# Generate syscalls.
+#
+# This python script parses header files found in ~/zephyr/include to
+# find function prototypes with the "__syscall" attribute. It then
+# generates some C header files and source files and writes them into
+# include/generated.
+#
+# It is not clear what might depend on these generated files, so to be
+# safe we generate them at CMake configure time as early as
+# possible. Since the script only depends on C source files in
+# ~/zephyr/include all of it's dependencies will be met at this point.
+#
+# To ensure the generated files are up-to-date we reconfigure (re-run
+# the CMakeLists.txt code) whenever any header file in
+# ~/zephyr/include is modified.
+#
+# TODO: Improve build system performance for kernel developers by
+# using a more sofisticated mechanism to detect syscall changes.
+#
+# Docs: doc/kernel/usermode/syscalls.rst
 execute_process(
   COMMAND
   ${PYTHON_EXECUTABLE}
@@ -250,6 +270,18 @@ execute_process(
   OUTPUT_FILE        include/generated/syscall_list.h     # Write stdout to this file
   WORKING_DIRECTORY ${ZEPHYR_BINARY_DIR}
   )
+
+# Reconfigure when any header file in ~/zephyr/include changes
+file(
+  GLOB_RECURSE
+  public_header_files
+  FOLLOW_SYMLINKS
+  $ENV{ZEPHYR_BASE}/include/*.h
+  )
+
+foreach(header ${public_header_files})
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${header})
+endforeach()
 
 add_subdirectory($ENV{ZEPHYR_BASE} ${__build_dir})
 
