@@ -21,6 +21,9 @@
 #define _misc_dlist__h_
 
 #include <stddef.h>
+#ifndef NULL
+#error "Should be defined by stddef.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
