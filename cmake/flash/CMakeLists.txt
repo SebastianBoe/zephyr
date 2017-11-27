@@ -14,6 +14,15 @@ set(RUNNER_ARGS_COMMON
   "--openocd-search=${OPENOCD_DEFAULT_PATH}"
   )
 
+# Extra debugging, if requested.
+set(FLASH_DEBUG_VERBOSE OFF CACHE BOOL "If set, print verbose flash/debug output.")
+
+if(FLASH_DEBUG_VERBOSE)
+  set(RUNNER_VERBOSE "--verbose")
+else()
+  set(RUNNER_VERBOSE)
+endif()
+
 foreach(target flash debug debugserver)
   string(TOUPPER "${target}" target_upper)
 
@@ -42,6 +51,7 @@ foreach(target flash debug debugserver)
       ${CMAKE_COMMAND} -E env
       ${PYTHON_EXECUTABLE}
       $ENV{ZEPHYR_BASE}/scripts/support/zephyr_flash_debug.py
+      ${RUNNER_VERBOSE}
       ${runner}
       ${target}
       ${RUNNER_ARGS_COMMON}
