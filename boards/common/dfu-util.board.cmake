@@ -19,6 +19,10 @@ set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_dfu_util
   )
 
 if(DFUUTIL_DFUSE)
-  set_ifndef(DFUUTIL_DFUSE_ADDR ${CONFIG_FLASH_BASE_ADDRESS})
-  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_dfu_util "--dfuse-addr=${DFUUTIL_DFUSE_ADDR}")
+  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_dfu_util "--dfuse")
+
+  set_ifndef(DFUUTIL_DFUSE_OPTIONS leave)
+  foreach(option IN LISTS DFUUTIL_DFUSE_OPTIONS)
+    set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_dfu_util "--dfuse-option=${option}")
+  endforeach()
 endif()
