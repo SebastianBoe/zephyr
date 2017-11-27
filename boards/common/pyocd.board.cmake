@@ -5,6 +5,9 @@ assert(PYOCD_TARGET "PYOCD_TARGET is not set")
 
 set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_pyocd "--target=${PYOCD_TARGET}")
 
+# Compute the address to flash to based on the devicetree.
+set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_pyocd "--dt-flash")
+
 if(DEFINED PYOCD_DAPARG)
   set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_pyocd "--daparg=${PYOCD_DAPARG}")
 endif()

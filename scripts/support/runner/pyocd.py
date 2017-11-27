@@ -7,7 +7,7 @@
 from os import path
 import os
 
-from .core import ZephyrBinaryRunner
+from .core import ZephyrBinaryRunner, RunnerCaps, BuildConfiguration
 
 DEFAULT_PYOCD_GDB_PORT = 3333
 
@@ -15,7 +15,8 @@ DEFAULT_PYOCD_GDB_PORT = 3333
 class PyOcdBinaryRunner(ZephyrBinaryRunner):
     '''Runner front-end for pyOCD.'''
 
-    def __init__(self, target, flashtool='pyocd-flashtool',
+    def __init__(self, target,
+                 flashtool='pyocd-flashtool', flash_addr=0x0,
                  gdb=None, gdbserver='pyocd-gdbserver',
                  gdb_port=DEFAULT_PYOCD_GDB_PORT, tui=False,
                  bin_name=None, elf_name=None,
@@ -24,6 +25,7 @@ class PyOcdBinaryRunner(ZephyrBinaryRunner):
 
         self.target_args = ['-t', target]
         self.flashtool = flashtool
+        self.flash_addr_args = ['-a', hex(flash_addr)] if flash_addr else []
         self.gdb_cmd = [gdb] if gdb is not None else None
         self.gdbserver = gdbserver
         self.gdb_port = gdb_port
@@ -44,6 +46,10 @@ class PyOcdBinaryRunner(ZephyrBinaryRunner):
     @classmethod
     def name(cls):
         return 'pyocd'
+
+    @classmethod
+    def capabilities(cls):
+        return RunnerCaps(flash_addr=True)
 
     @classmethod
     def do_add_parser(cls, parser):
@@ -68,8 +74,11 @@ class PyOcdBinaryRunner(ZephyrBinaryRunner):
     def create_from_args(cls, args):
         bin_name = path.join(os.getcwd(), 'zephyr', args.kernel_bin)
         elf_name = path.join(os.getcwd(), 'zephyr', args.kernel_elf)
+        build_conf = BuildConfiguration(os.getcwd())
+        flash_addr = cls.get_flash_address(args, build_conf)
         return PyOcdBinaryRunner(
-            args.target, flashtool=args.flashtool, gdb=args.gdb,
+            args.target, flashtool=args.flashtool,
+            flash_addr=flash_addr, gdb=args.gdb,
             gdbserver=args.gdbserver, gdb_port=args.gdb_port, tui=args.tui,
             bin_name=bin_name, elf_name=elf_name, board_id=args.board_id,
             daparg=args.daparg, debug=args.verbose)
@@ -88,6 +97,7 @@ class PyOcdBinaryRunner(ZephyrBinaryRunner):
             raise ValueError('Cannot flash; bin_name is missing')
 
         cmd = ([self.flashtool] +
+               self.flash_addr_args +
                self.daparg_args +
                self.target_args +
                self.board_args +
