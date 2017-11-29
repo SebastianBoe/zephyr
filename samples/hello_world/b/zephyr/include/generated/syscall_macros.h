@@ -13,113 +13,43 @@
   #define GEN_SYSCALL_MIXED
 #endif
 
-#define K_SYSCALL_DECLARE0_VOID(id, name) \
-    UTIL_WHEN( GEN_SYSCALL_USER || GEN_SYSCALL_MIXED) ) \
-      ( \
-         extern void _impl_##name(void); \
-      ) \
-	static inline void name(void) \
-	{ \
-    UTIL_WHEN( GEN_SYSCALL_KERNEL ) \
-      ( \
-		_impl_##name(); \
-      ) \
-    UTIL_WHEN( GEN_SYSCALL_USER ) \
-      ( \
-		_arch_syscall_invoke0(id); \
-      ) \
-    UTIL_WHEN( GEN_SYSCALL_MIXED ) \
-      ( \
-		if (_is_user_context()) { \
-			_arch_syscall_invoke0(id); \
-		} else { \
-			compiler_barrier(); \
-			_impl_##name(); \
-		} \
-      ) \
-	}
+#define GEN_SYSCALL_prototype(id, name, return_type) \
+    static inline return_type name(void)
 
-#if GEN_SYSCALL_KERNELSPACE
-#define K_SYSCALL_DECLARE0(id, name, ret) \
-	extern ret _impl_##name(void); \
-	static inline ret name(void) \
-	{ \
-		return _impl_##name(); \
-	}
-#elif defined(GEN_SYSCALL_USERSPACE)
-#define K_SYSCALL_DECLARE0(id, name, ret) \
-	static inline ret name(void) \
-	{ \
-		return (ret)_arch_syscall_invoke0(id); \
-	}
-#else /* mixed kernel/user macros */
-#define K_SYSCALL_DECLARE0(id, name, ret) \
-	extern ret _impl_##name(void); \
-	static inline ret name(void) \
-	{ \
-		if (_is_user_context()) { \
-			return (ret)_arch_syscall_invoke0(id); \
-		} else { \
-			compiler_barrier(); \
-			return _impl_##name(); \
-		} \
-	}
+#if defined(GEN_SYSCALL_KERNEL)
+#define GEN_SYSCALL_extern_declaration(id, name, return_type) ;
+#else
+#define GEN_SYSCALL_extern_declaration(id, name, return_type) extern return_type _impl_##name(void);
 #endif
 
-#if GEN_SYSCALL_KERNELSPACE
-#define K_SYSCALL_DECLARE0(id, name, ret) \
-	extern ret _impl_##name(void); \
-	static inline ret name(void) \
-	{ \
-		return _impl_##name(); \
-	}
-
-#define K_SYSCALL_DECLARE0_RET64(id, name, ret) \
-	extern ret _impl_##name(void); \
-	static inline ret name(void) \
-	{ \
-		return _impl_##name(); \
-	}
-
-#elif defined(GEN_SYSCALL_USERSPACE)
-#define K_SYSCALL_DECLARE0(id, name, ret) \
-	static inline ret name(void) \
-	{ \
-		return (ret)_arch_syscall_invoke0(id); \
-	}
-
-#define K_SYSCALL_DECLARE0_RET64(id, name, ret) \
-	static inline ret name(void) \
-	{ \
-		return (ret)_syscall_ret64_invoke0(id); \
-	}
-
-#else /* mixed kernel/user macros */
-#define K_SYSCALL_DECLARE0(id, name, ret) \
-	extern ret _impl_##name(void); \
-	static inline ret name(void) \
-	{ \
+#if defined(GEN_SYSCALL_KERNEL)
+#define GEN_SYSCALL_body(id, name, maybe_return, return_type, call) maybe_return _impl_##name();
+#elif defined(GEN_SYSCALL_USER)
+#define GEN_SYSCALL_body(id, name, maybe_return, return_type, call) maybe_return (return_type) call (id);
+#else
+#define GEN_SYSCALL_body(id, name, maybe_return, return_type, call)  \
 		if (_is_user_context()) { \
-			return (ret)_arch_syscall_invoke0(id); \
+			maybe_return (return_type) call (id); \
 		} else { \
 			compiler_barrier(); \
-			return _impl_##name(); \
-		} \
-	}
+			maybe_return _impl_##name(); \
+		}
+#endif
 
-#define K_SYSCALL_DECLARE0_RET64(id, name, ret) \
-	extern ret _impl_##name(void); \
-	static inline ret name(void) \
+#define DECLARE0(id, name, maybe_return, return_type, call)     \
+    GEN_SYSCALL_extern_declaration(id, name, return_type)  \
+    GEN_SYSCALL_prototype(id, name, return_type) \
 	{ \
-		if (_is_user_context()) { \
-			return (ret)_syscall_ret64_invoke0(id); \
-		} else { \
-			compiler_barrier(); \
-			return _impl_##name(); \
-		} \
+        GEN_SYSCALL_body(id, name, maybe_return, return_type, call)  \
 	}
 
-#endif /* mixed kernel/user macros */
+#define K_SYSCALL_DECLARE0_VOID( id, name     )      DECLARE0(id, name, ;     , void, _arch_syscall_invoke0)
+#define K_SYSCALL_DECLARE0(      id, name, ret)      DECLARE0(id, name, return, ret,  _arch_syscall_invoke0)
+#define K_SYSCALL_DECLARE0_RET64(id, name, ret)      DECLARE0(id, name, return, ret, _syscall_ret64_invoke0)
+
+/* #define K_SYSCALL_DECLARE1_VOID( id, name     , ...) DECLAREx(id, name, ;     , void, _arch_syscall_invoke1, __VA_ARGS__) */
+/* #define K_SYSCALL_DECLARE1(      id, name, ret, ...) DECLAREx(id, name, return, ret,  _arch_syscall_invoke1, __VA_ARGS__) */
+/* #define K_SYSCALL_DECLARE1_RET64(id, name, ret, ...) DECLAREx(id, name, return, ret, _syscall_ret64_invoke1, __VA_ARGS__) */
 
 #if GEN_SYSCALL_KERNELSPACE
 #define K_SYSCALL_DECLARE1_VOID(id, name, t0, p0) \
