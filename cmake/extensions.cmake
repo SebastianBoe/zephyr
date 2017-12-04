@@ -710,6 +710,14 @@ function(target_ld_options target scope)
   endforeach()
 endfunction()
 
+function(board_runner_args_append runner)
+  set_property(GLOBAL APPEND PROPERTY
+    BOARD_RUNNER_ARGS_${runner}
+    ${ARGN}
+    )
+endfunction()
+
+
 # 3.4. Debugging CMake
 
 # Usage:
