@@ -1,7 +1,7 @@
 # Configures CMake for using GCC, this script is re-used by several
 # GCC-based toolchains
 
-set(CMAKE_C_COMPILER   ${CROSS_COMPILE}gcc     CACHE INTERNAL " " FORCE)
+set(CMAKE_C_COMPILER   ${CROSS_COMPILE}xcc CACHE INTERNAL " " FORCE)
 set(CMAKE_OBJCOPY      ${CROSS_COMPILE}objcopy CACHE INTERNAL " " FORCE)
 set(CMAKE_OBJDUMP      ${CROSS_COMPILE}objdump CACHE INTERNAL " " FORCE)
 #set(CMAKE_LINKER      ${CROSS_COMPILE}ld      CACHE INTERNAL " " FORCE) # Not in use yet
