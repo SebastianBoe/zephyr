@@ -36,4 +36,6 @@
 
 #endif /* __GCC_LINKER_CMD__ */
 
+#define __builtin_unreachable() __ASSERT(0, "Unreachable code")
+
 #endif
