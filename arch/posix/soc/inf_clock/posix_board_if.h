@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-void pb_irq_handler(void);
+void posix_irq_handler(void);
 void main_clean_up(int exit_code);
 
 #if defined(CONFIG_ARCH_HAS_CUSTOM_BUSY_WAIT)

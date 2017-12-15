@@ -13,9 +13,9 @@
 extern "C" {
 #endif
 
-void ps_interrupt_raised(void);
-void ps_boot_cpu(void);
-int  ps_is_cpu_running(void);
+void posix_interrupt_raised(void);
+void posix_boot_cpu(void);
+int  posix_is_cpu_running(void);
 
 #ifdef __cplusplus
 }

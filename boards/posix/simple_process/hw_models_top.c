@@ -16,20 +16,22 @@
 #include "posix_soc_if.h"
 
 
-static hwtime_t device_time; /*The actual time as known by the device*/
-static hwtime_t end_of_time = NEVER; /*When will this device stop*/
+static u64_t device_time; /* The actual time as known by the device */
+static u64_t end_of_time = NEVER; /* When will this device stop */
 
 /* List of HW model timers: */
-extern hwtime_t HWTimer_timer; /*When does the timer_model want to be called*/
-extern hwtime_t irq_ctrl_timer;
+extern u64_t hw_timer_timer; /* When should this timer_model be called */
+extern u64_t irq_ctrl_timer;
 
-typedef enum { HWTimer = 0, IRQCnt, Number_of_timers, None } timer_types_t;
-static hwtime_t *Timer_list[Number_of_timers] = {
-	&HWTimer_timer,
+static enum { HWTIMER = 0, IRQCNT, NUMBER_OF_TIMERS, NONE }
+	next_timer_index = NONE;
+
+static u64_t *Timer_list[NUMBER_OF_TIMERS] = {
+	&hw_timer_timer,
 	&irq_ctrl_timer
 };
-static timer_types_t next_timer_index = None;
-static hwtime_t next_timer_time;
+
+static u64_t next_timer_time;
 
 
 static void hwm_sleep_until_next_timer(void)
@@ -37,15 +39,15 @@ static void hwm_sleep_until_next_timer(void)
 	if (next_timer_time >= device_time) {
 		device_time = next_timer_time;
 	} else {
-		ps_print_warning("next_timer_time corrupted (%"PRItime"<= %"
-				PRItime", Timertype=%i)\n",
+		posix_print_warning("next_timer_time corrupted (%"PRIu64"<= %"
+				PRIu64", timer idx=%i)\n",
 				next_timer_time,
 				device_time,
 				next_timer_index);
 	}
 
 	if (device_time >= end_of_time) {
-		ps_print_trace("\n\n\n\n\n\nAutostopped after %.3Lfs\n",
+		posix_print_trace("\n\n\n\n\n\nAutostopped after %.3Lfs\n",
 				((long double)end_of_time)/1.0e6);
 
 		main_clean_up(0);
@@ -62,7 +64,7 @@ void hwm_find_next_timer(void)
 	next_timer_index = 0;
 	next_timer_time  = *Timer_list[0];
 
-	for (unsigned int i = 1; i < Number_of_timers ; i++) {
+	for (unsigned int i = 1; i < NUMBER_OF_TIMERS ; i++) {
 		if (next_timer_time > *Timer_list[i]) {
 			next_timer_index = i;
 			next_timer_time = *Timer_list[i];
@@ -80,14 +82,15 @@ void hwm_main_loop(void)
 		hwm_sleep_until_next_timer();
 
 		switch (next_timer_index) {
-		case HWTimer:
+		case HWTIMER:
 			hwtimer_timer_reached();
 			break;
-		case IRQCnt:
+		case IRQCNT:
 			hw_irq_ctrl_timer_triggered();
 			break;
 		default:
-			ps_print_error_and_exit("next_timer_index corrupted\n");
+			posix_print_error_and_exit(
+					"next_timer_index corrupted\n");
 			break;
 		}
 
@@ -98,7 +101,7 @@ void hwm_main_loop(void)
 /**
  * Set the simulated time when the process will stop
  */
-void hwm_set_end_of_time(hwtime_t new_end_of_time)
+void hwm_set_end_of_time(u64_t new_end_of_time)
 {
 	end_of_time = new_end_of_time;
 }
@@ -106,7 +109,7 @@ void hwm_set_end_of_time(hwtime_t new_end_of_time)
 /**
  * Return the current time as known by the device
  */
-hwtime_t hwm_get_time(void)
+u64_t hwm_get_time(void)
 {
 	return device_time;
 }

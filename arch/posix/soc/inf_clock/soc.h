@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-void ps_clean_up(void);
+void poisix_soc_clean_up(void);
 
 #ifdef __cplusplus
 }

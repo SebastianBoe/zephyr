@@ -33,11 +33,11 @@ void main_clean_up(int exit_code)
 
 	max_exit_code = max(exit_code, max_exit_code);
 	/*
-	 * ps_clean_up may not return if this is called from a SW thread,
+	 * posix_soc_clean_up may not return if this is called from a SW thread,
 	 * but instead it would get main_clean_up() recalled again
 	 * ASAP from the HW thread
 	 */
-	ps_clean_up();
+	posix_soc_clean_up();
 	hwm_cleanup();
 	exit(exit_code);
 }
@@ -62,7 +62,7 @@ int main(void)
 	hwm_set_end_of_time(5e6);
 #endif
 
-	ps_boot_cpu();
+	posix_boot_cpu();
 
 	hwm_main_loop();
 

@@ -199,7 +199,7 @@ static int test_kernel_cpu_idle(int atomic)
 	tms = k_uptime_get_32();
 	while (tms == k_uptime_get_32()) {
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu(); /*Sleep until next IRQ*/
+		posix_halt_cpu(); /*Sleep until next IRQ*/
 #endif
 	}
 

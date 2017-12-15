@@ -9,6 +9,7 @@
 #define _BOARD_IRQ_H
 
 #include "sw_isr_table.h"
+#include "zephyr/types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +17,7 @@ extern "C" {
 
 void _isr_declare(unsigned int irq_p, int flags, void isr_p(void *),
 		void *isr_param_p);
-void _irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flags);
+void _irq_priority_set(unsigned int irq, unsigned int prio, u32_t flags);
 
 /**
  * Configure a static interrupt.

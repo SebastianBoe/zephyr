@@ -55,6 +55,6 @@
 #define pthread_barrierattr_destroy(...) \
 	zap_pthread_barrierattr_destroy(__VA_ARGS__)
 
-#endif /*CONFIG_ARCH_POSIX*/
+#endif /* CONFIG_ARCH_POSIX */
 
 #endif

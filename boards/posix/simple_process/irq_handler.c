@@ -22,7 +22,7 @@ typedef void (*normal_irq_f_ptr)(void *);
 typedef int (*direct_irq_f_ptr)(void);
 
 typedef struct _isr_list isr_table_entry_t;
-static isr_table_entry_t irq_vector_table[N_IRQs] = { { 0 } };
+static isr_table_entry_t irq_vector_table[N_IRQS] = { { 0 } };
 
 static int currently_running_irq = -1;
 
@@ -30,8 +30,8 @@ static int currently_running_irq = -1;
 static inline void vector_to_irq(int irq_nbr, int *may_swap)
 {
 	if (irq_vector_table[irq_nbr].func == NULL) {
-		ps_print_error_and_exit("Received irq %i without a registered "
-					"handler\n",
+		posix_print_error_and_exit("Received irq %i without a "
+					"registered handler\n",
 					irq_nbr);
 	} else {
 		if (irq_vector_table[irq_nbr].flags & ISR_FLAG_DIRECT) {
@@ -57,7 +57,7 @@ static inline void vector_to_irq(int irq_nbr, int *may_swap)
  * effectively the model of the interrupt controller passing context to the IRQ
  * handler and therefore its priority handling
  */
-void pb_irq_handler(void)
+void posix_irq_handler(void)
 {
 	uint64_t irq_lock;
 	int irq_nbr;
@@ -66,7 +66,7 @@ void pb_irq_handler(void)
 	irq_lock = hw_irq_ctrl_get_current_lock();
 
 	if (irq_lock) {
-		/*"spurious" wakes can happen with interrupts locked*/
+		/* "spurious" wakes can happen with interrupts locked */
 		return;
 	}
 
@@ -109,7 +109,7 @@ void pb_irq_handler(void)
  * will interrupt the SW itself
  * (this function should only be called from the HW model code, from SW threads)
  */
-void pb_irq_handler_im_from_sw(void)
+void posix_irq_handler_im_from_sw(void)
 {
 	/*
 	 * if a higher priority interrupt than the possibly currently running is
@@ -117,12 +117,12 @@ void pb_irq_handler_im_from_sw(void)
 	 * handler
 	 */
 	if (hw_irq_ctrl_get_highest_prio_irq() != -1) {
-		if (!ps_is_cpu_running()) {
-			ps_print_error_and_exit("programming error: "
+		if (!posix_is_cpu_running()) {
+			posix_print_error_and_exit("programming error: "
 					"nrf_irq_cont_handler_irq_im_from_sw() "
 					"called from a HW model thread\n");
 		}
-		pb_irq_handler();
+		posix_irq_handler();
 	}
 }
 
@@ -158,14 +158,14 @@ void pb_irq_handler_im_from_sw(void)
  * "interrupt disable state" prior to the call.
  *
  */
-unsigned int ps_irq_lock(void)
+unsigned int posix_irq_lock(void)
 {
 	return hw_irq_ctrl_change_lock(true);
 }
 
 unsigned int _arch_irq_lock(void)
 {
-	return ps_irq_lock();
+	return posix_irq_lock();
 }
 
 /**
@@ -181,18 +181,18 @@ unsigned int _arch_irq_lock(void)
  * @return N/A
  *
  */
-void ps_irq_unlock(unsigned int key)
+void posix_irq_unlock(unsigned int key)
 {
 	hw_irq_ctrl_change_lock(key);
 }
 
 void _arch_irq_unlock(unsigned int key)
 {
-	ps_irq_unlock(key);
+	posix_irq_unlock(key);
 }
 
 
-void ps_irq_full_unlock(void)
+void posix_irq_full_unlock(void)
 {
 	hw_irq_ctrl_change_lock(false);
 }
@@ -214,10 +214,10 @@ int _arch_irq_is_enabled(unsigned int irq)
 
 void _arch_isr_direct_header(void)
 {
-	/*Nothing to be done*/
+	/* Nothing to be done */
 }
 
-int ps_get_current_irq(void)
+int posix_get_current_irq(void)
 {
 	return currently_running_irq;
 }
@@ -273,7 +273,7 @@ void _irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flags)
  * IRQs are not locked, and this interrupt has higher priority than a possibly
  * currently running interrupt
  */
-void pb_sw_set_pending_IRQ(unsigned int IRQn)
+void posix_sw_set_pending_IRQ(unsigned int IRQn)
 {
 	hw_irq_ctrl_raise_im_from_sw(IRQn);
 }
@@ -283,7 +283,7 @@ void pb_sw_set_pending_IRQ(unsigned int IRQn)
  * Similar to ARM's NVIC_ClearPendingIRQ
  * clear a pending irq from SW
  */
-void pb_sw_clear_pending_IRQ(unsigned int IRQn)
+void posix_sw_clear_pending_IRQ(unsigned int IRQn)
 {
 	hw_irq_ctrl_clear_irq(IRQn);
 }

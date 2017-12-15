@@ -29,7 +29,7 @@ extern "C" {
  */
 static inline int _sys_current_irq_key_get(void)
 {
-	return ps_get_current_irq();
+	return posix_get_current_irq();
 }
 
 #ifdef __cplusplus

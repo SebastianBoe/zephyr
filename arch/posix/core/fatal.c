@@ -109,7 +109,7 @@ FUNC_NORETURN __weak void _SysFatalErrorHandler(unsigned int reason,
 		goto hang_system;
 	}
 	if (k_is_in_isr() || _is_thread_essential()) {
-		ps_print_error_and_exit(
+		posix_print_error_and_exit(
 			"Fatal fault in %s! Stopping...\n",
 			k_is_in_isr() ? "ISR" : "essential thread");
 	}
@@ -118,7 +118,7 @@ FUNC_NORETURN __weak void _SysFatalErrorHandler(unsigned int reason,
 
 hang_system:
 
-	ps_print_error_and_exit(
+	posix_print_error_and_exit(
 		"Stopped in _SysFatalErrorHandler()\n");
 	CODE_UNREACHABLE;
 }

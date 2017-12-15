@@ -11,6 +11,7 @@
  * POSIX arch and InfClock SOC
  */
 
+#include "zephyr/types.h"
 #include "irq.h"
 #include "device.h"
 #include "drivers/system_timer.h"
@@ -21,7 +22,7 @@
  * Return the current HW cycle counter
  * (number of microseconds since boot in 32bits)
  */
-uint32_t _timer_cycle_get_32(void)
+u32_t _timer_cycle_get_32(void)
 {
 	return hwm_get_time();
 }
@@ -65,12 +66,12 @@ int _sys_clock_driver_init(struct device *device)
  */
 void k_busy_wait(u32_t usec_to_wait)
 {
-	hwtime_t time_end = hwm_get_time() + usec_to_wait;
+	u64_t time_end = hwm_get_time() + usec_to_wait;
 
 	while (hwm_get_time() < time_end) {
 		/*There may be wakes due to other interrupts*/
 		hwtimer_wake_in_time(time_end);
-		ps_halt_cpu();
+		posix_halt_cpu();
 	}
 }
 #endif

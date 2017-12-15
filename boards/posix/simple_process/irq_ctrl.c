@@ -10,15 +10,16 @@
 #include "hw_models_top.h"
 #include "irq_ctrl.h"
 #include "irq_handler.h"
-#include "arch/posix/arch.h" /*for find_lsb_set()*/
+#include "arch/posix/arch.h" /* for find_lsb_set() */
 #include "board_soc.h"
 #include "posix_soc.h"
+#include "zephyr/types.h"
 
-hwtime_t irq_ctrl_timer = NEVER;
+u64_t irq_ctrl_timer = NEVER;
 
 
-static uint64_t irq_status;  /*pending interrupts*/
-static uint64_t irq_premask; /*interrupts before the mask*/
+static u64_t irq_status;  /* pending interrupts */
+static u64_t irq_premask; /* interrupts before the mask */
 
 /*
  * Mask of which interrupts will actually cause the cpu to vector into its
@@ -28,7 +29,7 @@ static uint64_t irq_premask; /*interrupts before the mask*/
  * If the irq_mask enables and interrupt pending in irq_premask, it will cause
  * the controller to raise the interrupt immediately
  */
-static uint64_t irq_mask;
+static u64_t irq_mask;
 
 /*
  * Interrupts lock/disable. When set, interrupts are registered
@@ -36,28 +37,28 @@ static uint64_t irq_mask;
  * irq_status != 0 an interrupt will be raised immediately
  */
 static bool irqs_locked;
-static bool lock_ignore; /*For the hard fake IRQ, temporarily ignore lock*/
+static bool lock_ignore; /* For the hard fake IRQ, temporarily ignore lock */
 
-static uint8_t irq_prio[N_IRQs]; /*Priority of each interrupt*/
-/*note that prio = 0 == highest, prio=255 == lowest*/
+static u8_t irq_prio[N_IRQS]; /* Priority of each interrupt */
+/* note that prio = 0 == highest, prio=255 == lowest */
 
-static int currently_running_prio = 256; /*255 is the lowest prio interrupt*/
+static int currently_running_prio = 256; /* 255 is the lowest prio interrupt */
 
 void hw_irq_ctrl_init(void)
 {
-	irq_mask = 0; /*Let's assume all interrupts are disable at boot*/
+	irq_mask = 0; /* Let's assume all interrupts are disable at boot */
 	irq_premask = 0;
 	irqs_locked = false;
 	lock_ignore = false;
 
-	for (int i = 0 ; i < N_IRQs; i++) {
+	for (int i = 0 ; i < N_IRQS; i++) {
 		irq_prio[i] = 255;
 	}
 }
 
 void hw_irq_ctrl_cleanup(void)
 {
-	/*Nothing to be done*/
+	/* Nothing to be done */
 }
 
 void hw_irq_ctrl_set_cur_prio(int new)
@@ -75,7 +76,7 @@ void hw_irq_ctrl_prio_set(unsigned int irq, unsigned int prio)
 	irq_prio[irq] = prio;
 }
 
-uint8_t hw_irq_ctrl_get_prio(unsigned int irq)
+u8_t hw_irq_ctrl_get_prio(unsigned int irq)
 {
 	return irq_prio[irq];
 }
@@ -92,14 +93,14 @@ int hw_irq_ctrl_get_highest_prio_irq(void)
 		return -1;
 	}
 
-	uint64_t irq_status = hw_irq_ctrl_get_irq_status();
+	u64_t irq_status = hw_irq_ctrl_get_irq_status();
 	int winner = -1;
 	int winner_prio = 256;
 
 	while (irq_status != 0) {
 		int irq_nbr = find_lsb_set(irq_status) - 1;
 
-		irq_status &= ~((uint64_t) 1 << irq_nbr);
+		irq_status &= ~((u64_t) 1 << irq_nbr);
 		if ((winner_prio > (int)irq_prio[irq_nbr])
 		   && (currently_running_prio > (int)irq_prio[irq_nbr])) {
 			winner = irq_nbr;
@@ -110,26 +111,26 @@ int hw_irq_ctrl_get_highest_prio_irq(void)
 }
 
 
-uint32_t hw_irq_ctrl_get_current_lock(void)
+u32_t hw_irq_ctrl_get_current_lock(void)
 {
 	return irqs_locked;
 }
 
-uint32_t hw_irq_ctrl_change_lock(uint32_t new_lock)
+u32_t hw_irq_ctrl_change_lock(u32_t new_lock)
 {
-	uint32_t previous_lock = irqs_locked;
+	u32_t previous_lock = irqs_locked;
 
 	irqs_locked = new_lock;
 
 	if ((previous_lock == true) && (new_lock == false)) {
 		if (irq_status != 0) {
-			pb_irq_handler_im_from_sw();
+			posix_irq_handler_im_from_sw();
 		}
 	}
 	return previous_lock;
 }
 
-uint64_t hw_irq_ctrl_get_irq_status(void)
+u64_t hw_irq_ctrl_get_irq_status(void)
 {
 	return irq_status;
 }
@@ -148,23 +149,23 @@ void hw_irq_ctrl_clear_all_irqs(void)
 
 void hw_irq_ctrl_disable_irq(unsigned int irq)
 {
-	irq_mask &= ~((uint64_t)1<<irq);
+	irq_mask &= ~((u64_t)1<<irq);
 }
 
 int hw_irq_ctrl_is_irq_enabled(unsigned int irq)
 {
-	return (irq_mask & ((uint64_t)1 << irq))?1:0;
+	return (irq_mask & ((u64_t)1 << irq))?1:0;
 }
 
-uint64_t hw_irq_ctrl_get_irq_mask(void)
+u64_t hw_irq_ctrl_get_irq_mask(void)
 {
 	return irq_mask;
 }
 
 void hw_irq_ctrl_clear_irq(unsigned int irq)
 {
-	irq_status  &= ~((uint64_t)1<<irq);
-	irq_premask &= ~((uint64_t)1<<irq);
+	irq_status  &= ~((u64_t)1<<irq);
+	irq_premask &= ~((u64_t)1<<irq);
 }
 
 
@@ -178,8 +179,8 @@ void hw_irq_ctrl_clear_irq(unsigned int irq)
  */
 void hw_irq_ctrl_enable_irq(unsigned int irq)
 {
-	irq_mask |= ((uint64_t)1<<irq);
-	if (irq_premask & ((uint64_t)1<<irq)) { /*if the interrupt is pending*/
+	irq_mask |= ((u64_t)1<<irq);
+	if (irq_premask & ((u64_t)1<<irq)) { /* if IRQ is pending */
 		hw_irq_ctrl_raise_im_from_sw(irq);
 	}
 }
@@ -187,11 +188,11 @@ void hw_irq_ctrl_enable_irq(unsigned int irq)
 
 static inline void hw_irq_ctrl_irq_raise_prefix(unsigned int irq)
 {
-	if (irq < N_IRQs) {
-		irq_premask |= ((uint64_t)1<<irq);
+	if (irq < N_IRQS) {
+		irq_premask |= ((u64_t)1<<irq);
 
 		if (irq_mask & (1 << irq)) {
-			irq_status |= ((uint64_t)1<<irq);
+			irq_status |= ((u64_t)1<<irq);
 		}
 	} else if (irq == PHONY_HARD_IRQ) {
 		lock_ignore = true;
@@ -231,7 +232,7 @@ static void irq_raising_from_hw_now(void)
 	 */
 	if ((irqs_locked == false) || (lock_ignore)) {
 		lock_ignore = false;
-		ps_interrupt_raised();
+		posix_interrupt_raised();
 	}
 }
 
@@ -258,7 +259,7 @@ void hw_irq_ctrl_raise_im_from_sw(unsigned int irq)
 	hw_irq_ctrl_irq_raise_prefix(irq);
 
 	if (irqs_locked == false) {
-		pb_irq_handler_im_from_sw();
+		posix_irq_handler_im_from_sw();
 	}
 }
 

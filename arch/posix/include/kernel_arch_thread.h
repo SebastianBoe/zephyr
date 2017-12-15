@@ -30,7 +30,6 @@ struct _caller_saved {
 	 */
 };
 
-typedef struct _caller_saved _caller_saved_t;
 
 struct _callee_saved {
 	/* IRQ status before irq_lock() and call to _Swap() */
@@ -46,14 +45,12 @@ struct _callee_saved {
 	u32_t thread_status;
 };
 
-typedef struct _callee_saved _callee_saved_t;
 
 struct _thread_arch {
 	/* nothing for now */
 };
 
 typedef struct _thread_arch _thread_arch_t;
-
 
 #endif /* _ASMLANGUAGE */
 

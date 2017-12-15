@@ -29,13 +29,13 @@ typedef struct {
 } posix_thread_status_t;
 
 
-void pc_new_thread(posix_thread_status_t *ptr);
-void pc_swap(int next_allowed_thread_nbr, int this_thread_nbr);
-void pc_main_thread_start(int next_allowed_thread_nbr);
-void pc_init_multithreading(void);
-void pc_clean_up(void);
+void posix_new_thread(posix_thread_status_t *ptr);
+void posix_swap(int next_allowed_thread_nbr, int this_thread_nbr);
+void posix_main_thread_start(int next_allowed_thread_nbr);
+void posix_init_multithreading(void);
+void posix_core_clean_up(void);
 
-void pc_new_thread_pre_start(void); /*defined in thread.c*/
+void posix_new_thread_pre_start(void); /* defined in thread.c */
 
 #ifdef __cplusplus
 }

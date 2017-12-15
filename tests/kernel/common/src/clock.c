@@ -11,7 +11,7 @@
 	do {				       \
 		u32_t t = k_uptime_get_32();   \
 		while (t == k_uptime_get_32()) \
-			ps_halt_cpu();\
+			posix_halt_cpu();\
 	} while (0)
 #else
 #define ALIGN_MS_BOUNDARY		       \
@@ -31,7 +31,7 @@ static void tclock_uptime(void)
 	t64 = k_uptime_get();
 	while (k_uptime_get() < (t64 + 5))
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu();
+		posix_halt_cpu();
 #else
 		;
 #endif
@@ -40,7 +40,7 @@ static void tclock_uptime(void)
 	t32 = k_uptime_get_32();
 	while (k_uptime_get_32() < (t32 + 5))
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu();
+		posix_halt_cpu();
 #else
 		;
 #endif
@@ -54,7 +54,7 @@ static void tclock_uptime(void)
 	d64 = k_uptime_delta(&d64);
 	while (k_uptime_delta(&d64) < 5)
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu();
+		posix_halt_cpu();
 #else
 		;
 #endif
@@ -63,7 +63,7 @@ static void tclock_uptime(void)
 	k_uptime_delta_32(&d64);
 	while (k_uptime_delta_32(&d64) < 5)
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu();
+		posix_halt_cpu();
 #else
 		;
 #endif
@@ -85,7 +85,7 @@ static void tclock_cycle(void)
 	while (k_cycle_get_32() > c32 &&
 	       k_cycle_get_32() < (c32 + sys_clock_hw_cycles_per_tick))
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu();
+		posix_halt_cpu();
 #else
 		;
 #endif
@@ -96,7 +96,7 @@ static void tclock_cycle(void)
 	t32 = k_uptime_get_32();
 	while (t32 == k_uptime_get_32())
 #if defined(CONFIG_ARCH_POSIX)
-		ps_halt_cpu();
+		posix_halt_cpu();
 #else
 		;
 #endif

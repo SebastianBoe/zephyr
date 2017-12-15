@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* this file is only meant to be included by kernel_structs.h */
+/* This file is only meant to be included by kernel_structs.h */
 
 #ifndef _kernel_arch_func__h_
 #define _kernel_arch_func__h_
@@ -38,7 +38,7 @@ void _arch_switch_to_main_thread(struct k_thread *main_thread,
  */
 static inline void kernel_arch_init(void)
 {
-	/*Nothing to be done*/
+	/* Nothing to be done */
 }
 
 
@@ -56,7 +56,7 @@ _set_thread_return_value(struct k_thread *thread, unsigned int value)
  */
 static inline void _IntLibInit(void)
 {
-	pc_init_multithreading();
+	posix_init_multithreading();
 }
 
 #ifdef __cplusplus

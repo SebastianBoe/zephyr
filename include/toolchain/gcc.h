@@ -31,7 +31,7 @@
 /*let's not segfault if this were to happen for some reason*/
 #define CODE_UNREACHABLE \
 {\
-	ps_print_error_and_exit("CODE_UNREACHABLE reached from %s:%d\n",\
+	posix_print_error_and_exit("CODE_UNREACHABLE reached from %s:%d\n",\
 		__FILE__, __LINE__);\
 	__builtin_unreachable(); \
 }
