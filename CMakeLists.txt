@@ -64,10 +64,6 @@ zephyr_include_directories(
   ${STDINCLUDE}
 )
 
-if(NOT CONFIG_ARCH_POSIX)
-	set(TOPT -T)
-endif()
-
 zephyr_compile_definitions(
   KERNEL
   __ZEPHYR__=1
@@ -717,9 +713,12 @@ endif()
 get_property(GKOF GLOBAL PROPERTY GENERATED_KERNEL_OBJECT_FILES)
 get_property(GKSF GLOBAL PROPERTY GENERATED_KERNEL_SOURCE_FILES)
 
+get_property(TOPT GLOBAL PROPERTY TOPT)
+set_ifndef(  TOPT -T)
+
 # FIXME: Is there any way to get rid of empty_file.c?
 add_executable(       zephyr_prebuilt misc/empty_file.c)
-target_link_libraries(zephyr_prebuilt ${TOPT}${PROJECT_BINARY_DIR}/linker.cmd ${zephyr_lnk})
+target_link_libraries(zephyr_prebuilt ${TOPT} ${PROJECT_BINARY_DIR}/linker.cmd ${zephyr_lnk})
 set_property(TARGET   zephyr_prebuilt PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker.cmd)
 add_dependencies(     zephyr_prebuilt linker_script offsets)
 
@@ -754,7 +753,7 @@ if(GKOF OR GKSF)
     )
 
   add_executable(       kernel_elf misc/empty_file.c ${GKSF})
-  target_link_libraries(kernel_elf ${GKOF} ${TOPT}${PROJECT_BINARY_DIR}/linker_pass2.cmd ${zephyr_lnk})
+  target_link_libraries(kernel_elf ${GKOF} ${TOPT} ${PROJECT_BINARY_DIR}/linker_pass2.cmd ${zephyr_lnk})
   set_property(TARGET   kernel_elf PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker_pass2.cmd)
   add_dependencies(     kernel_elf linker_pass2_script)
 else()
