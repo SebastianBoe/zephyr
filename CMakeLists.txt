@@ -370,14 +370,6 @@ zephyr_get_include_directories_for_lang(C ZEPHYR_INCLUDES)
 
 add_subdirectory(kernel)
 
-set(SIM_LIB_PATH "/usr/lib/libftd2xx.so")
-#set(SIM_LIB_INCLUDE_PATHS "Maybe_you_dont_need_this")
-
-add_library(                sim_lib STATIC IMPORTED)
-set_target_properties(      sim_lib PROPERTIES IMPORTED_LOCATION             ${SIM_LIB_PATH})
-#set_target_properties(      sim_lib PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${SIM_LIB_INCLUDE_PATHS})
-zephyr_append_cmake_library(sim_lib)
-
 # Read list content
 get_property(ZEPHYR_LIBS_PROPERTY GLOBAL PROPERTY ZEPHYR_LIBS)
 

@@ -8,3 +8,10 @@ zephyr_library_sources(
 	main.c
 	tracing.c
 	)
+
+set(SIM_LIB_PATH "/usr/lib/libftd2xx.so")
+
+add_library(                sim_lib STATIC IMPORTED GLOBAL)
+set_target_properties(      sim_lib PROPERTIES IMPORTED_LOCATION             ${SIM_LIB_PATH})
+zephyr_append_cmake_library(sim_lib)
+
