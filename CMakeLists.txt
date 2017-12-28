@@ -370,6 +370,14 @@ zephyr_get_include_directories_for_lang(C ZEPHYR_INCLUDES)
 
 add_subdirectory(kernel)
 
+set(SIM_LIB_PATH "/usr/lib/libftd2xx.so")
+#set(SIM_LIB_INCLUDE_PATHS "Maybe_you_dont_need_this")
+
+add_library(                sim_lib STATIC IMPORTED)
+set_target_properties(      sim_lib PROPERTIES IMPORTED_LOCATION             ${SIM_LIB_PATH})
+#set_target_properties(      sim_lib PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${SIM_LIB_INCLUDE_PATHS})
+zephyr_append_cmake_library(sim_lib)
+
 # Read list content
 get_property(ZEPHYR_LIBS_PROPERTY GLOBAL PROPERTY ZEPHYR_LIBS)
 
@@ -383,6 +391,7 @@ foreach(zephyr_lib ${ZEPHYR_LIBS_PROPERTY})
   get_target_property(lib_sources ${zephyr_lib} SOURCES)
   if(lib_sources STREQUAL lib_sources-NOTFOUND
       AND (NOT (${zephyr_lib} STREQUAL app))
+      AND (NOT (${zephyr_lib} STREQUAL sim_lib))
       )
     # app is not checked because it's sources are added to it after
     # this CMakeLists.txt file has been processed
