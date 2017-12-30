@@ -15,6 +15,16 @@ set(qemu_targets
 
 set(QEMU_FLAGS -pidfile)
 if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+  # For legacy reasons we support specifying the pid file through the
+  # make variable QEMU_INSTANCE.
+  #
+  # This support will eventually be dropped. The new, simple,
+  # generator-portable mechanism for achieving the same effect is
+  # using the environment variable '<target>_args' like so:
+  #
+  # $ run_args="-pidfile qemu${QEMU_INSTANCE}.pid" make run
+  #
+  # Successive -pidfile invocations override each other.
   list(APPEND QEMU_FLAGS qemu\${QEMU_INSTANCE}.pid)
 else()
   list(APPEND QEMU_FLAGS qemu${QEMU_INSTANCE}.pid)
@@ -33,9 +43,26 @@ else()
   endif()
 endif()
 
-# But also can set QEMU_PTY & QEMU_PIPE on *make* (not cmake) invocation,
-# like it was before cmake.
 if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+  # We support specifying the first serial backend through the make
+  # variables QEMU_PTY and QEMU_PIPE.
+  #
+  # This support will eventually be dropped. The new,
+  # generator-portable mechanism for achieving the same effect is
+  # using the environment variables '<target>_args' and
+  # '<target>_remove_args' like so:
+  #
+  # $ run_remove_args="\"-serial mon:stdio\"" run_args="-serial pty" make run
+  #
+  # 'remove_args' are removed from the command line.
+  # 'run_args'    are appended  to the command line.
+  #
+  # One caveat is that -serial is set differently for different
+  # builds, so you need to run qemu verbosely once first to find out
+  # what flags need removing. Another caveat is that if -serial
+  # mon:stdio is repeated multiple times, and you just want to remove
+  # one invocation you will need to re-add it with run_args because
+  # run_remove_args will remove all matches.
   list(APPEND QEMU_FLAGS
     -serial
     \${if \${QEMU_PTY}, pty, \${if \${QEMU_PIPE}, pipe:\${QEMU_PIPE}, ${CMAKE_QEMU_SERIAL0}}}
@@ -83,11 +110,14 @@ if(QEMU_NET_STACK)
         -pidfile qemu-${target}.pid
         )
     else()
-      # QEMU_INSTANCE is a command line argument to *make* (not cmake). By
-      # appending the instance name to the pid file we can easily run more
-      # instances of the same sample.
 
       if(${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+        # For legacy reasons we support specifying the temp file
+        # through the make variable QEMU_INSTANCE.
+        #
+        # This support will eventually be dropped in favour of the
+        # environment variables <target>_args and
+        # <target>_remove_args.
         set(tmp_file unix:/tmp/slip.sock\${QEMU_INSTANCE})
       else()
         set(tmp_file unix:/tmp/slip.sock${QEMU_INSTANCE})
@@ -188,6 +218,9 @@ foreach(target ${qemu_targets})
     ${PRE_QEMU_COMMANDS}
     ${PRE_QEMU_COMMANDS_FOR_${target}}
     COMMAND
+    ${PYTHON_EXECUTABLE}
+    $ENV{ZEPHYR_BASE}/scripts/qemu_wrapper.py
+    ${target}
     ${QEMU}
     ${QEMU_FLAGS_${ARCH}}
     ${QEMU_FLAGS}
