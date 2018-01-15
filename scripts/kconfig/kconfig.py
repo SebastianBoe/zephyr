@@ -14,6 +14,9 @@ kconf = Kconfig(sys.argv[1])
 # Enable warnings for assignments to undefined symbols
 kconf.enable_undef_warnings()
 
+# Disable warnings for redundant assignments to symbols
+kconf.disable_redun_warnings()
+
 # (This script uses alldefconfig as the base. Other starting states could be
 # set up here as well. The approach in examples/allnoconfig_simpler.py could
 # provide an allnoconfig starting state for example.)
