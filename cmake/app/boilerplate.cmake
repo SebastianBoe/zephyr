@@ -219,6 +219,22 @@ include(${ZEPHYR_BASE}/cmake/host-tools.cmake)
 include(${ZEPHYR_BASE}/cmake/kconfig.cmake)
 include(${ZEPHYR_BASE}/cmake/toolchain.cmake)
 
+# Naive solution to simplify MCUBoot applications
+if(CONFIG_BOOTLOADER_MCUBOOT)
+  # Zephyr uses Device Tree (DT) to describe some board hardware
+  # configuration.
+  #
+  # For this simple example, all we need to tell DT is where on the chip
+  # flash to link this application image so mcuboot can find it. We do
+  # this with a device tree overlay file.
+  #
+  # See the Zephyr documentation for more information on DT:
+  # http://docs.zephyrproject.org/devices/dts/device_tree.html
+  set(DTC_OVERLAY_FILE "${ZEPHYR_BASE}/subsys/dfu/boot/dts.overlay")
+endif()
+
+print(DTC_OVERLAY_FILE)
+
 # DTS should be run directly after kconfig because CONFIG_ variables
 # from kconfig and dts should be available at the same time. But
 # running DTS involves running the preprocessor, so we put it behind
