@@ -1,8 +1,5 @@
-# FIXME: This will be fixed once the scripts are written for xcc
-if(NOT ${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "xcc")
-  assert_not(FLASH_SCRIPT "FLASH_SCRIPT has been removed; use BOARD_FLASH_RUNNER")
-  assert_not(DEBUG_SCRIPT "DEBUG_SCRIPT has been removed; use BOARD_DEBUG_RUNNER")
-endif()
+assert_not(FLASH_SCRIPT "FLASH_SCRIPT has been removed; use BOARD_FLASH_RUNNER")
+assert_not(DEBUG_SCRIPT "DEBUG_SCRIPT has been removed; use BOARD_DEBUG_RUNNER")
 
 set(RUNNER_ARGS_COMMON
   # Required:
