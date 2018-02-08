@@ -464,6 +464,11 @@ if(CONFIG_APPLICATION_MEMORY)
     endforeach()
   endforeach()
 
+  # Use the define __ZEPHYR_SUPERVISOR__ when compiling kernel sources
+  foreach(f ${kernel_object_file_list})
+    target_compile_definitions(${f} PRIVATE __ZEPHYR_SUPERVISOR__)
+  endforeach()
+
   # Create a list ks, with relative paths to kernel space libs.
   foreach(f ${kernel_object_file_list})
     get_target_property(target_name       ${f} NAME)
