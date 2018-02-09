@@ -391,6 +391,28 @@ zephyr_get_include_directories_for_lang(C ZEPHYR_INCLUDES)
 
 add_subdirectory(kernel)
 
+set(kernel_dirs
+  # CMake says this about these directories:
+  # "DIRECTORY scope defaults to the current directory but another
+  # directory (already processed by CMake) may be named by full or
+  # relative path."
+  # Meaning that this needs to be after add_subdirectory(kernel) for
+  # instance.
+  kernel
+  arch
+  drivers
+  # TODO: @apboie, this list needs populating.
+  )
+foreach(kernel_dir ${kernel_dirs})
+  set_property(
+    DIRECTORY ${kernel_dir}
+    APPEND
+    PROPERTY
+    COMPILE_DEFINITIONS
+    __ZEPHYR_SUPERVISOR__
+    )
+endforeach()
+
 # Read list content
 get_property(ZEPHYR_LIBS_PROPERTY GLOBAL PROPERTY ZEPHYR_LIBS)
 
