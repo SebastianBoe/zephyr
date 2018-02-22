@@ -398,27 +398,6 @@ zephyr_get_include_directories_for_lang(C ZEPHYR_INCLUDES)
 
 add_subdirectory(kernel)
 
-# For userspace support, identify what parts of the kernel always run in
-# supervisor mode. These have an optimized path for system call invocation,
-# skipping directly to the implementation function.
-set(supervisor_dirs
-  kernel
-  arch
-  drivers
-  ext/hal
-  boards
-  )
-
-foreach(supervisor_dir ${supervisor_dirs})
-  set_property(
-    DIRECTORY ${supervisor_dir}
-    APPEND
-    PROPERTY
-    COMPILE_DEFINITIONS
-    __ZEPHYR_SUPERVISOR__
-    )
-endforeach()
-
 # Read list content
 get_property(ZEPHYR_LIBS_PROPERTY GLOBAL PROPERTY ZEPHYR_LIBS)
 

@@ -10,6 +10,12 @@
  * This module contains functions for manipulation caches.
  */
 
+#ifdef __ZEPHYR_SUPERVISOR__
+#error "defined"
+#else
+#error "undefined"
+#endif
+
 #include <kernel.h>
 #include <arch/cpu.h>
 #include <misc/util.h>
