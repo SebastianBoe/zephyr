@@ -1,9 +1,11 @@
-# This is a manifest file akin to Repo's manifest, or a PKGBUILD's
-# dependency list. It is a CMakeList.txt-formatted file that defines
-# in a central place where external dependencies are taken from.
+# This manifest file is a CMakeList.txt-formatted file that defines in
+# a central place where external dependencies are taken from.
 
-# Currently it is supported to retrieve dependencies from remote git
-# repositories and local paths.
+# Currently it is supported to retrieve dependencies from remote and
+# local git repositories.
+
+# NB: This format is currently in beta and backwards-compatibility
+# should not be assumed.
 
 # Header guard
 if(ZEPHYR_MANIFEST_CMAKE_GUARD)
