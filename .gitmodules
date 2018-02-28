@@ -1,0 +1,3 @@
+[submodule "ext/lib/net/openthread"]
+	path = ext/lib/net/openthread
+	url = https://github.com/openthread/openthread
