@@ -1,5 +1,6 @@
 # Invoke OpenThread's external autoconf-based build system.
 include(ExternalProject)
+include(${ZEPHYR_BASE}/manifest.cmake)
 
 set(ep_base ${PROJECT_BINARY_DIR}/ext_proj)
 set_property(DIRECTORY PROPERTY "EP_BASE" ${ep_base})
@@ -18,12 +19,14 @@ list(APPEND cmd
 set(ot_STAMP_DIR   ${ep_base}/Stamp/${ot_name})
 set(ot_INSTALL_DIR ${ep_base}/Install/${ot_name})
 
+if(NOT (manifest_openthread_type_download OR manifest_openthread_type_local))
+  assert(0 "No manifest for OpenThread found")
+endif()
+
 #--Download step--------------
-if(NOT EXTERNAL_PROJECT_PATH_OPENTHREAD)
-  # TODO: Point to a Zephyr fork
-  # Nov. 7
-  set_ifndef(ot_GIT_REPOSITORY "https://github.com/openthread/openthread.git")
-  set_ifndef(ot_GIT_TAG a89eb887488dcbab7f5e9237e2bbcaad38140690)
+if(manifest_openthread_type_download)
+  set_ifndef(ot_GIT_REPOSITORY ${manifest_openthread_type_download_repo})
+  set_ifndef(ot_GIT_TAG        ${manifest_openthread_type_download_tag})
   set_ifndef(ot_GIT_PROGRESS 1)
 
   list(APPEND cmd
@@ -48,8 +51,8 @@ list(APPEND cmd
   )
 
 #--Configure step-------------
-if(EXTERNAL_PROJECT_PATH_OPENTHREAD)
-  set(ot_SOURCE_DIR ${EXTERNAL_PROJECT_PATH_OPENTHREAD})
+if(manifest_openthread_type_local)
+  set(ot_SOURCE_DIR ${manifest_openthread_type_local_path})
 
   list(APPEND cmd
     SOURCE_DIR ${ot_SOURCE_DIR}
