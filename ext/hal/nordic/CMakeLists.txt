@@ -10,12 +10,18 @@ endif()
 if(CONFIG_HAS_NRFX)
 
   if(manifest_nrfx_type_download)
-    ExternalProject_Add(project_nrfx
-      GIT_REPOSITORY ${manifest_nrfx_type_download_repo}
-      GIT_TAG v0.8.0
+    # TODO: Fix
+    include(${ZEPHYR_BASE}/cmake/DownloadProject.cmake)
+
+    download_project(
+      PROJ                project_nrfx
+      GIT_REPOSITORY      ${manifest_nrfx_type_download_repo}
+      GIT_TAG             v0.8.0
+      GIT_SHALLOW         1
+      UPDATE_DISCONNECTED 1
       )
 
-    set(nrfx_SOURCE_DIR ./src/project_nrfx) # Guessing
+    set(nrfx_SOURCE_DIR ${project_nrfx_SOURCE_DIR})
   elseif(manifest_nrfx_type_local)
 
     set(nrfx_SOURCE_DIR ${manifest_nrfx_type_local_path})
