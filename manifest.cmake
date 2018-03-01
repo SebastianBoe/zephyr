@@ -2,7 +2,23 @@
 # a central place where external dependencies are taken from.
 
 # Currently it is supported to satisfy external dependencies through
-# the use of either remote or local git repositories.
+# the use of either remote git repositories or the local file
+# system. When the local file system is used it may contain git
+# repositories that are again managed by a multi-repository technology
+# like "Google repo" or "git submodules", but the manifest will be
+# blissfully unaware of this.
+
+# When specifying a remote git repository revision it is recommended
+# to use "git tag"'s over "git SHA"'s for network performance reasons
+# (git does not support downloading a single SHA but it does support
+# downloading a single tag).
+#
+# Also, it is recommended to use "git tag"'s/SHA's over "git branch"'s
+# for traceability and reproducability reasons.
+#
+# Sometimes a little copying is better than a little dependency and a
+# local path within this repository should be used (perhaps together
+# with the option of using a remote).
 
 # NB: This format is currently in beta and backwards-compatibility
 # should not be assumed.
