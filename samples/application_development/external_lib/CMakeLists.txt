@@ -56,3 +56,28 @@ set_target_properties(mylib_lib PROPERTIES IMPORTED_LOCATION             ${MYLIB
 set_target_properties(mylib_lib PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${MYLIB_INCLUDE_DIR})
 
 target_link_libraries(app mylib_lib)
+
+get_target_property(app_sources app SOURCES)
+
+# TODO: Re-organize LIBC build scripts to keep libc sources out of
+# 'app'
+
+# TODO: Re-organize build scripts to get rid of -include flags.
+# https://github.com/runtimeco/mcuboot/pull/189#discussion_r164400913
+
+# TODO: Does PC-lint understand -imacros?
+set(hacks_to_get_all_includes -imacros ${AUTOCONF_H})
+
+# Test with "ninja trg"
+add_custom_target(trg
+  COMMAND
+  ${CMAKE_COMMAND} -E echo "pc-lint" # TODO: Replace echo with LINT .exe
+  ${app_sources}
+  ${includes}
+  ${system_includes}
+  ${definitions}
+  ${hacks_to_get_all_includes}
+#  DEPENDS ${logical_target_for_zephyr_elf}
+  COMMENT "Running lint"
+#  USES_TERMINAL
+  )
