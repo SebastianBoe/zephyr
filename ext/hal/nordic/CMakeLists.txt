@@ -15,10 +15,12 @@ if(CONFIG_HAS_NRFX)
 
     download_project(
       PROJ                project_nrfx
+      QUIET
       GIT_REPOSITORY      ${manifest_nrfx_type_download_repo}
-      GIT_TAG             v0.8.0
+      GIT_REF             ${manifest_nrfx_type_download_ref}
+      GIT_SHA             ${manifest_nrfx_type_download_sha}
       GIT_SHALLOW         1
-      UPDATE_DISCONNECTED 1
+      GIT_CACHE_DIR       /home/sebo/.cache/zephyr/git
       )
 
     set(nrfx_SOURCE_DIR ${project_nrfx_SOURCE_DIR})

@@ -16,6 +16,9 @@
 # Also, it is recommended to use "git tag"'s/SHA's over "git branch"'s
 # for traceability and reproducability reasons.
 #
+# For maximum performance and traceability it is recommended to both
+# specify a "git tag" and a SHA.
+#
 # Sometimes a little copying is better than a little dependency and a
 # local path within this repository should be used (perhaps together
 # with the option of using a remote).
@@ -37,7 +40,7 @@ endif()
 # Nov. 7
 set(manifest_openthread_type_download 1)
 set(manifest_openthread_type_download_repo https://github.com/openthread/openthread.git)
-set(manifest_openthread_type_download_tag  a89eb887488dcbab7f5e9237e2bbcaad38140690)
+set(manifest_openthread_type_download_sha  a89eb887488dcbab7f5e9237e2bbcaad38140690)
 
 if(USE_NRFX_FROM_ZEPHYR_REPO)
   set(manifest_nrfx_type_local 1)
@@ -45,5 +48,6 @@ if(USE_NRFX_FROM_ZEPHYR_REPO)
 else()
   set(manifest_nrfx_type_download 1)
   set(manifest_nrfx_type_download_repo https://github.com/NordicSemiconductor/nrfx)
-  set(manifest_nrfx_type_download_tag  v0.8.0)
+  set(manifest_nrfx_type_download_ref  v0.8.0)
+  set(manifest_nrfx_type_download_sha  b7cfe970b45ad7cc9c36b62ee620508e9e2c7fb5)
 endif()
