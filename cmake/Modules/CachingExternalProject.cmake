@@ -1196,8 +1196,14 @@ endif()
 
 if(cache)
   # Tag the sha so the commit is not GC'd and so that it can be cloned
+  # (SHA's can not be cloned unfortunately)
   execute_process(
-    COMMAND  \"${git_EXECUTABLE}\" \${git_options} tag tag_\${sha} \${sha} # TODO: Don't tag if already exists.
+    COMMAND
+    \"${git_EXECUTABLE}\"
+    \${git_options}
+    tag
+    tag_\${sha}
+    \${sha}
     WORKING_DIRECTORY \"${git_cache_dir}\"
     RESULT_VARIABLE error_code
     )
