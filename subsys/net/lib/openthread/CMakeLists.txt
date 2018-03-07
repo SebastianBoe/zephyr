@@ -26,7 +26,7 @@ endif()
 #--Download step--------------
 if(manifest_openthread_type_download)
   set_ifndef(ot_GIT_REPOSITORY ${manifest_openthread_type_download_repo})
-  set_ifndef(ot_GIT_TAG        ${manifest_openthread_type_download_tag})
+  set_ifndef(ot_GIT_TAG        ${manifest_openthread_type_download_sha})
   set_ifndef(ot_GIT_PROGRESS 1)
 
   list(APPEND cmd
