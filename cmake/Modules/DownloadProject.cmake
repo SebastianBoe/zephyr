@@ -9,7 +9,7 @@
 #                    [DOWNLOAD_DIR downloadDir]
 #                    [SOURCE_DIR srcDir]
 #                    [BINARY_DIR binDir]
-#                    [QUIET]
+#                    [VERBOSE]
 #                    ...
 #   )
 #
@@ -40,9 +40,6 @@
 #       values of DOWNLOAD_DIR, SOURCE_DIR and BINARY_DIR. If all of those three arguments
 #       are provided, then PREFIX will have no effect. The default value for PREFIX is
 #       CMAKE_BINARY_DIR.
-#
-#       The QUIET option can be given if you do not want to show the output associated
-#       with downloading the specified project.
 #
 #       In addition to the above, any other options are passed through unmodified to
 #       ExternalProject_Add() to perform the actual download, patch and update steps.
@@ -81,7 +78,7 @@
 #                    GIT_REPOSITORY      https://github.com/google/googletest.git
 #                    GIT_TAG             master
 #                    UPDATE_DISCONNECTED 1
-#                    QUIET
+#                    VERBOSE
 #   )
 #
 #   add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
@@ -95,7 +92,7 @@ include(CMakeParseArguments)
 
 function(download_project)
 
-    set(options QUIET)
+    set(options VERBOSE)
     set(oneValueArgs
         PROJ
         PREFIX
@@ -113,10 +110,13 @@ function(download_project)
     cmake_parse_arguments(DL_ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # Hide output if requested
-    if (DL_ARGS_QUIET)
-        set(OUTPUT_QUIET "OUTPUT_QUIET")
+    if (DL_ARGS_VERBOSE)
+        unset(execute_process_OUTPUT_QUIET)
     else()
-        unset(OUTPUT_QUIET)
+        set(execute_process_OUTPUT_QUIET "OUTPUT_QUIET")
+    endif()
+
+    if (DL_ARGS_VERBOSE)
         message(STATUS "Downloading/updating ${DL_ARGS_PROJ}")
     endif()
 
@@ -165,7 +165,7 @@ function(download_project)
                         -D "CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}"
                         .
                     RESULT_VARIABLE result
-                    ${OUTPUT_QUIET}
+                    ${execute_process_OUTPUT_QUIET}
                     WORKING_DIRECTORY "${DL_ARGS_DOWNLOAD_DIR}"
     )
     if(result)
@@ -173,7 +173,7 @@ function(download_project)
     endif()
     execute_process(COMMAND ${CMAKE_COMMAND} --build .
                     RESULT_VARIABLE result
-                    ${OUTPUT_QUIET}
+                    ${execute_process_OUTPUT_QUIET}
                     WORKING_DIRECTORY "${DL_ARGS_DOWNLOAD_DIR}"
     )
     if(result)
