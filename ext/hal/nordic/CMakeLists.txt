@@ -1,4 +1,3 @@
-include(ExternalProject)
 include(${ZEPHYR_BASE}/manifest.cmake)
 
 if(CONFIG_HAS_NORDIC_DRIVERS)
@@ -11,11 +10,11 @@ if(CONFIG_HAS_NRFX)
 
   if(manifest_nrfx_type_download)
     # TODO: Fix
-    include(${ZEPHYR_BASE}/cmake/DownloadProject.cmake)
+    include(DownloadProject)
 
     download_project(
       PROJ                project_nrfx
-      QUIET
+#      QUIET
       GIT_REPOSITORY      ${manifest_nrfx_type_download_repo}
       GIT_REF             ${manifest_nrfx_type_download_ref}
       GIT_SHA             ${manifest_nrfx_type_download_sha}
