@@ -1202,6 +1202,7 @@ if(cache)
     \"${git_EXECUTABLE}\"
     \${git_options}
     tag
+    --force # This stops the command from failing when the tag already existed
     tag_\${sha}
     \${sha}
     WORKING_DIRECTORY \"${git_cache_dir}\"
