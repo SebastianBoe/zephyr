@@ -1211,14 +1211,19 @@ if(cache)
 endif()
 
 if(cache)
+  # This is a non-network operation that takes about 100ms, is there
+  # any way to cut down on the time spent? Perhaps a git checkout in
+  # the cache_dir followed by a cp -r.
   execute_process(
-    COMMAND \"${git_EXECUTABLE}\" \${git_options} clone \${git_clone_options} \"${git_cache_dir}\" --branch tag_\${sha} \"${src_name}\"
+    COMMAND \"${git_EXECUTABLE}\" \${git_options} clone \"${git_cache_dir}\" --branch tag_\${sha} \"${src_name}\"
     WORKING_DIRECTORY \"${work_dir}\"
+    ERROR_QUIET
     RESULT_VARIABLE error_code
     )
-endif()
-
-if(NOT cache)
+  if(error_code)
+    message(FATAL_ERROR \"Failed to clone repository\")
+  endif()
+else()
   # try the clone 3 times in case there is an odd git clone issue
   set(error_code 1)
   set(number_of_tries 0)
@@ -1246,7 +1251,7 @@ if(NOT cache)
   if(error_code)
     message(FATAL_ERROR \"Failed to checkout tag: '${git_tag}'\")
   endif()
-endif(NOT cache)
+endif(cache)
 
 execute_process(
   COMMAND \"${git_EXECUTABLE}\" \${git_options} submodule init ${git_submodules}
