@@ -86,6 +86,8 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${AUTOCONF_H})
 
 include(${ZEPHYR_BASE}/cmake/extensions.cmake)
 
+list(APPEND CMAKE_MODULE_PATH ${ZEPHYR_BASE}/cmake/Modules)
+
 find_package(PythonInterp 3.4)
 
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
