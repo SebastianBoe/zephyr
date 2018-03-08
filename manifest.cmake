@@ -31,10 +31,16 @@
 
 # TODO: Point to a Zephyr fork
 # Nov. 7
+list(APPEND manifest_projects
+  openthread
+  )
 set(manifest_openthread_type_download 1)
 set(manifest_openthread_type_download_repo https://github.com/openthread/openthread.git)
 set(manifest_openthread_type_download_sha  a89eb887488dcbab7f5e9237e2bbcaad38140690)
 
+list(APPEND manifest_projects
+  nrfx
+  )
 if(USE_NRFX_FROM_ZEPHYR_REPO)
   set(manifest_nrfx_type_local 1)
   set(manifest_nrfx_type_local_path ${ZEPHYR_BASE}/ext/hal/nordic/nrfx)
