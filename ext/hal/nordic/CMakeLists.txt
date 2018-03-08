@@ -1,5 +1,3 @@
-include(${ZEPHYR_BASE}/manifest.cmake)
-
 if(CONFIG_HAS_NORDIC_DRIVERS)
   zephyr_include_directories(drivers)
 

@@ -1,6 +1,5 @@
 # Invoke OpenThread's external autoconf-based build system.
 include(ExternalProject)
-include(${ZEPHYR_BASE}/manifest.cmake)
 
 set(ep_base ${PROJECT_BINARY_DIR}/ext_proj)
 set_property(DIRECTORY PROPERTY "EP_BASE" ${ep_base})

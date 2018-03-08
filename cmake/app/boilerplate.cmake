@@ -271,6 +271,8 @@ set(KERNEL_EXE_NAME   ${KERNEL_NAME}.exe)
 set(KERNEL_STAT_NAME  ${KERNEL_NAME}.stat)
 set(KERNEL_STRIP_NAME ${KERNEL_NAME}.strip)
 
+include(${ZEPHYR_BASE}/manifest.cmake)
+
 include(${BOARD_DIR}/board.cmake OPTIONAL)
 
 zephyr_library_named(app)

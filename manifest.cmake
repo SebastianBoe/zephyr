@@ -26,13 +26,6 @@
 # NB: This format is currently in beta and backwards-compatibility
 # should not be assumed.
 
-# Header guard
-if(ZEPHYR_MANIFEST_CMAKE_GUARD)
-  return()
-else()
-  set(ZEPHYR_MANIFEST_CMAKE_GUARD 1)
-endif()
-
 # set(manifest_openthread_type_local 1)
 # set(manifest_openthread_type_local_path ${ZEPHYR_BASE}/ext/lib/net/openthread)
 
