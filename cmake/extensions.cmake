@@ -371,6 +371,93 @@ function(generate_inc_file_for_target
   generate_inc_file_for_gen_target(${target} ${source_file} ${generated_file} ${generated_target_name} ${ARGN})
 endfunction()
 
+function(target_sources_codegen target)
+  foreach(arg ${ARGN})
+    # Generated file must be generated to the current binary directory.
+    # Otherwise this would trigger CMake issue #14633:
+    # https://gitlab.kitware.com/cmake/cmake/issues/14633
+    if(IS_ABSOLUTE ${arg})
+      set(template_file ${arg})
+      get_filename_component(generated_file_name ${arg} NAME)
+      set(generated_file ${CMAKE_CURRENT_BINARY_DIR}/${generated_file_name})
+    else()
+      set(template_file ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
+      set(generated_file ${CMAKE_CURRENT_BINARY_DIR}/${arg})
+    endif()
+
+    if(IS_DIRECTORY ${template_file})
+      message(FATAL_ERROR "target_sources_codegen() was called on a directory")
+    endif()
+
+    # Generate file from template
+    message(STATUS "Will generate ${generated_file}")
+    message(STATUS "         from ${template_file}")
+    add_custom_command(
+      OUTPUT ${generated_file}
+      DEPENDS ${template_file}
+      COMMENT "Generating ${generated_file}"
+              "      from ${template_file}"
+      COMMAND
+      ${PYTHON_EXECUTABLE}
+      ${ZEPHYR_BASE}/scripts/gen_code.py
+      -D "PROJECT_NAME=${PROJECT_NAME}"
+      -D "PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
+      -D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+      -D "CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}"
+      -D "CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}"
+      -D "CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+      -D "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}"
+      -D "CMAKE_CURRENT_LIST_DIR=${CMAKE_CURRENT_LIST_DIR}"
+      -D "CMAKE_FILES_DIRECTORY=${CMAKE_FILES_DIRECTORY}"
+      -D "CMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}"
+      -D "CMAKE_SYSTEM=${CMAKE_SYSTEM}"
+      -D "CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}"
+      -D "CMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}"
+      -D "CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}"
+      -D "CMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+      -D "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+      -D "CMAKE_COMPILER_IS_GNUCC=${CMAKE_COMPILER_IS_GNUCC}"
+      -D "CMAKE_COMPILER_IS_GNUCXX=${CMAKE_COMPILER_IS_GNUCXX}"
+      -D "GENERATED_DTS_BOARD_H=${GENERATED_DTS_BOARD_H}"
+      -D "GENERATED_DTS_BOARD_CONF=${GENERATED_DTS_BOARD_CONF}"
+      --input "${template_file}"
+      --output "${generated_file}"
+      --log "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/CodeGen.log"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    set_source_files_properties(${generated_file} PROPERTIES GENERATED 1)
+    target_sources(${target} PRIVATE ${generated_file})
+    # Add template directory to include path to allow includes with
+    # relative path in generated file to work
+    get_filename_component(template_dir ${template_file} DIRECTORY)
+    if(${target} EQUAL "zephyr")
+      zephyr_include_directories(${template_dir})
+    else()
+      target_include_directories(${target} PRIVATE ${template_dir})
+    endif()
+  endforeach()
+endfunction()
+
+function(zephyr_sources_codegen)
+  target_sources_codegen(zephyr ${ARGN})
+endfunction()
+
+function(zephyr_sources_codegen_ifdef feature_toggle)
+  if(${${feature_toggle}})
+    zephyr_sources_codegen(${ARGN})
+  endif()
+endfunction()
+
+function(zephyr_library_sources_codegen)
+  target_sources_codegen(${ZEPHYR_CURRENT_LIBRARY} ${ARGN})
+endfunction()
+
+function(zephyr_library_sources_codegen_ifdef feature_toggle)
+  if(${${feature_toggle}})
+    zephyr_library_sources_codegen(${ARGN})
+  endif()
+endfunction()
+
 # 1.2 zephyr_library_*
 #
 # Zephyr libraries use CMake's library concept and a set of
