@@ -1,8 +1,18 @@
 # Prints a tree of all items in the configuration
 # vim: tabstop=4 shiftwidth=4 expandtab
 
-import kconfiglib
+import os
 import sys
+# Add $ZEPHYR_BASE/scripts/kconfig to the Python 'include path' before
+# importing it
+sys.path.insert(
+    0,
+    os.path.join(
+        os.environ['ZEPHYR_BASE'],
+        'scripts/kconfig'
+    )
+)
+import kconfiglib
 
 # Integers representing symbol types
 UNKNOWN, BOOL, TRISTATE, STRING, HEX, INT = range(6)
@@ -97,7 +107,7 @@ Supported Options
    * - Kconfig Symbol
      - Description
 """)
-conf = kconfiglib.Config(sys.argv[1])
+conf = kconfiglib.Kconfig(sys.argv[1])
 print_items(conf.get_top_level_items(), sys.argv[2],  0)
 
 # print_items created separate .rst files for each configuration option as
