@@ -1,4 +1,4 @@
-set(BOARD native_posix)
+set(BOARD nrf52840_pca10056)
 set(BOARD_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
