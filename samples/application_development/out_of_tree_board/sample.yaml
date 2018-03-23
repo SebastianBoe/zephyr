@@ -1,0 +1,4 @@
+sample:
+  description: Sample that uses an out-of-tree board
+  name: Out-of-tree board
+  platforms: all
