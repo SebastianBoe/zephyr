@@ -10,7 +10,7 @@ add_library(
 
 # Link app_lib with app to ensure that the app_lib inherits the same
 # build metadata that 'app' is using, e.g. include paths.
-target_link_libraries(app_lib PUBLIC app)
+target_link_libraries(app_lib PUBLIC app kernel)
 
 # Link 'app' with 'app_lib' to ensure that the linker will resolve
 # app's link-time references into 'app_lib'.
