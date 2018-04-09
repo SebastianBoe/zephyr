@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8.2)
 cmake_policy(SET CMP0000 OLD)
 cmake_policy(SET CMP0002 NEW)
 
-enable_language(C CXX ASM)
+enable_language(C CXX)
 
 # Parameters:
 #   SOURCES: list of source files, default main.c
@@ -32,7 +32,6 @@ target_compile_options(testbinary PRIVATE
   ${EXTRA_CPPFLAGS_AS_LIST}
   ${EXTRA_CFLAGS_AS_LIST}
   $<$<COMPILE_LANGUAGE:CXX>:${EXTRA_CXXFLAGS_AS_LIST}>
-  $<$<COMPILE_LANGUAGE:ASM>:${EXTRA_AFLAGS_AS_LIST}>
   )
 
 target_link_libraries(testbinary PRIVATE
