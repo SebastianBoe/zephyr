@@ -60,6 +60,8 @@ if (WITH_DEFAULT_LOGGER)
   add_definitions (-DDEFAULT_LOGGER_ON)
 endif (WITH_DEFAULT_LOGGER)
 
+print(WITH_ZEPHYR)
+
 if (WITH_ZEPHYR)
   zephyr_library_named(metal)
   add_dependencies(metal offsets_h)

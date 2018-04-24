@@ -50,7 +50,13 @@ endif (WITH_TESTS AND (${_host} STREQUAL ${_target}))
 
 option (WITH_DEFAULT_LOGGER "Build with default logger" ON)
 
-option (WITH_DOC "Build with documentation" ON)
+if(BUILD_LIBMETAL_AS_A_ZEPHYR_LIB)
+  set(WITH_DOC_INITIAL OFF)
+else()
+  set(WITH_DOC_INITIAL ON)
+endif()
+    
+option (WITH_DOC "Build with documentation" ${WITH_DOC_INITIAL})
 
 set (PROJECT_EC_FLAGS "-Wall -Werror -Wextra" CACHE STRING "")
 # vim: expandtab:ts=2:sw=2:smartindent

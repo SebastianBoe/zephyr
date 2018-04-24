@@ -1,12 +1,15 @@
 cmake_minimum_required (VERSION 2.6)
 
 list (APPEND CMAKE_MODULE_PATH
-      "${CMAKE_SOURCE_DIR}/cmake"
-      "${CMAKE_SOURCE_DIR}/cmake/modules"
-      "${CMAKE_SOURCE_DIR}/cmake/platforms")
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules"
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/platforms")
 
 include (syscheck)
+
+if(NOT BUILD_LIBMETAL_AS_A_ZEPHYR_LIB)
 project (metal C)
+endif()
 
 include (CheckIncludeFiles)
 include (CheckCSourceCompiles)
