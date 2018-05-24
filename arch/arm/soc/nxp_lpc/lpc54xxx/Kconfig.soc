@@ -43,11 +43,15 @@ config SLAVE_CORE_MCUX
 	  Driver for slave core startup
 
 config SLAVE_IMAGE_MCUX
-	depends on SLAVE_CORE_MCUX
+	depends on SLAVE_CORE_MCUX && ! SLAVE_APP_MCUX
 	string "Binary image of slave core's code"
 	help
 	  This points to the image file for the the binary code that will be
 	  used by the slave core.
+
+config SLAVE_APP_MCUX
+	depends on SLAVE_CORE_MCUX && ! SLAVE_IMAGE_MCUX
+	string "Application directory of the slave core"
 
 config SLAVE_BOOT_ADDRESS_MCUX
 	depends on SLAVE_CORE_MCUX

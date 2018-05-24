@@ -15,13 +15,4 @@ set(PLATFORM_DIR          "${CMAKE_CURRENT_SOURCE_DIR}/platform")
 target_sources(app PRIVATE src/main_master.c ${PLATFORM_DIR}/platform.c
 	       ${PLATFORM_DIR}/platform_ops.c ${PLATFORM_DIR}/resource_table.c)
 
-include(ExternalProject)
-
-ExternalProject_Add(
-  openamp_remote
-  SOURCE_DIR ${APPLICATION_SOURCE_DIR}/remote
-  INSTALL_COMMAND ""      # This particular build system has no install command
-)
-add_dependencies(core_m0_inc_target openamp_remote)
-
 target_include_directories(app PRIVATE ${PLATFORM_DIR})
