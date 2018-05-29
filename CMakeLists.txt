@@ -395,14 +395,25 @@ add_dependencies(     offsets
   kobj_types_h_target
   )
 
+set(generated_file ${OFFSETS_H_PATH})
+set(template_file ${ZEPHYR_BASE}/include/generated/offsets.c.codegen)
+
+# We need a target dependency and a file-level dependency
+# On what though?
+
 add_custom_command(
-  OUTPUT ${OFFSETS_H_PATH}
-  COMMAND ${PYTHON_EXECUTABLE} ${ZEPHYR_BASE}/scripts/gen_offset_header.py
-  -i ${OFFSETS_O_PATH}
-  -o ${OFFSETS_H_PATH}
-  DEPENDS offsets
+  OUTPUT ${generated_file}
+  DEPENDS offsets ${template_file}
+  COMMAND
+  ${PYTHON_EXECUTABLE}
+  ${ZEPHYR_BASE}/scripts/gen_code.py
+  -D "OFFSETS_O_PATH=${OFFSETS_O_PATH}"
+  --input "${template_file}"
+  --output "${generated_file}"
+  --log "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/CodeGen.log"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-add_custom_target(offsets_h DEPENDS ${OFFSETS_H_PATH})
+add_custom_target(offsets_h DEPENDS ${generated_file})
 
 zephyr_include_directories(${TOOLCHAIN_INCLUDES})
 
