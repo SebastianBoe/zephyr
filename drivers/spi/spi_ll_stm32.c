@@ -470,6 +470,27 @@ static int spi_stm32_init(struct device *dev)
 	return 0;
 }
 
+// Define CLOCK_BUS_x
+#ifdef CONFIG_SOC_SERIES_STM32F0X
+#define CLOCK_BUS_1 STM32_CLOCK_BUS_APB1_2
+#else
+#define CLOCK_BUS_1 STM32_CLOCK_BUS_APB2
+#endif
+
+#define CLOCK_BUS_2 STM32_CLOCK_BUS_APB1
+#define CLOCK_BUS_3 STM32_CLOCK_BUS_APB1
+
+// Define CLOCK_ENR_x
+#ifdef CONFIG_SOC_SERIES_STM32F0X
+#define CLOCK_ENR_1 LL_APB1_GRP2_PERIPH_SPI1
+#else
+#define CLOCK_ENR_1 LL_APB2_GRP1_PERIPH_SPI1
+#endif
+
+#define CLOCK_ENR_2 LL_APB1_GRP1_PERIPH_SPI2
+#define CLOCK_ENR_3 LL_APB1_GRP1_PERIPH_SPI3
+
+#ifdef CONFIG_SPI_STM32_INTERRUPT
 #define IRQ_CONFIG_FUNC(i)                                    \
 static void spi_stm32_irq_config_func_##i (struct device *dev)\
 {                                                             \
@@ -483,35 +504,59 @@ static void spi_stm32_irq_config_func_##i (struct device *dev)\
 	irq_enable( CONFIG_SPI_##i##_IRQ );                       \
 }
 
+#define IRQ_CONFIG_FUNC_DECLARATION(i)                          \
+static void spi_stm32_irq_config_func_##i (struct device *dev);
+
+#define IRQ_CONFIG_FUNC_STRUCT_ENTRY(i)                       \
+    .irq_config = spi_stm32_irq_config_func_##i ,
+
+#else  // CONFIG_SPI_STM32_INTERRUPT
+
+#define IRQ_CONFIG_FUNC(i)
+#define IRQ_CONFIG_FUNC_DECLARATION(i)
+#define IRQ_CONFIG_FUNC_STRUCT_ENTRY(i)
+
+#endif // CONFIG_SPI_STM32_INTERRUPT
+
+#define SPI_INIT_GENERATION(i)                                  \
+                                                                \
+    IRQ_CONFIG_FUNC_DECLARATION( i )                            \
+                                                                \
+    static const  struct spi_stm32_config spi_stm32_cfg_##i = { \
+        .spi = (SPI_TypeDef *) CONFIG_SPI_##i##_BASE_ADDRESS,   \
+        .pclken = {                                             \
+            .enr = CLOCK_ENR_##i ,                              \
+            .bus = CLOCK_BUS_##i                                \
+        },                                                      \
+        IRQ_CONFIG_FUNC_STRUCT_ENTRY(i)                         \
+    };                                                          \
+                                                                \
+static struct spi_stm32_data spi_stm32_dev_data_##i = {         \
+    SPI_CONTEXT_INIT_LOCK(spi_stm32_dev_data_##i , ctx),        \
+	SPI_CONTEXT_INIT_SYNC(spi_stm32_dev_data_##i , ctx),        \
+};                                                              \
+                                                                \
+DEVICE_AND_API_INIT(                                            \
+                    spi_stm32_##i ,                             \
+                    CONFIG_SPI_##i##_NAME,                      \
+                    &spi_stm32_init,                            \
+                    &spi_stm32_dev_data_##i ,                   \
+                    &spi_stm32_cfg_##i ,                        \
+                    POST_KERNEL,                                \
+                    CONFIG_SPI_INIT_PRIORITY,                   \
+                    &api_funcs                                  \
+);                                                              \
+                                                                \
+IRQ_CONFIG_FUNC(i)
+
+#ifdef CONFIG_SPI_1
+SPI_INIT_GENERATION(1)
+#endif
+
+#ifdef CONFIG_SPI_2
+SPI_INIT_GENERATION(2)
+#endif
+
 #ifdef CONFIG_SPI_3
-
-#ifdef CONFIG_SPI_STM32_INTERRUPT
-static void spi_stm32_irq_config_func_3(struct device *port);
+SPI_INIT_GENERATION(3)
 #endif
-
-static const  struct spi_stm32_config spi_stm32_cfg_3 = {
-	.spi = (SPI_TypeDef *) CONFIG_SPI_3_BASE_ADDRESS,
-	.pclken = {
-		.enr = LL_APB1_GRP1_PERIPH_SPI3,
-		.bus = STM32_CLOCK_BUS_APB1
-	},
-#ifdef CONFIG_SPI_STM32_INTERRUPT
-	.irq_config = spi_stm32_irq_config_func_3,
-#endif
-};
-
-static struct spi_stm32_data spi_stm32_dev_data_3 = {
-	SPI_CONTEXT_INIT_LOCK(spi_stm32_dev_data_3, ctx),
-	SPI_CONTEXT_INIT_SYNC(spi_stm32_dev_data_3, ctx),
-};
-
-DEVICE_AND_API_INIT(spi_stm32_3, CONFIG_SPI_3_NAME, &spi_stm32_init,
-		    &spi_stm32_dev_data_3, &spi_stm32_cfg_3,
-		    POST_KERNEL, CONFIG_SPI_INIT_PRIORITY,
-		    &api_funcs);
-
-#ifdef CONFIG_SPI_STM32_INTERRUPT
-IRQ_CONFIG_FUNC(3)
-#endif
-
-#endif /* CONFIG_SPI_3 */
