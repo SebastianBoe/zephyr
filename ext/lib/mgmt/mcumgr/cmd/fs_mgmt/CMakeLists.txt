@@ -7,3 +7,7 @@ zephyr_library_sources(
     cmd/fs_mgmt/src/fs_mgmt.c
     cmd/fs_mgmt/src/stubs.c
 )
+
+target_link_libraries(MCUMGR INTERFACE
+  $<TARGET_PROPERTY:subsys__fs,NAME>
+  )
