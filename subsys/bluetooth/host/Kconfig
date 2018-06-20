@@ -68,7 +68,7 @@ config BT_HCI_TX_PRIO
 	# process the acknowledgements before new Rx data is
 	# processed. This is a necessity to correctly detect transaction
 	# violations in ATT and SMP protocols.
-	range 0 7 if BT_RX_PRIO
+#	range 0 7 if BT_RX_PRIO
 
 config BT_WAIT_NOP
 	bool "Wait for \"NOP\" Command Complete event during init"
@@ -123,7 +123,13 @@ config BT_RX_PRIO
 	int
 	depends on BT_HCI_HOST || BT_RECV_IS_RX_THREAD
 	default 8
-	range 8 NUM_COOP_PRIORITIES
+#	range 8 NUM_COOP_PRIORITIES
+
+if BT_RX_PRIO && BT_HCI_TX_PRIO
+config BT
+# Does not work.
+	depends on BT_HCI_TX_PRIO > BT_RX_PRIO
+endif
 
 if BT_HCI_HOST
 
