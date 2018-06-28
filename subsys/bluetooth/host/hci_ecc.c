@@ -307,7 +307,7 @@ int bt_hci_ecc_send(struct net_buf *buf)
 		}
 	}
 
-	return bt_dev.drv->send(buf);
+	return bt_hci_driver_send(buf);
 }
 
 int default_CSPRNG(u8_t *dst, unsigned int len)

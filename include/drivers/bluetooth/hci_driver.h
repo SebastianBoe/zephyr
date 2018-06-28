@@ -108,13 +108,42 @@ enum bt_hci_driver_bus {
 /**
  * @brief Abstraction which represents the HCI transport to the controller.
  *
- * This struct is used to represent the HCI transport to the Bluetooth
- * controller.
+ * This API must be implemented by a HCI driver.
  */
-struct bt_hci_driver {
-	/** Name of the driver */
-	const char *name;
 
+/** Name of the driver */
+const char * bt_hci_driver_get_name();
+
+/**
+ * @brief Send HCI buffer to controller.
+ *
+ * Send an HCI command or ACL data to the controller. The exact
+ * type of the data can be checked with the help of bt_buf_get_type().
+ *
+ * @note This function must only be called from a cooperative thread.
+ *
+ * @param buf Buffer containing data to be sent to the controller.
+ *
+ * @return 0 on success or negative error number on failure.
+ */
+int bt_hci_driver_send(struct net_buf *buf);
+
+/**
+ * @brief Open the HCI transport.
+ *
+ * Opens the HCI transport for operation. This function must not
+ * return until the transport is ready for operation, meaning it
+ * is safe to start calling the send() handler.
+ *
+ * If the driver uses its own RX thread, i.e.
+ * CONFIG_BT_RECV_IS_RX_THREAD is set, then this
+ * function is expected to start that thread.
+ *
+ * @return 0 on success or negative error number on failure.
+ */
+int bt_hci_driver_open(void);
+
+struct bt_hci_driver {
 	/** Bus of the transport (BT_HCI_DRIVER_BUS_*) */
 	enum bt_hci_driver_bus bus;
 
@@ -124,35 +153,6 @@ struct bt_hci_driver {
 	 *  open() callback returns.
 	 */
 	u32_t quirks;
-
-	/**
-	 * @brief Open the HCI transport.
-	 *
-	 * Opens the HCI transport for operation. This function must not
-	 * return until the transport is ready for operation, meaning it
-	 * is safe to start calling the send() handler.
-	 *
-	 * If the driver uses its own RX thread, i.e.
-	 * CONFIG_BT_RECV_IS_RX_THREAD is set, then this
-	 * function is expected to start that thread.
-	 *
-	 * @return 0 on success or negative error number on failure.
-	 */
-	int (*open)(void);
-
-	/**
-	 * @brief Send HCI buffer to controller.
-	 *
-	 * Send an HCI command or ACL data to the controller. The exact
-	 * type of the data can be checked with the help of bt_buf_get_type().
-	 *
-	 * @note This function must only be called from a cooperative thread.
-	 *
-	 * @param buf Buffer containing data to be sent to the controller.
-	 *
-	 * @return 0 on success or negative error number on failure.
-	 */
-	int (*send)(struct net_buf *buf);
 };
 
 /**

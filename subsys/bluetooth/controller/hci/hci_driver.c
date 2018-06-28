@@ -381,7 +381,7 @@ static int acl_handle(struct net_buf *buf)
 }
 #endif /* CONFIG_BT_CONN */
 
-static int hci_driver_send(struct net_buf *buf)
+int bt_hci_driver_send(struct net_buf *buf)
 {
 	u8_t type;
 	int err;
@@ -417,7 +417,7 @@ static int hci_driver_send(struct net_buf *buf)
 	return err;
 }
 
-static int hci_driver_open(void)
+int bt_hci_driver_open(void)
 {
 	u32_t err;
 
@@ -450,11 +450,13 @@ static int hci_driver_open(void)
 	return 0;
 }
 
+const char * bt_hci_driver_get_name(void)
+{
+    return "Controller";
+}
+
 static const struct bt_hci_driver drv = {
-	.name	= "Controller",
-	.bus	= BT_HCI_DRIVER_BUS_VIRTUAL,
-	.open	= hci_driver_open,
-	.send	= hci_driver_send,
+	.bus	= BT_HCI_DRIVER_BUS_VIRTUAL
 };
 
 static int _hci_driver_init(struct device *unused)

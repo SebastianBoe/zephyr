@@ -4388,7 +4388,7 @@ int bt_send(struct net_buf *buf)
 		return bt_hci_ecc_send(buf);
 	}
 
-	return bt_dev.drv->send(buf);
+	return bt_hci_driver_send(buf);
 }
 
 int bt_recv(struct net_buf *buf)
@@ -4462,16 +4462,12 @@ int bt_hci_driver_register(const struct bt_hci_driver *drv)
 		return -EALREADY;
 	}
 
-	if (!drv->open || !drv->send) {
-		return -EINVAL;
-	}
-
 	bt_dev.drv = drv;
 
-	BT_DBG("Registered %s", drv->name ? drv->name : "");
+	BT_DBG("Registered " CONFIG_BT_HCI_DRIVER_NAME);
 
 	bt_monitor_new_index(BT_MONITOR_TYPE_PRIMARY, drv->bus,
-			     BT_ADDR_ANY, drv->name ? drv->name : "bt0");
+			     BT_ADDR_ANY, CONFIG_BT_HCI_DRIVER_NAME);
 
 	return 0;
 }
@@ -4617,7 +4613,7 @@ int bt_enable(bt_ready_cb_t cb)
 		bt_hci_ecc_init();
 	}
 
-	err = bt_dev.drv->open();
+	err = bt_hci_driver_open();
 	if (err) {
 		BT_ERR("HCI driver open failed (%d)", err);
 		return err;

@@ -40,6 +40,10 @@ endchoice
 config SYSTEM_WORKQUEUE_PRIORITY
 	range -256 -1
 
+config BT_HCI_DRIVER_NAME
+       string
+       default "Controller"
+
 if BT_HCI
 
 config BT_HCI_RAW
