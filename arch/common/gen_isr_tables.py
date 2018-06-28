@@ -11,6 +11,10 @@ import os
 from elftools.elf.elffile import ELFFile
 from elftools.elf.sections import SymbolTableSection
 
+sys.path.append(os.environ["ZEPHYR_BASE"])
+
+from scripts.codegen.config import ConfigMixin
+
 ISR_FLAG_DIRECT = (1 << 0)
 
 # The below few hardware independent magic numbers represent various
@@ -110,14 +114,13 @@ def parse_args():
             help="Print additional debugging information")
     parser.add_argument("-o", "--output-source", required=True,
             help="Output source file")
-    parser.add_argument("-k", "--kernel", required=True,
-            help="Zephyr kernel image")
     parser.add_argument("-s", "--sw-isr-table", action="store_true",
             help="Generate SW ISR table")
     parser.add_argument("-V", "--vector-table", action="store_true",
             help="Generate vector table")
     parser.add_argument("-i", "--intlist", required=True,
             help="Zephyr intlist binary for intList extraction")
+    parser.add_argument("-a", "--path-to-dotconfig", required=True)
 
     args = parser.parse_args()
 
@@ -180,30 +183,29 @@ def getindex(irq, irq_aggregator_pos):
 def main():
     parse_args()
 
-    with open(args.kernel, "rb") as fp:
-        kernel = ELFFile(fp)
-        syms = get_symbols(kernel)
+    kconfig = ConfigMixin(args.path_to_dotconfig)
+    kconfig_dict = kconfig.config_properties()
 
-    if "CONFIG_MULTI_LEVEL_INTERRUPTS" in syms:
-        if "CONFIG_2ND_LEVEL_INTERRUPTS" in syms:
-            if "CONFIG_NUM_2ND_LEVEL_AGGREGATORS" in syms:
-                num_aggregators = syms["CONFIG_NUM_2ND_LEVEL_AGGREGATORS"]
+    if "CONFIG_MULTI_LEVEL_INTERRUPTS" in kconfig_dict:
+        if "CONFIG_2ND_LEVEL_INTERRUPTS" in kconfig_dict:
+            if "CONFIG_NUM_2ND_LEVEL_AGGREGATORS" in kconfig_dict:
+                num_aggregators = kconfig_dict["CONFIG_NUM_2ND_LEVEL_AGGREGATORS"]
                 list_2nd_lvl_offsets = []
                 for i in range(num_aggregators):
                     offset_str = 'CONFIG_2ND_LVL_INTR_' + str(i).zfill(2) + '_OFFSET'
-                    if offset_str in syms:
-                        list_2nd_lvl_offsets.append(syms[offset_str])
+                    if offset_str in kconfig_dict:
+                        list_2nd_lvl_offsets.append(kconfig_dict[offset_str])
 
             debug(str(list_2nd_lvl_offsets))
 
-            if syms["CONFIG_3RD_LEVEL_INTERRUPTS"]:
-                if "CONFIG_NUM_3RD_LEVEL_AGGREGATORS" in syms:
-                    num_aggregators = syms["CONFIG_NUM_3RD_LEVEL_AGGREGATORS"]
+            if kconfig_dict["CONFIG_3RD_LEVEL_INTERRUPTS"]:
+                if "CONFIG_NUM_3RD_LEVEL_AGGREGATORS" in kconfig_dict:
+                    num_aggregators = kconfig_dict["CONFIG_NUM_3RD_LEVEL_AGGREGATORS"]
                     list_3rd_lvl_offsets = []
                     for i in range(num_aggregators):
                         offset_str = 'CONFIG_3RD_LVL_INTR_' + str(i).zfill(2) + '_OFFSET'
-                        if offset_str in syms:
-                            list_3rd_lvl_offsets.append(syms[offset_str])
+                        if offset_str in kconfig_dict:
+                            list_3rd_lvl_offsets.append(kconfig_dict[offset_str])
 
                 debug(str(list_3rd_lvl_offsets))
 
@@ -249,7 +251,7 @@ def main():
                         "but no SW ISR_TABLE in use"
                         % (irq, param))
 
-            if not "CONFIG_MULTI_LEVEL_INTERRUPTS" in syms:
+            if not "CONFIG_MULTI_LEVEL_INTERRUPTS" in kconfig_dict:
                 swt[irq - offset] = (param, func)
             else:
                 # Figure out third level interrupt position
@@ -258,7 +260,7 @@ def main():
                 if irq3:
                     irq_parent = (irq & SECND_LVL_INTERRUPTS) >> 8
                     list_index = getindex(irq_parent, list_3rd_lvl_offsets)
-                    irq3_baseoffset = syms["CONFIG_3RD_LVL_ISR_TBL_OFFSET"]
+                    irq3_baseoffset = kconfig_dict["CONFIG_3RD_LVL_ISR_TBL_OFFSET"]
                     irq3_pos = irq3_baseoffset + 32*list_index + irq3 - 1
                     debug('IRQ_Indx = ' + str(irq3))
                     debug('IRQ_Pos  = ' + str(irq3_pos))
@@ -270,7 +272,7 @@ def main():
                     if irq2:
                         irq_parent = (irq & FIRST_LVL_INTERRUPTS)
                         list_index = getindex(irq_parent, list_2nd_lvl_offsets)
-                        irq2_baseoffset = syms["CONFIG_2ND_LVL_ISR_TBL_OFFSET"]
+                        irq2_baseoffset = kconfig_dict["CONFIG_2ND_LVL_ISR_TBL_OFFSET"]
                         irq2_pos = irq2_baseoffset + 32*list_index + irq2 - 1
                         debug('IRQ_Indx = ' + str(irq2))
                         debug('IRQ_Pos  = ' + str(irq2_pos))
@@ -288,4 +290,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

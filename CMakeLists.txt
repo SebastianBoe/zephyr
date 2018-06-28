@@ -742,8 +742,8 @@ if(CONFIG_GEN_ISR_TABLES)
     COMMAND ${PYTHON_EXECUTABLE}
     ${ZEPHYR_BASE}/arch/common/gen_isr_tables.py
     --output-source isr_tables.c
-    --kernel $<TARGET_FILE:zephyr_prebuilt>
     --intlist isrList.bin
+    --path-to-dotconfig ${DOTCONFIG}
     $<$<BOOL:${CMAKE_VERBOSE_MAKEFILE}>:--debug>
     ${GEN_ISR_TABLE_EXTRA_ARG}
     DEPENDS zephyr_prebuilt
