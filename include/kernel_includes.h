@@ -13,6 +13,8 @@
 #ifndef _KERNEL_INCLUDES__H
 #define _KERNEL_INCLUDES__H
 
+#include <soc_specific_includes.h>
+
 #include <stddef.h>
 #include <zephyr/types.h>
 #include <limits.h>
