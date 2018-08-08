@@ -700,6 +700,7 @@ add_custom_target(
   linker_script
   DEPENDS
   ${ALIGN_SIZING_DEP} ${PRIV_STACK_DEP}
+  ${APP_PARTITIONS}
   linker.cmd
   offsets_h
   )
@@ -1089,6 +1090,7 @@ if(CONFIG_ARM)
     linker_priv_stacks_script
     DEPENDS
     ${ALIGN_SIZING_DEP}
+    ${APP_PARTITIONS}
     linker_priv_stacks.cmd
     offsets_h
     )
@@ -1107,6 +1109,23 @@ if(CONFIG_ARM)
 endif()
 
 endif()
+
+set(APP_PARTITIONS ${PROJECT_BINARY_DIR}/include/generated/app_partitions.ld)
+add_custom_target(
+  app_partitions
+  DEPENDS
+  ${APP_PARTITIONS}
+  )
+add_custom_command(
+  OUTPUT ${APP_PARTITIONS}
+  COMMAND touch ${APP_PARTITIONS}
+  DEPENDS app
+  # NB: Should support memory partition declarations outside of 'app'.
+  # What about depending on all libraries, or at least all
+  # non-kernelspace libraries?
+  #
+  # I am not familiar with how this API is going to be used ...
+  )
 
 # FIXME: Is there any way to get rid of empty_file.c?
 add_executable(       zephyr_prebuilt misc/empty_file.c)
@@ -1134,6 +1153,7 @@ if(GKOF OR GKSF)
     linker_pass_final_script
     DEPENDS
     ${ALIGN_SIZING_DEP} ${PRIV_STACK_DEP}
+    ${APP_PARTITIONS}
     zephyr_prebuilt
     linker_pass_final.cmd
     offsets_h
