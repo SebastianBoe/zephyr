@@ -490,6 +490,11 @@ add_dependencies(     offsets
   driver_validation_h_target
   kobj_types_h_target
   )
+set_property(
+  TARGET offsets
+  PROPERTY INTERPROCEDURAL_OPTIMIZATION
+  FALSE
+  )
 
 add_custom_command(
   OUTPUT ${OFFSETS_H_PATH}

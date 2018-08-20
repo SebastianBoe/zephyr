@@ -39,6 +39,7 @@ endif()
 cmake_minimum_required(VERSION 3.8.2)
 
 cmake_policy(SET CMP0002 NEW)
+cmake_policy(SET CMP0069 NEW)
 
 define_property(GLOBAL PROPERTY ZEPHYR_LIBS
     BRIEF_DOCS "Global list of all Zephyr CMake libs that should be linked in"
@@ -297,6 +298,8 @@ endif()
 message(STATUS "Cache files will be written to: ${USER_CACHE_DIR}")
 
 include(${BOARD_DIR}/board.cmake OPTIONAL)
+
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 zephyr_library_named(app)
 
