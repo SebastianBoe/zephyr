@@ -1068,7 +1068,7 @@ if(CONFIG_CPU_HAS_MPU AND CONFIG_USERSPACE)
     # Create a app_sizing_prebuilt target so we can do this before the
     # other ELF files are built
     set(GEN_APP_ALIGN $ENV{ZEPHYR_BASE}/scripts/gen_alignment_script.py)
-    add_executable(       app_sizing_prebuilt misc/empty_file.c)
+    add_executable(       app_sizing_prebuilt misc/empty_file.c $<$<BOOL:${CONFIG_GEN_ISR_TABLES}>:arch/common/isr_tables.c>)
     target_link_libraries(app_sizing_prebuilt ${TOPT} ${PROJECT_BINARY_DIR}/linker_app_sizing.cmd ${zephyr_lnk})
     set_property(TARGET   app_sizing_prebuilt PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker_app_sizing.cmd)
     add_dependencies(     app_sizing_prebuilt linker_app_sizing_script offsets )
@@ -1105,7 +1105,7 @@ if(CONFIG_ARM)
     )
 
   set(PRIV_STACK_LIB priv_stacks_output_obj_renamed_lib)
-  add_executable(       priv_stacks_prebuilt misc/empty_file.c)
+  add_executable(       priv_stacks_prebuilt misc/empty_file.c $<$<BOOL:${CONFIG_GEN_ISR_TABLES}>:arch/common/isr_tables.c>)
   target_link_libraries(priv_stacks_prebuilt ${TOPT} ${PROJECT_BINARY_DIR}/linker_priv_stacks.cmd ${zephyr_lnk})
   set_property(TARGET   priv_stacks_prebuilt PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker_priv_stacks.cmd)
   add_dependencies(     priv_stacks_prebuilt ${ALIGN_SIZING_DEP} linker_priv_stacks_script offsets)
@@ -1114,7 +1114,7 @@ endif()
 endif()
 
 # FIXME: Is there any way to get rid of empty_file.c?
-add_executable(       zephyr_prebuilt misc/empty_file.c)
+add_executable(       zephyr_prebuilt misc/empty_file.c $<$<BOOL:${CONFIG_GEN_ISR_TABLES}>:arch/common/isr_tables.c>)
 target_link_libraries(zephyr_prebuilt ${TOPT} ${PROJECT_BINARY_DIR}/linker.cmd ${PRIV_STACK_LIB} ${zephyr_lnk})
 set_property(TARGET   zephyr_prebuilt PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker.cmd)
 add_dependencies(     zephyr_prebuilt ${ALIGN_SIZING_DEP} ${PRIV_STACK_DEP} linker_script offsets)

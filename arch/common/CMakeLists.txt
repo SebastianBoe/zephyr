@@ -2,10 +2,13 @@
 # garbage collect them
 zephyr_cc_option(-ffunction-sections -fdata-sections)
 
-zephyr_sources_ifdef(
-  CONFIG_GEN_ISR_TABLES
-  isr_tables.c
-  )
+if(CONFIG_GEN_ISR_TABLES)
+  # The header might only be referenced by gen_isr_tables.py. The
+  # linker is not aware of this and might optimize it away. To prevent
+  # this we instruct the linker that there definitely is something
+  # that is referencing _iheader.
+  zephyr_link_libraries(-u_iheader)
+endif()
 
 zephyr_sources_ifdef(
   CONFIG_EXECUTION_BENCHMARKING
