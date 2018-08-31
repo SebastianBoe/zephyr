@@ -34,6 +34,16 @@ set_target_properties(
   __ZEPHYR_SUPERVISOR__
   )
 
+# Add the Coverage option only when the CONFIG_COVERAGE macro is enabled.
+if(${CONFIG_COVERAGE_GCOV})
+  set_target_properties(
+    kernel
+    PROPERTIES
+    COMPILE_OPTIONS
+    --coverage
+    )
+endif()
+
 target_sources_ifdef(CONFIG_INT_LATENCY_BENCHMARK kernel PRIVATE int_latency_bench.c)
 target_sources_ifdef(CONFIG_STACK_CANARIES        kernel PRIVATE compiler_stack_protect.c)
 target_sources_ifdef(CONFIG_SYS_CLOCK_EXISTS      kernel PRIVATE timer.c)
