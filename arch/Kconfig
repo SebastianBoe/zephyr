@@ -117,6 +117,7 @@ config PRIVILEGED_STACK_SIZE
 
 config PRIVILEGED_STACK_TEXT_AREA
 	int "Privileged stacks text area"
+	default 512 if COVERAGE_GCOV
 	default 256 if (DEBUG || STACK_CANARIES)
 	default 128
 	depends on ARCH_HAS_USERSPACE
