@@ -5,8 +5,8 @@
  */
 
 #include <ztest.h>
+#include "test_sched.h"
 
-#define STACK_SIZE 512
 #define NUM_THREAD 3
 static K_THREAD_STACK_ARRAY_DEFINE(tstack, NUM_THREAD, STACK_SIZE);
 /* slice size in millisecond*/
