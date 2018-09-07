@@ -36,7 +36,7 @@ endif()
 #
 # Under these restraints we use a second 'cmake_minimum_required'
 # invocation in every toplevel CMakeLists.txt.
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.9.0)
 
 cmake_policy(SET CMP0002 NEW)
 cmake_policy(SET CMP0069 NEW)
