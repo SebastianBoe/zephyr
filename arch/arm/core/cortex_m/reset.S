@@ -103,7 +103,7 @@ SECTION_SUBSEC_FUNC(TEXT,_reset_section,__start)
     */
     isb
 
-    b _PrepC
+    bl _PrepC
 
 #if defined(CONFIG_SOC_TI_LM3S6965_QEMU)
 
