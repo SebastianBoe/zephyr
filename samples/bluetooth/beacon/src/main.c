@@ -60,9 +60,13 @@ static void bt_ready(int err)
 	printk("Beacon started\n");
 }
 
+char volatile error_variable[32] __used __attribute__((__section__(".i_make_error"))) = {0};
+
 void main(void)
 {
 	int err;
+
+    error_variable[3] = 3;
 
 	printk("Starting Beacon Demo\n");
 

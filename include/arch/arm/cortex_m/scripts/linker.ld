@@ -408,4 +408,30 @@ SECTIONS
 #include <linker/intlist.ld>
 #endif
 
+	/DISCARD/ :
+	{
+	KEEP(*(.spurIsr))
+	KEEP(*(.spurNoErrIsr))
+	KEEP(*(.intList))
+	KEEP(*(.gnu.linkonce.intList.*))
+	KEEP(*(.mmulist))
+    KEEP(*(.ARM.attributes))
+    KEEP(*(.comment))
+    KEEP(*(.debug_abbrev))
+    KEEP(*(.debug_aranges))
+    KEEP(*(.debug_frame))
+    KEEP(*(.debug_info))
+    KEEP(*(.debug_line))
+    KEEP(*(.debug_loc))
+    KEEP(*(.Debug_loc))
+    KEEP(*(.debug_ranges))
+    KEEP(*(.debug_str))
+    KEEP(*(.glue_7t))
+    KEEP(*(.igot.plt))
+    KEEP(*(.iplt))
+    KEEP(*(.rel.iplt))
+    KEEP(*(.v4_bx))
+    KEEP(*(.vfp11_veneer))
+	}
+
     }
