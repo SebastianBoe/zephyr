@@ -30,9 +30,18 @@ config HAS_COVERAGE_SUPPORT
 	  The code coverage report generation is a function of available RAM.
 	  Hence only available for certain boards.
 
+config PREVENT_COVERAGE
+	bool "Prevent GCOV code from getting built"
+	default n
+	help
+	  The code coverage report generation is prevented even if COVERAGE
+	  is set to true. Needed for tests which shoudn't be compiled with
+	  coverage option.
+
 config COVERAGE
 	bool "Create coverage data"
 	depends on HAS_COVERAGE_SUPPORT
+	depends on !PREVENT_COVERAGE
 	default n
 	help
 	  This option will build your application with the -coverage option
