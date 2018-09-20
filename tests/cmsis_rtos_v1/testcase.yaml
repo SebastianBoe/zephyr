@@ -1,5 +1,12 @@
 tests:
   portability.cmsis_rtos_v1:
     tags: cmsis_rtos_v1
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
     min_ram: 32
     min_flash: 34
+  portability.cmsis_rtos_v1.cov:
+    tags: cmsis_rtos_v1
+    min_ram: 32
+    min_flash: 34
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
+    extra_args: CONF_FILE=prj_cov.conf

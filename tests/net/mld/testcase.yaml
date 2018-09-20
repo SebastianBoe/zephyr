@@ -3,4 +3,10 @@ common:
 tests:
   net.mld:
     tags: net mld
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
+    depends_on: netif
+  net.mld.cov:
+    tags: net mld
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
+    extra_args: CONF_FILE=prj_cov.conf
     depends_on: netif

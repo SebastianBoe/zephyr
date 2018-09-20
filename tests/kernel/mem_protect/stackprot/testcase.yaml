@@ -2,3 +2,9 @@ tests:
   kernel.memory_protection:
     arch_exclude: nios2 xtensa posix
     tags: bat_commit core ignore_faults
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
+  kernel.memory_protection.cov:
+    arch_exclude: nios2 xtensa posix
+    tags: bat_commit core ignore_faults
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
+    extra_args: CONF_FILE=prj_cov.conf

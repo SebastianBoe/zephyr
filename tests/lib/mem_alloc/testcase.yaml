@@ -6,4 +6,10 @@ tests:
   libraries.libc.newlib:
     extra_args: CONF_FILE=prj_newlib.conf
     platform_exclude: native_posix
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
+    tags: clib newlib
+  libraries.libc.newlib.conv:
+    extra_args: CONF_FILE=prj_newlib_cov.conf
+    platform_exclude: native_posix
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
     tags: clib newlib

@@ -2,4 +2,11 @@ tests:
   kernel.profiling:
     arch_exclude: nios2 riscv32
     platform_exclude: em_starterkit
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
+    tags: kernel
+  kernel.profiling.cov:
+    arch_exclude: nios2 riscv32
+    platform_exclude: em_starterkit
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
+    extra_args: CONF_FILE=prj_cov.conf
     tags: kernel

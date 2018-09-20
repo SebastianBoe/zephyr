@@ -4,4 +4,10 @@ common:
 tests:
   net.udp:
     min_ram: 20
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
+    tags: net
+  net.udp.cov:
+    min_ram: 20
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
+    extra_args: CONF_FILE=prj_cov.conf
     tags: net

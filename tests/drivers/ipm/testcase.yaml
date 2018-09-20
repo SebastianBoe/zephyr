@@ -1,5 +1,12 @@
 tests:
   peripheral.mailbox:
     filter: not CONFIG_SOC_QUARK_SE_C1000_SS
+    filter: not CONFIG_HAS_COVERAGE_SUPPORT
     arch_exclude: posix
     tags: drivers ipc
+  peripheral.mailbox.gcov:
+    filter: not CONFIG_SOC_QUARK_SE_C1000_SS
+    arch_exclude: posix
+    tags: drivers ipc
+    filter: CONFIG_HAS_COVERAGE_SUPPORT
+    extra_args: CONF_FILE=prj_cov.conf
