@@ -118,7 +118,6 @@ add_custom_target(
   BOARD_DIR=boards/*/*/
   ARCH=*
   SOC_DIR=soc/
-  KERNELVERSION=${PROJECT_VERSION}
   SRCARCH=x86
   ${PYTHON_EXECUTABLE} scripts/genrest.py Kconfig ${RST_OUT}/doc/reference/kconfig/
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
