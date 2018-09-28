@@ -21,7 +21,6 @@ string(REPLACE " " ";" CONF_FILE_AS_LIST "${CONF_FILE}")
 endif()
 
 set(ENV{srctree}            ${ZEPHYR_BASE})
-set(ENV{KERNELVERSION}      ${PROJECT_VERSION})
 set(ENV{KCONFIG_CONFIG}     ${DOTCONFIG})
 
 # Set environment variables so that Kconfig can prune Kconfig source
@@ -34,7 +33,6 @@ add_custom_target(
   menuconfig
   ${CMAKE_COMMAND} -E env
   srctree=${ZEPHYR_BASE}
-  KERNELVERSION=${PROJECT_VERSION}
   KCONFIG_CONFIG=${DOTCONFIG}
   ARCH=$ENV{ARCH}
   BOARD_DIR=$ENV{BOARD_DIR}
