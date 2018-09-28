@@ -20,23 +20,27 @@ if(CONF_FILE)
 string(REPLACE " " ";" CONF_FILE_AS_LIST "${CONF_FILE}")
 endif()
 
-set(ENV{srctree}            ${ZEPHYR_BASE})
-set(ENV{KCONFIG_CONFIG}     ${DOTCONFIG})
+set(srctree        ${ZEPHYR_BASE})
+set(KCONFIG_CONFIG ${DOTCONFIG})
 
-# Set environment variables so that Kconfig can prune Kconfig source
-# files for other architectures
-set(ENV{ARCH}      ${ARCH})
-set(ENV{BOARD_DIR} ${BOARD_DIR})
-set(ENV{SOC_DIR}   ${SOC_DIR})
+list(APPEND KCONFIG_ENV_VARS
+  srctree
+  KCONFIG_CONFIG
+  ARCH
+  BOARD_DIR
+  SOC_DIR
+  )
+
+set(kconfig_env_vars_command ${CMAKE_COMMAND} -E env)
+foreach(var KCONFIG_ENV_VARS)
+  list(APPEND kconfig_env_vars_command
+	${var}=${${var}}
+	)
+endforeach()
 
 add_custom_target(
   menuconfig
-  ${CMAKE_COMMAND} -E env
-  srctree=${ZEPHYR_BASE}
-  KCONFIG_CONFIG=${DOTCONFIG}
-  ARCH=$ENV{ARCH}
-  BOARD_DIR=$ENV{BOARD_DIR}
-  SOC_DIR=$ENV{SOC_DIR}
+  ${kconfig_env_vars_command}
   ${PYTHON_EXECUTABLE} ${ZEPHYR_BASE}/scripts/kconfig/menuconfig.py ${KCONFIG_ROOT}
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/kconfig
   USES_TERMINAL
@@ -138,6 +142,12 @@ else()
   set(merge_fragments ${DOTCONFIG})
 endif()
 
+# Have the 'KCONFIG_ENV_VARS' environment variables be set while
+# kconfig is run.
+foreach(var KCONFIG_ENV_VARS)
+  set(ENV{${var}} ${${var}})
+endforeach()
+
 execute_process(
   COMMAND
   ${PYTHON_EXECUTABLE}
@@ -154,6 +164,10 @@ execute_process(
 if(NOT "${ret}" STREQUAL "0")
   message(FATAL_ERROR "command failed with return code: ${ret}")
 endif()
+
+foreach(var KCONFIG_ENV_VARS)
+  unset(ENV{${var}})
+endforeach()
 
 # Force CMAKE configure when the configuration files changes.
 foreach(merge_config_input ${merge_config_files} ${DOTCONFIG})
