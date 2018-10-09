@@ -1,5 +1,10 @@
 zephyr_library()
 
+zephyr_library_compile_options_ifdef(CONFIG_COVERAGE_GCOV
+  -ftest-coverage
+  -fprofile-arcs
+  )
+
 zephyr_library_sources_ifdef(CONFIG_PWM_PCA9685 	pwm_pca9685.c)
 zephyr_library_sources_ifdef(CONFIG_PWM_DW		pwm_dw.c)
 zephyr_library_sources_ifdef(CONFIG_PWM_QMSI		pwm_qmsi.c)

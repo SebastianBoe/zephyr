@@ -1,5 +1,10 @@
 zephyr_library()
 
+zephyr_library_compile_options_ifdef(CONFIG_COVERAGE_GCOV
+  -ftest-coverage
+  -fprofile-arcs
+  )
+
 zephyr_library_sources_ifdef(CONFIG_AON_COUNTER_QMSI		counter_qmsi_aon.c)
 zephyr_library_sources_ifdef(CONFIG_AON_TIMER_QMSI		counter_qmsi_aonpt.c)
 zephyr_library_sources_ifdef(CONFIG_COUNTER_TMR_CMSDK_APB	counter_tmr_cmsdk_apb.c)

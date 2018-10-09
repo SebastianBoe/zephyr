@@ -1,4 +1,9 @@
 zephyr_library()
 
+zephyr_library_compile_options_ifdef(CONFIG_COVERAGE_GCOV
+  -ftest-coverage
+  -fprofile-arcs
+  )
+
 zephyr_library_sources_ifdef(CONFIG_BMG160 bmg160.c)
 zephyr_library_sources_ifdef(CONFIG_BMG160_TRIGGER bmg160_trigger.c)

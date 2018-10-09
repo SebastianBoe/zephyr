@@ -1,5 +1,10 @@
 zephyr_library()
 
+zephyr_library_compile_options_ifdef(CONFIG_COVERAGE_GCOV
+  -ftest-coverage
+  -fprofile-arcs
+  )
+
 zephyr_library_sources_ifdef(CONFIG_ADC_DW		adc_dw.c)
 zephyr_library_sources_ifdef(CONFIG_ADC_MCUX_ADC16	adc_mcux_adc16.c)
 zephyr_library_sources_ifdef(CONFIG_ADC_SAM_AFEC	adc_sam_afec.c)

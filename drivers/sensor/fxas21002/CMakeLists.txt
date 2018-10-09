@@ -6,5 +6,10 @@
 #
 zephyr_library()
 
+zephyr_library_compile_options_ifdef(CONFIG_COVERAGE_GCOV
+  -ftest-coverage
+  -fprofile-arcs
+  )
+
 zephyr_library_sources_ifdef(CONFIG_FXAS21002 fxas21002.c)
 zephyr_library_sources_ifdef(CONFIG_FXAS21002_TRIGGER fxas21002_trigger.c)

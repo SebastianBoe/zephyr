@@ -1,4 +1,10 @@
 zephyr_library()
+
+zephyr_library_compile_options_ifdef(CONFIG_COVERAGE_GCOV
+  -ftest-coverage
+  -fprofile-arcs
+  )
+
 zephyr_library_sources_ifdef(CONFIG_UART_ALTERA_JTAG uart_altera_jtag_hal.c)
 zephyr_library_sources_if_kconfig(uart_imx.c)
 zephyr_library_sources_if_kconfig(uart_cc32xx.c)
