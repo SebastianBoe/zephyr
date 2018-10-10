@@ -145,3 +145,7 @@ foreach(isystem_include_dir ${NOSTDINC})
 endforeach()
 set(CMAKE_REQUIRED_FLAGS -nostartfiles -nostdlib ${isystem_include_flags} -Wl,--unresolved-symbols=ignore-in-object-files)
 string(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+
+
+set(PRODUCE_DEBUG_INFORMATION -g)
+#etc.

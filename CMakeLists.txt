@@ -107,11 +107,11 @@ endif()
 
 zephyr_compile_options(
   ${OPTIMIZATION_FLAG} # Usually -Os
-  -g # TODO: build configuration enough?
-  -Wall
-  -Wformat
-  -Wformat-security
-  -Wno-format-zero-length
+  ${PRODUCE_DEBUG_INFORMATION} # TODO: build configuration enough?
+  ${ENABLE_MOST_WARNINGS}
+  ${ENABLE_SPRINTF_RELATED_WARNINGS}
+  ${ENABLE_SPRINTF_SECURITY_RELATED_WARNINGS}
+  ${DISABLE_FORMATTING_OF_ZERO_LENGTH_STRINGS}
   -imacros ${AUTOCONF_H}
   -ffreestanding
   -Wno-main
