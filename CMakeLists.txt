@@ -1133,6 +1133,12 @@ target_link_libraries(zephyr_prebuilt ${TOPT} ${PROJECT_BINARY_DIR}/linker.cmd $
 set_property(TARGET   zephyr_prebuilt PROPERTY LINK_DEPENDS ${PROJECT_BINARY_DIR}/linker.cmd)
 add_dependencies(     zephyr_prebuilt ${ALIGN_SIZING_DEP} ${PRIV_STACK_DEP} linker_script offsets)
 
+# add_custom_command(
+#   TARGET zephyr_prebuilt
+#   POST_BUILD
+#   COMMAND
+#   pwd
+#   )
 
 if(NOT CONFIG_NATIVE_APPLICATION)
 	set(NOSTDINC_F -nostdinc)
