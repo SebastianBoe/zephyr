@@ -11,8 +11,6 @@
 set(GENERATED_DTS_BOARD_H    ${PROJECT_BINARY_DIR}/include/generated/generated_dts_board.h)
 set(GENERATED_DTS_BOARD_CONF ${PROJECT_BINARY_DIR}/include/generated/generated_dts_board.conf)
 
-include(${BOARD_DIR}/dts.cmake OPTIONAL)
-
 set_ifndef(DTS_SOURCE ${BOARD_DIR}/${BOARD}.dts)
 set_ifndef(DTS_COMMON_OVERLAYS ${ZEPHYR_BASE}/dts/common/common.dts)
 set_ifndef(DTS_APP_BINDINGS ${APPLICATION_SOURCE_DIR}/dts/bindings)
