@@ -677,8 +677,6 @@ endforeach()
 
 get_property(OUTPUT_FORMAT        GLOBAL PROPERTY PROPERTY_OUTPUT_FORMAT)
 
-get_property(LINKER_SCRIPT_DEFINES GLOBAL PROPERTY PROPERTY_LINKER_SCRIPT_DEFINES)
-
 if(CONFIG_APPLICATION_MEMORY)
   # Objects default to being in kernel space, and then we exclude
   # certain items.
@@ -768,7 +766,10 @@ if(CONFIG_APPLICATION_MEMORY)
   foreach(f ${ks})
     set(def "${def} ${f}")
   endforeach()
-  list(APPEND LINKER_SCRIPT_DEFINES ${def})
+  set_property(GLOBAL APPEND PROPERTY
+	PROPERTY_LINKER_SCRIPT_DEFINES
+	${def}
+	)
 endif() # CONFIG_APPLICATION_MEMORY
 
 
