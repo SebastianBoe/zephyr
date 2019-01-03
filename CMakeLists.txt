@@ -669,6 +669,7 @@ zephyr_include_directories(${TOOLCHAIN_INCLUDES})
 
 zephyr_get_include_directories_for_lang(C ZEPHYR_INCLUDES)
 
+set(KERNEL_LIBRARY ${IMAGE}kernel)
 add_subdirectory(kernel)
 
 # Read list content
@@ -704,7 +705,7 @@ if(CONFIG_APPLICATION_MEMORY)
   # certain items.
   set(kernel_object_file_list
     ${ZEPHYR_LIBS_PROPERTY}
-    ${IMAGE}kernel
+    ${KERNEL_LIBRARY}
     )
   list(
     REMOVE_ITEM
@@ -827,8 +828,6 @@ set_property(TARGET
   ${ZEPHYR_INCLUDE_DIRS}
   )
 
-set(KERNEL kernel)
-
 set(zephyr_lnk
   ${LINKERFLAGPREFIX},-Map=${PROJECT_BINARY_DIR}/${KERNEL_MAP_NAME}
   -u_OffsetAbsSyms
@@ -836,7 +835,7 @@ set(zephyr_lnk
   ${LINKERFLAGPREFIX},--whole-archive
   ${ZEPHYR_LIBS_PROPERTY}
   ${LINKERFLAGPREFIX},--no-whole-archive
-  ${KERNEL}
+  ${KERNEL_LIBRARY}
   ${OFFSETS_O_PATH}
   ${LIB_INCLUDE_DIR}
   -L${PROJECT_BINARY_DIR}
@@ -1155,7 +1154,7 @@ if(CONFIG_CPU_HAS_MPU AND CONFIG_USERSPACE)
         add_custom_target(
           ${APP_SMEM_DEP} ALL
           DEPENDS app
-          ${IMAGE}kernel
+          ${KERNEL_LIBRARY}
          )
 
         add_custom_command(
