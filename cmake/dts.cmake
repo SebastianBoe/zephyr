@@ -94,7 +94,7 @@ if(CONFIG_HAS_DTS)
   execute_process(
     COMMAND ${CMAKE_C_COMPILER}
     -x assembler-with-cpp
-    -nostdinc
+#    -nostdinc
     -isystem ${DTS_APP_INCLUDE}
     -isystem ${ZEPHYR_BASE}/include
     -isystem ${ZEPHYR_BASE}/dts/${ARCH}

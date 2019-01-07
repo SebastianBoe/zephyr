@@ -1,3 +1,11 @@
+
+/* Prevent the mdk from including core_m4.h by defining it's header guard */
+/* core_m4.h is not in the set of include paths, and can therefore not be included */
+#define __CORE_CM4_H_GENERIC
+
+#define NRF52832_XXAA /* Used by nrf.h */
+#include <../ext/hal/nordic/nrfx/mdk/nrf.h>
+
 #include <arm/armv7-m.dtsi>
 #include <dt-bindings/i2c/i2c.h>
 #include <dt-bindings/gpio/gpio.h>
