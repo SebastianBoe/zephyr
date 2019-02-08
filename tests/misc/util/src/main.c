@@ -60,9 +60,9 @@ void test_LOOP_numerical(void)
 {
 	int i = 0;
 
-#define INC(x) (i += x)
+#define INC(j, _) i += j;
 
-	LOOP(INC, 4);
+    UTIL_LISTIFY(4, INC, _)
 
 	zassert_equal(i, 0 + 1 + 2 + 3, NULL);
 }
@@ -71,10 +71,10 @@ void test_LOOP_expansion(void)
 {
 	int i = 0;
 
-#define INC(x) (i += x)
+#define INC2(j, _) i += j;
 #define NUM 4
 
-	UTIL_EVAL(UTIL_DEFER(LOOP) (INC, NUM));
+    UTIL_LISTIFY(NUM, INC2, _)
 
 	zassert_equal(i, 0 + 1 + 2 + 3, NULL);
 }
