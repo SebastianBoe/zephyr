@@ -576,4 +576,22 @@ static inline s64_t arithmetic_shift_right(s64_t value, u8_t shift)
 		     z_rep_5, z_rep_4, z_rep_3, z_rep_2, z_rep_1, z_rep_0) \
 	 (fixed_arg, x, ##__VA_ARGS__)}
 
+/*
+ * LOOP is used for a number of statements with incremented argument, can
+ * be used for defining number of serial ports or other devices
+ *
+ * Note: When taking an argument configuration parameters (CONFIG_NUM_OF_xxx)
+ * following construction might be used:
+ *
+ * UTIL_EVAL(UTIL_DEFER(LOOP) (statement, number))
+ */
+
+#define loop_0(_fn, n)
+#define loop_1(_fn, n) _fn(0)
+#define loop_2(_fn, n) loop_1(_fn, n); _fn(1)
+#define loop_3(_fn, n) loop_2(_fn, n); _fn(2)
+#define loop_4(_fn, n) loop_3(_fn, n); _fn(3)
+
+#define LOOP(fun, n) loop_##n(fun, n)
+
 #endif /* ZEPHYR_INCLUDE_MISC_UTIL_H_ */

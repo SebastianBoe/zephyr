@@ -56,12 +56,37 @@ void test_COND_CODE_0(void)
 	zassert_true((y3 == 1), NULL);
 }
 
+void test_LOOP_numerical(void)
+{
+	int i = 0;
+
+#define INC(x) (i += x)
+
+	LOOP(INC, 4);
+
+	zassert_equal(i, 0 + 1 + 2 + 3, NULL);
+}
+
+void test_LOOP_expansion(void)
+{
+	int i = 0;
+
+#define INC(x) (i += x)
+#define NUM 4
+
+	UTIL_EVAL(UTIL_DEFER(LOOP) (INC, NUM));
+
+	zassert_equal(i, 0 + 1 + 2 + 3, NULL);
+}
+
 /*test case main entry*/
 void test_main(void)
 {
 	ztest_test_suite(test_ringbuffer_api,
 			 ztest_unit_test(test_COND_CODE_1),
-			 ztest_unit_test(test_COND_CODE_0)
+			 ztest_unit_test(test_COND_CODE_0),
+			 ztest_unit_test(test_LOOP_numerical),
+			 ztest_unit_test(test_LOOP_expansion)
 			 );
 	ztest_run_test_suite(test_ringbuffer_api);
 }
