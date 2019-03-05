@@ -1,0 +1,15 @@
+/*
+ * Copyright (c) 2019 Foundries.io
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	aliases {
+		dt-wnc-m14a2a-0-mdm-boot-mode-sel-gpios = &arduino_d1;
+		dt-wnc-m14a2a-0-mdm-power-gpios = &arduino_d2;
+		dt-wnc-m14a2a-0-mdm-keep-awake-gpios = &arduino_d6;
+		dt-wnc-m14a2a-0-mdm-reset-gpios = &arduino_d8;
+		dt-wnc-m14a2a-0-mdm-shld-trans-ena-gpios = &arduino_d9;
+	};
+};
