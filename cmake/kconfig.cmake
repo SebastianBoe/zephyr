@@ -89,6 +89,7 @@ set(
   ${BOARD_DEFCONFIG}
   ${CONF_FILE_AS_LIST}
   ${OVERLAY_CONFIG_AS_LIST}
+  ${shield_conf_files}
   ${EXTRA_KCONFIG_OPTIONS_FILE}
   ${config_files}
 )

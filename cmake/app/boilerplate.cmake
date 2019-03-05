@@ -279,7 +279,7 @@ foreach(root ${BOARD_ROOT})
     )
 
   # The above gives a list like
-  # x_nucleo_iks01a1/x_nucleo_iks01a1.overlay;x_nucleo_iks01a2/x_nucleo_iks01a2.overlay
+  # wnc_m14a2a/wnc_m14a2a.overlay;wnc_m14a2a/wnc_m14a2a-nrf52840_pca10056.overlay
   # we construct a list of shield names by extracting file name and
   # removing the extension.
   foreach(shield_path ${shields_refs_list})
@@ -289,6 +289,19 @@ foreach(root ${BOARD_ROOT})
 
   if(DEFINED SHIELD)
     foreach(s ${SHIELD_AS_LIST})
+      # search list for shield_X_board name
+      list(FIND SHIELD_LIST ${s}_X_${BOARD} _idx)
+      if (NOT _idx EQUAL -1)
+        list(GET shields_refs_list ${_idx} s_path)
+
+        # add shield-board overlay to the shield overlays list
+        list(APPEND
+          shield_dts_files
+          ${shield_dir}/${s_path}
+        )
+      endif()
+
+      # search list for shield name
       list(FIND SHIELD_LIST ${s} _idx)
       if (NOT _idx EQUAL -1)
         list(GET shields_refs_list ${_idx} s_path)
@@ -305,6 +318,50 @@ foreach(root ${BOARD_ROOT})
         )
       else()
         list(APPEND NOT_FOUND_SHIELD_LIST ${s})
+      endif()
+    endforeach()
+  endif()
+
+  # Match the .conf files in the shield directories to make sure we are
+  # finding shields, e.g. wnc_m14a2a/wnc_m14a2a.conf.conf
+  file(GLOB_RECURSE shields_conf_refs_list
+    RELATIVE ${shield_dir}
+    ${shield_dir}/*/*.conf
+    )
+
+  # The above gives a list like
+  # wnc_m14a2a/wnc_m14a2a.conf.conf;x_nucleo_iks01a2/x_nucleo_iks01a2.conf
+  # we construct a list of shield names by extracting file name and
+  # removing the extension.
+  foreach(shield_path ${shields_conf_refs_list})
+    get_filename_component(shield ${shield_path} NAME_WE)
+    list(APPEND SHIELD_CONF_LIST ${shield})
+  endforeach()
+
+  if(DEFINED SHIELD)
+    foreach(s ${SHIELD_AS_LIST})
+      list(FIND SHIELD_CONF_LIST ${s} _idx)
+      if (NOT _idx EQUAL -1)
+        list(GET shields_conf_refs_list ${_idx} s_path)
+
+        # if shield config flag is on, add shield conf to the shield configs
+        list(APPEND
+          shield_conf_files
+          ${shield_dir}/${s_path}
+        )
+      else()
+        list(APPEND NOT_FOUND_SHIELD_CONF_LIST ${s})
+      endif()
+
+      list(FIND SHIELD_CONF_LIST ${s}_X_${BOARD} _idx)
+      if (NOT _idx EQUAL -1)
+        list(GET shields_conf_refs_list ${_idx} s_path)
+
+        # if shield config flag is on, add shield-board conf to the shield configs
+        list(APPEND
+          shield_conf_files
+          ${shield_dir}/${s_path}
+        )
       endif()
     endforeach()
   endif()
