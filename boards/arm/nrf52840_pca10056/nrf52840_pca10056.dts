@@ -61,6 +61,28 @@
 		};
 	};
 
+	header_pins {
+		compatible = "arduino-header-r3";
+		arduino_d1: pin-d1 {
+			gpios = <&gpio1 2 0>;
+		};
+		arduino_d2: pin-d2 {
+			gpios = <&gpio1 3 0>;
+		};
+		arduino_d6: pin-d6 {
+			gpios = <&gpio1 7 0>;
+		};
+		arduino_d8: pin-d8 {
+			gpios = <&gpio1 10 0>;
+		};
+		arduino_d9: pin-d9 {
+			gpios = <&gpio1 11 0>;
+		};
+		arduino_d10: pin-d10 {
+			gpios = <&gpio1 12 0>;
+		};
+	};
+
 	/* These aliases are provided for compatibility with samples */
 	aliases {
 		led0 = &led0;
