@@ -20,32 +20,32 @@ properties:
       constraint: "wnc,m14a2a"
       generation: define
 
-    mdm-boot-mode-sel-gpios:
+    mdm-boot-mode-sel-gpios-gpio:
       type: compound
       category: required
       generation: define, use-prop-name
 
-    mdm-power-gpios:
+    mdm-power-gpios-gpio:
       type: compound
       category: required
       generation: define, use-prop-name
 
-    mdm-keep-awake-gpios:
+    mdm-keep-awake-gpios-gpio:
       type: compound
       category: required
       generation: define, use-prop-name
 
-    mdm-reset-gpios:
+    mdm-reset-gpios-gpio:
       type: compound
       category: required
       generation: define, use-prop-name
 
-    mdm-shld-trans-ena-gpios:
+    mdm-shld-trans-ena-gpios-gpio:
       type: compound
       category: required
       generation: define, use-prop-name
 
-    mdm-send-ok-gpios:
+    mdm-send-ok-gpios-gpio:
       type: compound
       category: optional
       description: UART RTS pin if no HW flow control (set to always enabled)
