@@ -289,15 +289,12 @@ foreach(root ${BOARD_ROOT})
 
   if(DEFINED SHIELD)
     foreach(s ${SHIELD_AS_LIST})
-      # search list for shield_X_board name
-      list(FIND SHIELD_LIST ${s}_X_${BOARD} _idx)
-      if (NOT _idx EQUAL -1)
-        list(GET shields_refs_list ${_idx} s_path)
-
+      set(shield_x_board_path ${shield_dir}/${s}/${s}_X_${BOARD}.overlay)
+      if(EXISTS ${shield_x_board_path})
         # add shield-board overlay to the shield overlays list
         list(APPEND
           shield_dts_files
-          ${shield_dir}/${s_path}
+          ${shield_x_board_path}
         )
       endif()
 
