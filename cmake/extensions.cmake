@@ -151,6 +151,24 @@ function(zephyr_add_executable name output_variable)
   set(${output_variable} 0 PARENT_SCOPE)
   string(TOUPPER ${name} UPNAME)
 
+  # Make sure we haven't already added this image, adding the same
+  # image twice is a mistake and is not supported.
+  get_property(
+    IMAGES
+    GLOBAL PROPERTY
+    IMAGES
+    )
+  list(FIND IMAGES ${name}_ out_var) # 'out_var' is '-1' if not found
+  if(NOT (${out_var} EQUAL -1))
+    message(FATAL_ERROR "zephyr_add_executable() was invoked twice with the parameter 'name='${name}''")
+  endif()
+
+  # Maintain a global list of images as property, and a mirror in the cache.
+  set_property(GLOBAL APPEND PROPERTY IMAGES ${name}_)
+  get_property(IMAGES GLOBAL PROPERTY IMAGES)
+  list(APPEND IMAGE_LIST ${name})
+  set(ZEPHYR_IMAGES ${IMAGE_LIST} CACHE STRING "List of zephyr image names" FORCE)
+
   if (CONFIG_${UPNAME}_BUILD_STRATEGY_USE_HEX_FILE)
     assert_exists(CONFIG_${UPNAME}_HEX_FILE)
     message("Using ${CONFIG_${UPNAME}_HEX_FILE} instead of building ${name}")
@@ -159,31 +177,24 @@ function(zephyr_add_executable name output_variable)
       ${CONFIG_${UPNAME}_HEX_FILE}
       ${APPLICATION_BINARY_DIR}/zephyr/${KERNEL_HEX_NAME}
       )
+    set(${name}_ZEPHYR_BUILD_STRATEGY USE_HEX_FILE CACHE STRING
+      "Build strategy for image ${name}" FORCE)
   elseif (CONFIG_${UPNAME}_BUILD_STRATEGY_SKIP_BUILD)
     message("Skipping building of ${name}")
+    set(${name}_ZEPHYR_BUILD_STRATEGY SKIP_BUILD CACHE STRING
+      "Build strategy for image ${name}" FORCE)
   else()
-    # Build normally
-
-    # Make sure we haven't already added this image, adding the same
-    # image twice is a mistake and is not supported.
-    get_property(
-      IMAGES
-      GLOBAL PROPERTY
-      IMAGES
-      )
-    list(FIND IMAGES ${name}_ out_var) # 'out_var' is '-1' if not found
-    if(NOT (${out_var} EQUAL -1))
-      message(FATAL_ERROR "zephyr_add_executable() was invoked twice with the parameter 'name='${name}''")
-    endif()
-
-    # Maintain a global list of images
-    set_property(GLOBAL APPEND PROPERTY IMAGES ${name}_)
+    # Build normally.
 
     # Set the active IMAGE
     set_property(GLOBAL PROPERTY IMAGE ${name}_)
 
     # Signal that the image should be built by setting output_variable
     set(${output_variable} 1 PARENT_SCOPE)
+
+    # Cache the build strategy.
+    set(${name}_ZEPHYR_BUILD_STRATEGY DEFAULT CACHE STRING
+      "Build strategy for image ${name}" FORCE)
   endif()
 
 endfunction()
