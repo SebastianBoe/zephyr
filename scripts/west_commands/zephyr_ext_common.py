@@ -36,19 +36,26 @@ class Forceable(WestCommand):
             log.err(msg)
             log.die('refusing to proceed without --force due to above error')
 
+def _cache_get(cache, var, hint):
+    ret = cache.get(var)
+    if ret is None:
+        log.die("Can't get", hint, "from cache", cache.cache_file,
+                '({} is unset)'.format(var))
+    return ret
 
-def cached_runner_config(build_dir, cache):
+def cached_runner_config(build_dir, cache, pfx=''):
     '''Parse the RunnerConfig from a build directory and CMake Cache.'''
-    board_dir = cache['ZEPHYR_RUNNER_CONFIG_BOARD_DIR']
-    elf_file = cache.get('ZEPHYR_RUNNER_CONFIG_ELF_FILE',
-                         cache['ZEPHYR_RUNNER_CONFIG_KERNEL_ELF'])
-    hex_file = cache.get('ZEPHYR_RUNNER_CONFIG_HEX_FILE',
-                         cache['ZEPHYR_RUNNER_CONFIG_KERNEL_HEX'])
-    bin_file = cache.get('ZEPHYR_RUNNER_CONFIG_BIN_FILE',
-                         cache['ZEPHYR_RUNNER_CONFIG_KERNEL_BIN'])
-    gdb = cache.get('ZEPHYR_RUNNER_CONFIG_GDB')
-    openocd = cache.get('ZEPHYR_RUNNER_CONFIG_OPENOCD')
-    openocd_search = cache.get('ZEPHYR_RUNNER_CONFIG_OPENOCD_SEARCH')
+    board_dir = _cache_get(cache, pfx + 'ZEPHYR_RUNNER_CONFIG_BOARD_DIR',
+                           'board directory')
+    elf_file = _cache_get(cache, pfx + 'ZEPHYR_RUNNER_CONFIG_KERNEL_ELF',
+                          'default ELF file')
+    hex_file = _cache_get(cache, pfx + 'ZEPHYR_RUNNER_CONFIG_KERNEL_HEX',
+                          'default HEX file')
+    bin_file = _cache_get(cache, pfx + 'ZEPHYR_RUNNER_CONFIG_KERNEL_BIN',
+                          'default BIN file')
+    gdb = cache.get(pfx + 'ZEPHYR_RUNNER_CONFIG_GDB')
+    openocd = cache.get(pfx + 'ZEPHYR_RUNNER_CONFIG_OPENOCD')
+    openocd_search = cache.get(pfx + 'ZEPHYR_RUNNER_CONFIG_OPENOCD_SEARCH')
 
     return RunnerConfig(build_dir, board_dir,
                         elf_file, hex_file, bin_file,
