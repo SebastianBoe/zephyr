@@ -3,7 +3,7 @@
 assert_not(FLASH_SCRIPT "FLASH_SCRIPT has been removed; use BOARD_FLASH_RUNNER")
 assert_not(DEBUG_SCRIPT "DEBUG_SCRIPT has been removed; use BOARD_DEBUG_RUNNER")
 
-get_property(RUNNERS GLOBAL PROPERTY ZEPHYR_RUNNERS)
+get_property(RUNNERS GLOBAL PROPERTY ${IMAGE}ZEPHYR_RUNNERS)
 
 # Enable verbose output, if requested.
 if(CMAKE_VERBOSE_MAKEFILE)
@@ -20,7 +20,7 @@ endif()
 # Everything is marked with FORCE so that re-running CMake updates the
 # configuration if the board files change.
 if(RUNNERS)
-  set(ZEPHYR_RUNNERS ${RUNNERS} CACHE INTERNAL "Available runners")
+  set(${IMAGE}ZEPHYR_RUNNERS ${RUNNERS} CACHE INTERNAL "Runners available for image")
 
   # Runner configuration. This is provided to all runners, and is
   # distinct from the free-form arguments provided by e.g.
