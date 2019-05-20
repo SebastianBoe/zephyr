@@ -31,9 +31,10 @@ def add_parser_common(parser_adder, command):
         formatter_class=argparse.RawDescriptionHelpFormatter,
         help=command.help,
         description=command.description)
+    command_verb = "flash" if command == "flash" else "debug"
 
-    # Remember to update scripts/west-completion.bash if you add or remove
-    # flags
+    # Update scripts/west_commands/completion/west-completion.bash if
+    # you add or remove flags.
 
     parser.add_argument('-H', '--context', action='store_true',
                         help='''Rebuild application and print context-sensitive
@@ -56,6 +57,10 @@ def add_parser_common(parser_adder, command):
                        If this is a relative path, it is assumed relative to
                        the build directory. An absolute path can also be
                        given instead.'''.format(cmake.DEFAULT_CACHE))
+    group.add_argument('-i', '--image', default='',
+                       help='''In a multi-image build, specifies the name
+                       of the IMAGE to {}. If not given, the main image
+                       is used.'''.format(command_verb))
     group.add_argument('-r', '--runner',
                        help='''If given, overrides any cached {}
                        runner.'''.format(command.name))
@@ -78,8 +83,6 @@ def add_parser_common(parser_adder, command):
     #
     # This is how we detect if the user provided them or not when
     # overriding values from the cached configuration.
-
-    command_verb = "flash" if command == "flash" else "debug"
 
     group.add_argument('--board-dir',
                        help='Zephyr board directory')
@@ -142,9 +145,11 @@ def _build_dir(args, die_if_none=True):
         return None
 
 
-def do_run_common(command, args, runner_args, cached_runner_var):
+def do_run_common(command, args, runner_args, runner_var_sfx):
     if args.context:
-        _dump_context(command, args, runner_args, cached_runner_var)
+        # FIXME: restore when this is multi-image safe
+        log.die("-H temporarily not supported")
+        # _dump_context(command, args, runner_args, runner_var_sfx)
         return
 
     command_name = command.name
@@ -164,32 +169,62 @@ def do_run_common(command, args, runner_args, cached_runner_var):
 
     # Runner creation, phase 1.
     #
-    # Get the default runner name from the cache, allowing a command
-    # line override. Get the ZephyrBinaryRunner class by name, and
-    # make sure it supports the command.
+    # Get the ZephyrBinaryRunner class from command line arguments and
+    # CMake cache, and make sure it supports the command.
 
     cache_file = path.join(build_dir, args.cmake_cache or cmake.DEFAULT_CACHE)
     cache = cmake.CMakeCache(cache_file)
-    board = cache['CACHED_BOARD']
-    available = cache.get_list('ZEPHYR_RUNNERS')
+    image = args.image
+    images = cache.get_list('ZEPHYR_IMAGES')
+    image_pfx = image + '_' if image else ''
+
+    if image:  # the default '' works as-is in a single or multi-image build.
+        if images is None:
+            log.die('image {} specified, but this is not a multi-image build'.
+                    format(image))
+        elif args.image not in images:
+            log.die('invalid sub-image {}; choose from: {}'.
+                    format(args.image, ', '.join(images)))
+
+    board_var = image_pfx + 'CACHED_BOARD'
+    board = cache.get(board_var)
+    if board is None:
+        log.die("Can't look up board in", cache_file, '(variable', board_var,
+                'is unset)')
+
+    image_runner_var = image_pfx + 'ZEPHYR_RUNNERS'
+    available = cache.get_list(image_runner_var)
     if not available:
-        log.wrn('No cached runners are available in', cache_file)
+        log.wrn('No runners are configured for', board, 'in', cache_file,
+                '(check variable {}); this may not work'.format(
+                    image_runner_var))
+
+    cached_runner_var = image_pfx + runner_var_sfx
     runner = args.runner or cache.get(cached_runner_var)
-
     if runner is None:
-        raise CommandContextError(textwrap.dedent("""
-        No {} runner available for {}. Please either specify one
-        manually, or check your board's documentation for
-        alternative instructions.""".format(command_name, board)))
-
+        log.die('No', command_name, 'runner available for board', board,
+                '({} is not in the cache).'.format(cached_runner_var),
+                "Check your board's documentation for instructions.")
+    log.inf('BOARD:', board)
     log.inf('Using runner:', runner)
     if runner not in available:
-        log.wrn('Runner {} is not configured for use with {}, '
+        log.wrn('Runner {} is not configured for use with board {}; '
                 'this may not work'.format(runner, board))
+
     runner_cls = get_runner_cls(runner)
     if command_name not in runner_cls.capabilities().commands:
         log.die('Runner {} does not support command {}'.format(
             runner, command_name))
+
+    # Sanity check a multi-image build configuration.
+    if image:
+        strategy = cache[image_pfx + 'ZEPHYR_BUILD_STRATEGY']
+        # TODO: support hex file management once we have a uniform
+        # runner argument strategy for specifying the file to flash.
+        if strategy != 'DEFAULT':
+            log.die("Can't flash image {}:".format(image),
+                    'no-default build strategy', strategy,
+                    'is not yet supported')
 
     # Runner creation, phase 2.
     #
@@ -199,7 +234,7 @@ def do_run_common(command, args, runner_args, cached_runner_var):
     # - Pull the RunnerConfig out of the cache
     # - Override cached values with applicable command-line options
 
-    cfg = cached_runner_config(build_dir, cache)
+    cfg = cached_runner_config(build_dir, cache, pfx=image_pfx)
     _override_config_from_namespace(cfg, args)
 
     # Runner creation, phase 3.
@@ -212,7 +247,8 @@ def do_run_common(command, args, runner_args, cached_runner_var):
     #   RunnerConfig and parsed arguments.
 
     cached_runner_args = cache.get_list(
-        'ZEPHYR_RUNNER_ARGS_{}'.format(cmake.make_c_identifier(runner)))
+        image_pfx + 'ZEPHYR_RUNNER_ARGS_{}'.
+        format(cmake.make_c_identifier(runner)))
     assert isinstance(runner_args, list), runner_args
     # If the user passed -- to force the parent argument parser to stop
     # parsing, it will show up here, and needs to be filtered out.
@@ -233,6 +269,13 @@ def do_run_common(command, args, runner_args, cached_runner_var):
 #
 
 def _dump_context(command, args, runner_args, cached_runner_var):
+    ##
+    ##
+    ## FIXME: not multi-image safe.
+    ##
+    ##
+    raise RuntimeError()
+
     build_dir = _build_dir(args, die_if_none=False)
 
     # Try to figure out the CMake cache file based on the build
