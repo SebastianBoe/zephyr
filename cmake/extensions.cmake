@@ -650,7 +650,7 @@ endfunction()
 function(board_runner_args runner)
   string(MAKE_C_IDENTIFIER ${runner} runner_id)
   # Note the "_EXPLICIT_" here, and see below.
-  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_EXPLICIT_${runner_id} ${ARGN})
+  set_property(GLOBAL APPEND PROPERTY ${IMAGE}BOARD_RUNNER_ARGS_EXPLICIT_${runner_id} ${ARGN})
 endfunction()
 
 # This function is intended for internal use by
@@ -679,10 +679,10 @@ function(board_finalize_runner_args runner)
 
   # Retrieve the list of explicitly set arguments.
   string(MAKE_C_IDENTIFIER ${runner} runner_id)
-  get_property(explicit GLOBAL PROPERTY "BOARD_RUNNER_ARGS_EXPLICIT_${runner_id}")
+  get_property(explicit GLOBAL PROPERTY "${IMAGE}BOARD_RUNNER_ARGS_EXPLICIT_${runner_id}")
 
   # Note no _EXPLICIT_ here. This property contains the final list.
-  set_property(GLOBAL APPEND PROPERTY BOARD_RUNNER_ARGS_${runner_id}
+  set_property(GLOBAL APPEND PROPERTY ${IMAGE}BOARD_RUNNER_ARGS_${runner_id}
     # Default arguments from the common runner file come first.
     ${ARGN}
     # Arguments explicitly given with board_runner_args() come
@@ -691,7 +691,7 @@ function(board_finalize_runner_args runner)
     )
 
   # Add the finalized runner to the global property list.
-  set_property(GLOBAL APPEND PROPERTY ZEPHYR_RUNNERS ${runner})
+  set_property(GLOBAL APPEND PROPERTY ${IMAGE}ZEPHYR_RUNNERS ${runner})
 endfunction()
 
 # 1.5. Misc.
