@@ -24,7 +24,7 @@ from west.util import quote_sh_list
 # Turn on to enable just printing the commands that would be run,
 # without actually running them. This can break runners that are expecting
 # output or if one command depends on another, so it's just for debugging.
-JUST_PRINT = False
+JUST_PRINT = True
 
 
 class _DebugDummyPopen:

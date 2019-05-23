@@ -38,9 +38,11 @@ class Forceable(WestCommand):
 
 def _cache_get(cache, var, hint):
     ret = cache.get(var)
+    print('-----> {}: {}'.format(var, ret))
     if ret is None:
         log.die("Can't get", hint, "from cache", cache.cache_file,
                 '({} is unset)'.format(var))
+    return ret
 
 def cached_runner_config(build_dir, cache, pfx=''):
     '''Parse the RunnerConfig from a build directory and CMake Cache.'''
