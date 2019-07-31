@@ -62,3 +62,82 @@ include(${ZEPHYR_BASE}/cmake/linker/${LINKER}/target.cmake OPTIONAL)
 # strategy chosen is to md5sum the CC binary.
 file(MD5 ${CMAKE_C_COMPILER} CMAKE_C_COMPILER_MD5_SUM)
 set(TOOLCHAIN_SIGNATURE ${CMAKE_C_COMPILER_MD5_SUM})
+
+# TODO: Is it possible to know if we are doing a multi-toolchain build
+# at this stage? I don't think so, so this code would need to be moved
+# later in the build.
+set(MULTI_TOOLCHAIN_BUILD 1)
+
+# TODO: Have the toolchain build scripts set ZEPHYR_C_COMPILER instead
+# of CMAKE_C_COMPILER.
+if(FIRST_BOILERPLATE_EXECUTION)
+  set(ZEPHYR_C_TOOLCHAIN ${CMAKE_C_COMPILER})
+else()
+  if(WIN32)
+    set(${IMAGE}ZEPHYR_C_TOOLCHAIN C:/gnuarmemb_2/bin/arm-none-eabi-gcc.exe)
+  else()
+    set(${IMAGE}ZEPHYR_C_TOOLCHAIN /home/sebo/Downloads/gcc-arm-none-eabi-8-2018-q4-major/bin/arm-none-eabi-gcc)
+  endif()
+endif()
+
+if(MULTI_TOOLCHAIN_BUILD)
+
+  # Don't use PYTHON_EXECUTABLE on Linux, as it can use shebang.
+  if(WIN32)
+    set(MAYBE_PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})
+    set(SPECIFY_COMPILER_OVERRIDE_WITH_ENV_VAR 0)
+  else()
+    set(MAYBE_PYTHON_EXECUTABLE)
+    set(SPECIFY_COMPILER_OVERRIDE_WITH_ENV_VAR 1)
+  endif()
+
+  unset(CMAKE_C_COMPILER_LAUNCHER)
+
+  if(SPECIFY_COMPILER_OVERRIDE_WITH_ENV_VAR)
+    list(APPEND
+      CMAKE_C_COMPILER_LAUNCHER
+      COMPILER_DRIVER_OVERRIDE=${${IMAGE}ZEPHYR_C_TOOLCHAIN}
+      )
+
+    set(COMPILER_DRIVER_ARGS
+      ${MAYBE_PYTHON_EXECUTABLE}
+      ${ZEPHYR_BASE}/scripts/compiler_driver.py
+      )
+  else()
+    set(COMPILER_DRIVER_ARGS
+      ${MAYBE_PYTHON_EXECUTABLE}
+      ${ZEPHYR_BASE}/scripts/compiler_driver.py
+      --override=${${IMAGE}ZEPHYR_C_TOOLCHAIN}
+      )
+
+  endif()
+
+  # Use ccache if it is installed, unless the user explicitly disables
+  # it by setting USE_CCACHE=0.
+  if(NOT (USE_CCACHE STREQUAL "0"))
+    find_program(CCACHE_FOUND ccache)
+    if(CCACHE_FOUND)
+      set(USING_CCACHE 1)
+    endif()
+  endif()
+
+  if(USING_CCACHE)
+    # TODO: Only use this for the non-app toolchain?
+    # TODO: Support CXX, ASM
+    set(ENV{CCACHE_PREFIX}
+      ${COMPILER_DRIVER_ARGS}
+      )
+
+    list(APPEND
+      CMAKE_C_COMPILER_LAUNCHER
+      CCACHE_PREFIX=${COMPILER_DRIVER_ARGS}
+      ${CCACHE_FOUND}
+      )
+  else()
+    list(APPEND
+      CMAKE_C_COMPILER_LAUNCHER
+      ${COMPILER_DRIVER_ARGS}
+      )
+  endif()
+
+endif()
