@@ -19,4 +19,12 @@
 
 #include <generated_dts_board_fixups.h>
 
+#if USE_PARTITION_MANAGER
+
+/* This header undefines unsupported DT symbols and translates others
+   from DT to Partition Manager. */
+#include "partition_manager_overrides.h"
+
+#endif /* USE_PARTITION_MANAGER */
+
 #endif /* GENERATED_DTS_BOARD_H */
