@@ -1,0 +1,2 @@
+config TOOLCHAIN_ESPRESSIF
+	def_bool y

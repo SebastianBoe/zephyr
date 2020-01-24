@@ -1,0 +1,1 @@
+source "cmake/toolchain/zephyr/$(SDK_MAJOR_MINOR)/Kconfig"

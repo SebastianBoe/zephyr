@@ -1,0 +1,2 @@
+config TOOLCHAIN_LLVM
+	def_bool y

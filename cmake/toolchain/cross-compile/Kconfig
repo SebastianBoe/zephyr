@@ -1,0 +1,2 @@
+config TOOLCHAIN_CROSS_COMPILE
+	def_bool y
