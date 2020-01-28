@@ -1,2 +1,3 @@
 config TOOLCHAIN_GNUARMEMB
 	def_bool y
+	select HAS_NEWLIB_LIBC_NANO
