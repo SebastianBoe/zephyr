@@ -45,7 +45,7 @@ source "subsys/Kconfig"
 
 source "ext/Kconfig"
 
-source "cmake/toolchain/$(ZEPHYR_TOOLCHAIN_VARIANT)/Kconfig"
+osource "$(TOOLCHAIN_KCONFIG_DIR)/Kconfig"
 
 menu "Build and Link Features"
 

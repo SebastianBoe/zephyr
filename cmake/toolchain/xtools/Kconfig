@@ -1,2 +1,0 @@
-config TOOLCHAIN_XTOOLS
-	def_bool y

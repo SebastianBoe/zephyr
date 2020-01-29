@@ -1,2 +1,0 @@
-config TOOLCHAIN_XCC
-	def_bool y

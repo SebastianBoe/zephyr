@@ -1,2 +1,0 @@
-config TOOLCHAIN_ZEPHYR_0_10
-	def_bool y

@@ -61,7 +61,9 @@ if(${ARCH} STREQUAL "posix")
 endif()
 
 # Configure the toolchain based on what SDK/toolchain is in use.
-include(${TOOLCHAIN_ROOT}/cmake/toolchain/${ZEPHYR_TOOLCHAIN_VARIANT}/generic.cmake)
+include(                         ${TOOLCHAIN_ROOT}/cmake/toolchain/${ZEPHYR_TOOLCHAIN_VARIANT}/generic.cmake)
+
+set_ifndef(TOOLCHAIN_KCONFIG_DIR ${TOOLCHAIN_ROOT}/cmake/toolchain/${ZEPHYR_TOOLCHAIN_VARIANT})
 
 # Configure the toolchain based on what toolchain technology is used
 # (gcc, host-gcc etc.)
