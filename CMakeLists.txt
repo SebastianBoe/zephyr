@@ -624,6 +624,7 @@ add_custom_command(
   ${PYTHON_EXECUTABLE}
   ${ZEPHYR_BASE}/scripts/gen_kobject_list.py
   --validation-output ${DRV_VALIDATION}
+  --subsystems \"$<TARGET_PROPERTY:zephyr_property_target,SUBSYSTEMS>\"
   $<$<BOOL:${CMAKE_VERBOSE_MAKEFILE}>:--verbose>
   DEPENDS ${ZEPHYR_BASE}/scripts/gen_kobject_list.py
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

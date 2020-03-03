@@ -93,28 +93,6 @@ kobjects = OrderedDict([
 
 
 subsystems = [
-    "adc_driver_api",
-    "aio_cmp_driver_api",
-    "counter_driver_api",
-    "crypto_driver_api",
-    "dma_driver_api",
-    "flash_driver_api",
-    "gpio_driver_api",
-    "i2c_driver_api",
-    "i2s_driver_api",
-    "ipm_driver_api",
-    "led_driver_api",
-    "pinmux_driver_api",
-    "pwm_driver_api",
-    "entropy_driver_api",
-    "sensor_driver_api",
-    "spi_driver_api",
-    "uart_driver_api",
-    "can_driver_api",
-    "ptp_clock_driver_api",
-    "eeprom_driver_api",
-    "wdt_driver_api",
-
     # Fake 'sample driver' subsystem, used by tests/samples
     "sample_driver_api"
 ]
@@ -340,6 +318,11 @@ def parse_args():
 
     parser.add_argument("-k", "--kernel", required=False,
                         help="Input zephyr ELF binary")
+
+    parser.add_argument("-i", "--subsystems", required=False,
+                        help='''Specifies a list of subsystem names to append to
+        the driver subsystems list.''')
+
     parser.add_argument(
         "-g", "--gperf-output", required=False,
         help="Output list of kernel object addresses for gperf use")
@@ -364,6 +347,9 @@ def parse_args():
 
 def main():
     parse_args()
+
+    if args.subsystems:
+        subsystems.extend([s + '_driver_api' for s in args.subsystems.split(';')])
 
     if args.gperf_output:
         assert args.kernel, "--kernel ELF required for --gperf-output"

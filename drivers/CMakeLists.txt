@@ -48,3 +48,13 @@ add_subdirectory_ifdef(CONFIG_ENTROPY_HAS_DRIVER entropy)
 add_subdirectory_ifdef(CONFIG_SYS_CLOCK_EXISTS timer)
 add_subdirectory_ifdef(CONFIG_NEURAL_NET_ACCEL neural_net)
 add_subdirectory_ifdef(CONFIG_PTP_CLOCK        ptp_clock)
+
+set_property(
+  TARGET zephyr_property_target
+  APPEND_STRING
+  PROPERTY SUBSYSTEMS
+  adc
+  aio_cmp
+  counter
+  # etc.
+  )
