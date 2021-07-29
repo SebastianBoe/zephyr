@@ -75,10 +75,12 @@ static bool pwm_period_check_and_set(const struct device *dev,
 			data->period_cycles = period_cycles;
 			data->prescaler     = prescaler;
 
-			nrf_pwm_configure(config->pwm.p_registers,
-					  data->prescaler,
-					  config->initial_config.count_mode,
-					  (uint16_t)countertop);
+			nrfx_pwm_config_t reconf = config->initial_config;
+			reconf.nrfy_config.base_clock = data->prescaler;
+			reconf.nrfy_config.top_value  = data->countertop;
+			reconf.skip_gpio_cfg          = true;
+
+			nrfx_pwm_reconfigure(&config->pwm, &reconf);
 			return true;
 		}
 
@@ -123,7 +125,7 @@ static int pwm_nrfx_set_cycles(const struct device *dev, uint32_t channel,
 	 * are effectively doubled by the up-down count, so halve them here
 	 * to compensate.
 	 */
-	if (config->initial_config.count_mode == NRF_PWM_MODE_UP_AND_DOWN) {
+	if (config->initial_config.nrfy_config.count_mode == NRF_PWM_MODE_UP_AND_DOWN) {
 		period_cycles /= 2;
 		pulse_cycles /= 2;
 	}
@@ -169,7 +171,7 @@ static int pwm_nrfx_set_cycles(const struct device *dev, uint32_t channel,
 				out_level ^= 1;
 			}
 
-			nrf_gpio_pin_write(psel, out_level);
+			nrfy_gpio_pin_write(psel, out_level);
 		}
 
 		data->pwm_needed &= ~BIT(channel);
@@ -198,8 +200,11 @@ static int pwm_nrfx_set_cycles(const struct device *dev, uint32_t channel,
 			 * and till that moment, it ignores any start requests,
 			 * so ensure here that it is stopped.
 			 */
-			while (!nrfx_pwm_is_stopped(&config->pwm)) {
-			}
+			nrfx_pwm_stop(&config->pwm, true);
+			nrfx_pwm_simple_playback(&config->pwm,
+						 &config->seq,
+						 1,
+						 NRFX_PWM_FLAG_LOOP);
 		}
 
 		/* It is sufficient to play the sequence once without looping.
@@ -250,7 +255,7 @@ static int pwm_nrfx_init(const struct device *dev)
 			 * state of their outputs has been set by pinctrl (high
 			 * idle state means that the channel is inverted).
 			 */
-			initially_inverted |= nrf_gpio_pin_out_read(psel) ?
+			initially_inverted |= nrfy_gpio_pin_out_read(psel) ?
 					      BIT(i) : 0;
 		}
 	}
