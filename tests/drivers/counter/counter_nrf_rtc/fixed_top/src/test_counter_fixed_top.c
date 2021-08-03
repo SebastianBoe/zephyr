@@ -8,7 +8,7 @@
 #include <zephyr/ztest.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <hal/nrf_rtc.h>
+#include <haly/nrfy_rtc.h>
 LOG_MODULE_REGISTER(test);
 
 static volatile uint32_t top_cnt;
@@ -105,7 +105,7 @@ static void test_top_handler_on_instance(int idx)
 	err = counter_set_top_value(dev, &top_cfg);
 	zassert_equal(0, err, "%s: Unexpected error code (%d)", dev->name, err);
 
-	nrf_rtc_task_trigger(reg, NRF_RTC_TASK_TRIGGER_OVERFLOW);
+	nrfy_rtc_task_trigger(reg, NRF_RTC_TASK_TRIGGER_OVERFLOW);
 
 	counter_start(dev);
 	k_busy_wait(10000);
