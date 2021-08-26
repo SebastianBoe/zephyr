@@ -74,6 +74,10 @@ BUILD_ASSERT(RTC1_IRQn == 22,
  */
 #define _ISR_OFFSET 8
 
+#elif defined(CONFIG_SOC_SERIES_HALTIUM)
+#undef _ISR_OFFSET
+// Interrupt lines 96-98 is the first set of consecutive interrupts implemented in Haltium.
+#define _ISR_OFFSET 96
 #endif /* CONFIG_SOC_SERIES_NRF52X */
 
 
@@ -215,6 +219,10 @@ vth __irq_vector_table _irq_vector_table[] = {
 	rtc_nrf_isr
 };
 #endif
+#elif defined(CONFIG_SOC_SERIES_HALTIUM)
+vth __irq_vector_table _irq_vector_table[] = {
+	[_ISR_OFFSET]isr0,isr1,isr2
+};
 #endif
 #elif defined(CONFIG_SOC_SERIES_CC13X2_CC26X2) || defined(CONFIG_SOC_SERIES_CC13X2X7_CC26X2X7)
 /* TI CC13x2/CC26x2 based platforms also employ a Hardware RTC peripheral
