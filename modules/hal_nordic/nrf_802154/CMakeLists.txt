@@ -5,15 +5,28 @@ zephyr_library_named(nrf-802154-platform)
 zephyr_interface_library_named(zephyr-802154-interface)
 
 if (CONFIG_NRF_802154_RADIO_DRIVER)
-  target_sources(nrf-802154-platform
-    PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}/radio/platform/nrf_802154_random_zephyr.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_gpiote_crit_sect.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_clock_zephyr.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_gpiote_zephyr.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_irq_zephyr.c
-      ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_temperature_zephyr.c
-  )
+  if (CONFIG_SOC_SERIES_HALTIUM)
+    target_sources(nrf-802154-platform
+      PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/radio/platform/nrf_802154_nonrandom.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_gpiote_crit_sect_null.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_clock_null.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_gpiote_null.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_irq_zephyr.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_temperature_none.c
+    )
+  else ()
+    target_sources(nrf-802154-platform
+      PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/radio/platform/nrf_802154_random_zephyr.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_gpiote_crit_sect.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_clock_zephyr.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_gpiote_zephyr.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_irq_zephyr.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_temperature_none.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sl_opensource/platform/nrf_802154_temperature_zephyr.c
+    )
+  endif()
 
   target_compile_definitions(zephyr-802154-interface
     INTERFACE
@@ -68,10 +81,13 @@ target_compile_definitions(zephyr-802154-interface
     NRF_802154_RX_BUFFERS=${CONFIG_NRF_802154_RX_BUFFERS}
 
     NRF_802154_TX_STARTED_NOTIFY_ENABLED=1
-
-    # ACK timeout
-    NRF_802154_ACK_TIMEOUT_ENABLED=1
 )
+
+if (CONFIG_SOC_SERIES_HALTIUM)
+  target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ACK_TIMEOUT_ENABLED=0)
+else ()
+  target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ACK_TIMEOUT_ENABLED=1)
+endif ()
 
 if (CONFIG_NRF_802154_ENCRYPTION)
   target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ENCRYPTION_ENABLED=1)
