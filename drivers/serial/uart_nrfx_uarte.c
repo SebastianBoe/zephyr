@@ -85,6 +85,7 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 /* DMA doesn't work from all memories on Palladium. Hopefully this memory is not used. */
 uint8_t * dma_char_buf = (uint8_t *)0x2FC04200;
 uint8_t * dma_buf      = (uint8_t *)0x2FC04204;
+uint8_t * dma_rx_data  = (uint8_t *)0x2FC04300;
 #endif
 
 #ifdef UARTE_ANY_ASYNC
@@ -1481,7 +1482,11 @@ static int uarte_nrfx_poll_in(const struct device *dev, unsigned char *c)
 		return -1;
 	}
 
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+	*c = *dma_rx_data;
+#else
 	*c = *data->rx_data;
+#endif
 
 	/* clear the interrupt */
 	nrf_uarte_event_clear(uarte, NRF_UARTE_EVENT_ENDRX);
@@ -1812,7 +1817,11 @@ static int uarte_instance_init(const struct device *dev,
 		if (!cfg->disable_rx) {
 			nrf_uarte_event_clear(uarte, NRF_UARTE_EVENT_ENDRX);
 
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+			nrf_uarte_rx_buffer_set(uarte, dma_rx_data, 1);
+#else
 			nrf_uarte_rx_buffer_set(uarte, data->rx_data, 1);
+#endif
 			nrf_uarte_task_trigger(uarte, NRF_UARTE_TASK_STARTRX);
 		}
 	}
