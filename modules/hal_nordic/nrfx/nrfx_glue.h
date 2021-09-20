@@ -251,6 +251,24 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 
 //------------------------------------------------------------------------------
 
+/**
+ * @brief Macro for flushing cache lines associated with the specified buffer.
+ *
+ * @param[in] p_buffer Pointer to the buffer.
+ * @param[in] size     Size of the buffer.
+ */
+#define NRFY_CACHE_FLUSH(p_buffer, size)
+
+/**
+ * @brief Macro for invalidating cache lines associated with the specified buffer.
+ *
+ * @param[in] p_buffer Pointer to the buffer.
+ * @param[in] size     Size of the buffer.
+ */
+#define NRFY_CACHE_INVALIDATE(p_buffer, size)
+
+//------------------------------------------------------------------------------
+
 /** @brief Bitmask that defines DPPI channels that are reserved for use outside of the nrfx library. */
 #define NRFX_DPPI_CHANNELS_USED   (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR |    \
 				   NRFX_PPI_CHANNELS_USED_BY_802154_DRV | \
