@@ -342,6 +342,11 @@
 #define NRFX_I2S_ENABLED 0
 #endif
 
+// <q> NRFX_I2S0_ENABLED  - Enable I2S0 instance.
+#ifndef NRFX_I2S0_ENABLED
+#define NRFX_I2S0_ENABLED 0
+#endif
+
 // <o> NRFX_I2S_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
 
 // <0=> 0 (highest)
