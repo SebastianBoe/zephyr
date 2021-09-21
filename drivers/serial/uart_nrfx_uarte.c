@@ -1468,8 +1468,9 @@ static void uarte_nrfx_isr_async(const struct device *dev)
  */
 static int uarte_nrfx_poll_in(const struct device *dev, unsigned char *c)
 {
-
-	const struct uarte_nrfx_data *data = dev->data;
+#if defined(CONFIG_UART_ASYNC_API) || !defined(CONFIG_SOC_SERIES_HALTIUM)
+	const struct uarte_nrfx_data *data = get_dev_data(dev);
+#endif
 	NRF_UARTE_Type *uarte = get_uarte_instance(dev);
 
 #ifdef UARTE_ANY_ASYNC
