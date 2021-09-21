@@ -11,6 +11,12 @@ menuconfig I2S_NRFX
 
 if I2S_NRFX
 
+config I2S_0_NRF_I2S
+	def_bool HAS_HW_NRF_I2S0
+	select NRFX_I2S0
+	help
+	  Enable nrfx I2S driver on instance 0.
+
 config I2S_NRFX_RX_BLOCK_COUNT
 	int "RX queue length"
 	default 4
