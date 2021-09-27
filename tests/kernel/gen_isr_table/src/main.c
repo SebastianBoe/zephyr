@@ -52,8 +52,8 @@ extern uint32_t _irq_vector_table[];
  * the test, so that it does not try to use some unavailable ones.
  */
 #define TEST_NUM_IRQS	33
-#elif defined(CONFIG_SOC_HALTIUM_APPLICATION)
-/* In application core in haltium, not all interrupts with highest
+#elif defined(CONFIG_SOC_SERIES_HALTIUM)
+/* In haltium, not all interrupts with highest
  * numbers are implemented. Thus, limit the number of interrupts reported to
  * the test, so that it does not try to use some unavailable ones.
  */
