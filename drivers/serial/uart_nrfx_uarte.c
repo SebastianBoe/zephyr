@@ -1594,7 +1594,12 @@ static int uarte_nrfx_fifo_read(const struct device *dev,
 		nrf_uarte_event_clear(uarte, NRF_UARTE_EVENT_ENDRX);
 
 		/* Receive a character */
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+		(void)data;
+		rx_data[num_rx++] = *dma_rx_data;
+#else
 		rx_data[num_rx++] = *data->rx_data;
+#endif
 
 		nrf_uarte_task_trigger(uarte, NRF_UARTE_TASK_STARTRX);
 	}
