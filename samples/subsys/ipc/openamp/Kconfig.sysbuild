@@ -13,3 +13,4 @@ string
 	default "mimxrt1170_evk_cm4" if $(BOARD) = "mimxrt1170_evk_cm7"
 	default "mimxrt1160_evk_cm4" if $(BOARD) = "mimxrt1160_evk_cm7"
 	default "haltium_palladium_network" if $(BOARD) = "haltium_palladium_application"
+	default "haltium_fpga_network" if $(BOARD) = "haltium_fpga_application"

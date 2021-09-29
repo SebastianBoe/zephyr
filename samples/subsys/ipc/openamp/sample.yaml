@@ -4,7 +4,9 @@ sample:
   name: OpenAMP example integration
 tests:
   sample.ipc.openamp:
-    platform_allow: lpcxpresso54114_m4 lpcxpresso55s69_cpu0 mps2_an521 v2m_musca_b1 v2m_musca haltium_palladium_network haltium_palladium_application
+    platform_allow: lpcxpresso54114_m4 lpcxpresso55s69_cpu0 mps2_an521 v2m_musca v2m_musca_b1
+                    haltium_palladium_network haltium_palladium_application
+                    haltium_fpga_network haltium_fpga_application
     integration_platforms:
       - mps2_an521
     tags: ipm
