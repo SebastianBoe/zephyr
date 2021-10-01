@@ -77,7 +77,7 @@ extern const int32_t z_sys_timer_irq_for_test;
  */
 #if !defined(CONFIG_CPU_CORTEX_M1) && !defined(CONFIG_NIOS2) &&           \
 	(!defined(CONFIG_RISCV) || defined(CONFIG_RISCV_HAS_CPU_IDLE)) && \
-	!defined(CONFIG_SOC_SERIES_HALTIUM)
+	!defined(CONFIG_SOC_PLATFORM_HALTIUM)
 #define HAS_POWERSAVE_INSTRUCTION
 #endif
 
