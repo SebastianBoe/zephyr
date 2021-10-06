@@ -5,7 +5,7 @@ zephyr_library_named(nrf-802154-platform)
 zephyr_interface_library_named(zephyr-802154-interface)
 
 if (CONFIG_NRF_802154_RADIO_DRIVER)
-  if (CONFIG_SOC_SERIES_HALTIUM)
+  if (CONFIG_SOC_PLATFORM_HALTIUM)
     target_sources(nrf-802154-platform
       PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/radio/platform/nrf_802154_nonrandom.c
@@ -83,7 +83,7 @@ target_compile_definitions(zephyr-802154-interface
     NRF_802154_TX_STARTED_NOTIFY_ENABLED=1
 )
 
-if (CONFIG_SOC_SERIES_HALTIUM)
+if (CONFIG_SOC_PLATFORM_HALTIUM)
   target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ACK_TIMEOUT_ENABLED=0)
 else ()
   target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ACK_TIMEOUT_ENABLED=1)
