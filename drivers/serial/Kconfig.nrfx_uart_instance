@@ -19,14 +19,6 @@ config UART_$(nrfx_uart_num)_NRF_UARTE
 
 if UART_$(nrfx_uart_num)_NRF_UART || UART_$(nrfx_uart_num)_NRF_UARTE
 
-config UART_$(nrfx_uart_num)_ENHANCED_POLL_OUT
-	bool "Efficient poll out on port $(nrfx_uart_num)"
-	default y
-	depends on UART_$(nrfx_uart_num)_NRF_UARTE
-	help
-	  When enabled, polling out does not trigger interrupt which stops TX.
-	  Feature uses a PPI channel.
-
 config UART_$(nrfx_uart_num)_INTERRUPT_DRIVEN
 	bool "Enable interrupt support on port $(nrfx_uart_num)"
 	depends on UART_INTERRUPT_DRIVEN
