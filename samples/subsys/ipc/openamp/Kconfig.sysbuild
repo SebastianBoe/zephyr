@@ -12,5 +12,5 @@ string
 	default "v2m_musca_b1_ns" if $(BOARD) = "v2m_musca_b1"
 	default "mimxrt1170_evk_cm4" if $(BOARD) = "mimxrt1170_evk_cm7"
 	default "mimxrt1160_evk_cm4" if $(BOARD) = "mimxrt1160_evk_cm7"
-	default "haltium_palladium_network" if $(BOARD) = "haltium_palladium_application"
-	default "haltium_fpga_network" if $(BOARD) = "haltium_fpga_application"
+	default "nrf54emu_nrf5440_cpunet" if $(BOARD) = "nrf54emu_nrf5440_cpuapp"
+	default "nrf54fpga_nrf5440_cpune" if $(BOARD) = "nrf54fpga_nrf5440_cpuapp"
