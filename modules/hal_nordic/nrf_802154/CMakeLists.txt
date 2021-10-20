@@ -81,13 +81,8 @@ target_compile_definitions(zephyr-802154-interface
     NRF_802154_RX_BUFFERS=${CONFIG_NRF_802154_RX_BUFFERS}
 
     NRF_802154_TX_STARTED_NOTIFY_ENABLED=1
+    NRF_802154_ACK_TIMEOUT_ENABLED=1
 )
-
-if (CONFIG_SOC_PLATFORM_HALTIUM)
-  target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ACK_TIMEOUT_ENABLED=0)
-else ()
-  target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ACK_TIMEOUT_ENABLED=1)
-endif ()
 
 if (CONFIG_NRF_802154_ENCRYPTION)
   target_compile_definitions(zephyr-802154-interface INTERFACE NRF_802154_ENCRYPTION_ENABLED=1)
