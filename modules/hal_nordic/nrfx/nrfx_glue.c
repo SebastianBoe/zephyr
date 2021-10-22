@@ -45,3 +45,39 @@ char const *nrfx_error_string_get(nrfx_err_t code)
 		default: return "unknown";
 	}
 }
+
+static inline void nrfx_irq_pending_set(IRQn_Type irq_number)
+{
+	NRFX_ASSERT(INTERRUPT_NUMBER_IS_VALID(irq_number));
+#if ISA_ARM
+	NVIC_SetPendingIRQ(irq_number);
+#elif ISA_RISCV
+	NRF_VPR->CLIC.CLICINT[irq_number] =
+		((NRF_VPR->CLIC.CLICINT[irq_number] & ~VPR_CLIC_CLICINT_IP_Msk) |
+		 (VPR_CLIC_CLICINT_IP_Pending << VPR_CLIC_CLICINT_IP_Pos));
+#endif
+}
+
+static inline void nrfx_irq_pending_clear(IRQn_Type irq_number)
+{
+	NRFX_ASSERT(INTERRUPT_NUMBER_IS_VALID(irq_number));
+#if ISA_ARM
+	NVIC_ClearPendingIRQ(irq_number);
+#elif ISA_RISCV
+	NRF_VPR->CLIC.CLICINT[irq_number] =
+		((NRF_VPR->CLIC.CLICINT[irq_number] & ~VPR_CLIC_CLICINT_IP_Msk) |
+		 (VPR_CLIC_CLICINT_IP_NotPending << VPR_CLIC_CLICINT_IP_Pos));
+#endif
+}
+
+bool nrfx_irq_is_pending(IRQn_Type irq_number)
+{
+	NRFX_ASSERT(INTERRUPT_NUMBER_IS_VALID(irq_number));
+#if ISA_ARM
+	return (NVIC_GetPendingIRQ(irq_number) == 1);
+#elif ISA_RISCV
+	return VPR_CLIC_CLICINT_IP_Pending ==
+	((NRF_VPR->CLIC.CLICINT[irq_number] & VPR_CLIC_CLICINT_IP_Msk)
+	 >> VPR_CLIC_CLICINT_IP_Pos);
+#endif
+}

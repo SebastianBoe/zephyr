@@ -84,14 +84,14 @@ extern "C" {
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_PENDING_SET(irq_number)  NVIC_SetPendingIRQ(irq_number)
+#define NRFX_IRQ_PENDING_SET(irq_number) nrfx_irq_pending_set(irq_number)
 
 /**
  * @brief Macro for clearing the pending status of a specific IRQ.
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_PENDING_CLEAR(irq_number)  NVIC_ClearPendingIRQ(irq_number)
+#define NRFX_IRQ_PENDING_CLEAR(irq_number) nrfx_irq_pending_clear(irq_number)
 
 /**
  * @brief Macro for checking the pending status of a specific IRQ.
@@ -99,7 +99,7 @@ extern "C" {
  * @retval true  If the IRQ is pending.
  * @retval false Otherwise.
  */
-#define NRFX_IRQ_IS_PENDING(irq_number)  (NVIC_GetPendingIRQ(irq_number) == 1)
+#define NRFX_IRQ_IS_PENDING(irq_number) nrfx_irq_is_pending(irq_number)
 
 /** @brief Macro for entering into a critical section. */
 #define NRFX_CRITICAL_SECTION_ENTER()  { unsigned int irq_lock_key = irq_lock();
@@ -257,7 +257,11 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
  * @param[in] p_buffer Pointer to the buffer.
  * @param[in] size     Size of the buffer.
  */
-#define NRFY_CACHE_FLUSH(p_buffer, size)
+#define NRFY_CACHE_FLUSH(p_buffer, size) \
+	do {				 \
+		(void)p_buffer;		 \
+		(void)size;		 \
+	} while (0)
 
 /**
  * @brief Macro for invalidating cache lines associated with the specified buffer.
@@ -265,7 +269,11 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
  * @param[in] p_buffer Pointer to the buffer.
  * @param[in] size     Size of the buffer.
  */
-#define NRFY_CACHE_INVALIDATE(p_buffer, size)
+#define NRFY_CACHE_INVALIDATE(p_buffer, size) \
+	do {				      \
+		(void)p_buffer;		      \
+		(void)size;		      \
+	} while (0)
 
 //------------------------------------------------------------------------------
 
@@ -372,6 +380,8 @@ void nrfx_isr(const void *irq_handler);
 #endif
 
 /** @} */
+
+bool nrfx_irq_is_pending(IRQn_Type irq_number);
 
 #ifdef __cplusplus
 }
