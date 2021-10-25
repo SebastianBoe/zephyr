@@ -45,6 +45,12 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
+#if ISA_ARM
+#define INTERRUPT_NUMBER_IS_VALID(num) (true)
+#elif ISA_RISCV
+#define INTERRUPT_NUMBER_IS_VALID(num) (((num) >= 0) && ((num) < 480))
+#endif
+
 /**
  * @brief Macro for setting the priority of a specific IRQ.
  *
