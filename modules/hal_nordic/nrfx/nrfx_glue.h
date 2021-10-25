@@ -46,6 +46,16 @@ extern "C" {
 //------------------------------------------------------------------------------
 
 #if ISA_ARM
+#ifdef NRF51
+#define INTERRUPT_PRIORITY_IS_VALID(pri) ((pri) < 4)
+#else // NRF51
+#define INTERRUPT_PRIORITY_IS_VALID(pri) ((pri) < 8)
+#endif //NRF52
+#elif ISA_RISCV
+#define INTERRUPT_PRIORITY_IS_VALID(pri) ((pri) < 4)
+#endif
+
+#if ISA_ARM
 #define INTERRUPT_NUMBER_IS_VALID(num) (true)
 #elif ISA_RISCV
 #define INTERRUPT_NUMBER_IS_VALID(num) (((num) >= 0) && ((num) < 480))
