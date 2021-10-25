@@ -80,6 +80,16 @@ config NRFX_EGU5
 	depends on $(dt_nodelabel_has_compat,egu5,$(DT_COMPAT_NORDIC_NRF_EGU))
 	select NRFX_EGU
 
+config NRFX_EGU020
+	bool "Enable EGU020 instance"
+	depends on HAS_HW_NRF_EGU020
+	select NRFX_EGU
+
+config NRFX_EGU130
+	bool "Enable EGU130 instance"
+	depends on HAS_HW_NRF_EGU130
+	select NRFX_EGU
+
 config NRFX_GPIOTE
 	bool "GPIOTE driver"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_GPIOTE))
