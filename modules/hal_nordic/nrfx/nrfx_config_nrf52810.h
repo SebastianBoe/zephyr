@@ -639,6 +639,11 @@
 #define NRFX_QDEC_ENABLED 0
 #endif
 
+// <q> NRFX_QDEC0_ENABLED - Enable QDEC0 instance
+#ifndef NRFX_QDEC0_ENABLED
+#define NRFX_QDEC0_ENABLED 0
+#endif
+
 // <o> NRFX_QDEC_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
 
 // <0=> 0 (highest)

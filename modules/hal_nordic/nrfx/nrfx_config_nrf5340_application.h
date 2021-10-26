@@ -97,9 +97,6 @@
 #define NRF_UICR         NRF_UICR_S
 #endif
 
-/* Fixup for the QDEC driver. */
-#define NRF_QDEC         NRF_QDEC0
-
 /* Fixup for the GPIOTE driver. */
 #if defined(NRF_TRUSTZONE_NONSECURE)
 #define NRF_GPIOTE       NRF_GPIOTE1
@@ -1040,6 +1037,16 @@
 //==========================================================
 #ifndef NRFX_QDEC_ENABLED
 #define NRFX_QDEC_ENABLED 0
+#endif
+
+// <q> NRFX_QDEC0_ENABLED - Enable QDEC0 instance
+#ifndef NRFX_QDEC0_ENABLED
+#define NRFX_QDEC0_ENABLED 0
+#endif
+
+// <q> NRFX_QDEC1_ENABLED - Enable QDEC1 instance
+#ifndef NRFX_QDEC1_ENABLED
+#define NRFX_QDEC1_ENABLED 0
 #endif
 
 // <o> NRFX_QDEC_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
