@@ -275,8 +275,8 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
  */
 #define NRFY_CACHE_FLUSH(p_buffer, size) \
 	do {				 \
-		(void)p_buffer;		 \
-		(void)size;		 \
+		(void)(p_buffer);	 \
+		(void)(size);		 \
 	} while (0)
 
 /**
@@ -287,8 +287,8 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
  */
 #define NRFY_CACHE_INVALIDATE(p_buffer, size) \
 	do {				      \
-		(void)p_buffer;		      \
-		(void)size;		      \
+		(void)(p_buffer);	      \
+		(void)(size);		      \
 	} while (0)
 
 //------------------------------------------------------------------------------
