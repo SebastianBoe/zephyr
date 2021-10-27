@@ -81,10 +81,12 @@ void helper_thread(void)
 	 * waiting (with a timeout) for a memory block.  Freeing the memory
 	 * block will unblock RegressionTask.
 	 */
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT("(4) - Free a block in <%s> to unblock the other task "
 		 "from alloc timeout\n", __func__);
 
 	TC_PRINT("%s: About to free a memory block\n", __func__);
+#endif
 	k_mem_slab_free(&map_lgblks, &ptr[0]);
 	k_sem_give(&SEM_HELPERDONE);
 
@@ -217,8 +219,10 @@ ZTEST(memory_slab_1cpu, test_mslab)
 
 	/* Part 1 of test */
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT("(1) - Allocate and free %d blocks "
 		 "in <%s>\n", NUMBLOCKS, __func__);
+#endif
 
 	/* Test k_mem_slab_alloc */
 	test_slab_get_all_blocks(ptr);
@@ -238,14 +242,18 @@ ZTEST(memory_slab_1cpu, test_mslab)
 	 * helper thread as it is waiting for SEM_REGRESSDONE.
 	 */
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT("(3) - Further allocation results in  timeout "
 		 "in <%s>\n", __func__);
+#endif
 
 	ret_value = k_mem_slab_alloc(&map_lgblks, &b, K_MSEC(20));
 	zassert_equal(-EAGAIN, ret_value,
 		      "Failed k_mem_slab_alloc, retValue %d\n", ret_value);
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT("%s: start to wait for block\n", __func__);
+#endif
 	k_sem_give(&SEM_REGRESSDONE);    /* Allow helper thread to run part 4 */
 	ret_value = k_mem_slab_alloc(&map_lgblks, &b, K_MSEC(50));
 	zassert_equal(0, ret_value,

@@ -131,9 +131,11 @@ static int test_multiple_threads_pending(struct timeout_order_data *test_data,
 			k_lifo_get(&timeout_order_lifo, K_FOREVER);
 
 		if (data->timeout_order == ii) {
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 			TC_PRINT(" thread (q order: %d, t/o: %d, lifo %p)\n",
 				 data->q_order, (int) data->timeout,
 				 data->klifo);
+#endif
 		} else {
 			zassert_equal(data->timeout_order, ii, " *** thread %d "
 				      "woke up, expected %d\n",

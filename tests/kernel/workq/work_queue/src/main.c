@@ -243,7 +243,9 @@ static void delayed_work_handler(struct k_work *work)
 	struct delayed_test_item *ti =
 			CONTAINER_OF(work, struct delayed_test_item, work);
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT(" - Running delayed test item %d\n", ti->key);
+#endif
 
 	results[num_results++] = ti->key;
 }
@@ -277,8 +279,10 @@ static void coop_delayed_work_main(int arg1, int arg2)
 	k_msleep(SUBMIT_WAIT / 2);
 
 	for (i = 1; i < NUM_TEST_ITEMS; i += 2) {
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 		TC_PRINT(" - Submitting delayed work %d from"
 			 " coop thread\n", i + 1);
+#endif
 		k_work_schedule(&delayed_tests[i].work,
 				K_MSEC((i + 1) * WORK_ITEM_WAIT));
 	}
@@ -300,8 +304,10 @@ static void test_delayed_submit(void)
 			NULL, NULL, NULL, K_PRIO_COOP(10), 0, K_NO_WAIT);
 
 	for (i = 0; i < NUM_TEST_ITEMS; i += 2) {
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 		TC_PRINT(" - Submitting delayed work %d from"
 			 " preempt thread\n", i + 1);
+#endif
 		zassert_true(k_work_reschedule(&delayed_tests[i].work,
 			     K_MSEC((i + 1) * WORK_ITEM_WAIT)) >= 0, NULL);
 	}
@@ -393,13 +399,19 @@ ZTEST(workqueue_delayed, test_delayed)
 	TC_PRINT(" - Initializing delayed test items\n");
 	test_delayed_init();
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT(" - Submitting delayed test items\n");
+#endif
 	test_delayed_submit();
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT(" - Waiting for delayed work to finish\n");
+#endif
 	k_msleep(CHECK_WAIT);
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT(" - Checking results\n");
+#endif
 	check_results(NUM_TEST_ITEMS);
 	reset_results();
 }
@@ -409,7 +421,9 @@ static void triggered_work_handler(struct k_work *work)
 	struct triggered_test_item *ti =
 			CONTAINER_OF(work, struct triggered_test_item, work);
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	TC_PRINT(" - Running triggered test item %d\n", ti->key);
+#endif
 
 	zassert_equal(ti->work.poll_result, expected_poll_result,
 		     "res %d expect %d", ti->work.poll_result, expected_poll_result);
@@ -453,7 +467,9 @@ static void test_triggered_submit(k_timeout_t timeout)
 	int i;
 
 	for (i = 0; i < NUM_TEST_ITEMS; i++) {
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 		TC_PRINT(" - Submitting triggered work %d\n", i + 1);
+#endif
 		zassert_true(k_work_poll_submit(&triggered_tests[i].work,
 						&triggered_tests[i].event,
 						1, timeout) == 0, NULL);
@@ -470,7 +486,9 @@ static void test_triggered_trigger(void)
 	int i;
 
 	for (i = 0; i < NUM_TEST_ITEMS; i++) {
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 		TC_PRINT(" - Triggering work %d\n", i + 1);
+#endif
 		zassert_true(k_poll_signal_raise(&triggered_tests[i].signal,
 						 1) == 0, NULL);
 	}

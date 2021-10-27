@@ -68,15 +68,21 @@ void metairq_thread(void)
 	coop_cnt1 = 0;
 	coop_cnt2 = 0;
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	printk("give sem2\n");
+#endif
 	k_sem_give(&coop_sem2);
 
 	k_msleep(WAIT_MS);
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	printk("give sem1\n");
+#endif
 	k_sem_give(&coop_sem1);
 
+#if !(CONFIG_EMULATOR_FPGA || CONFIG_EMULATOR_Z1)
 	printk("metairq end, should switch back to co-op thread2\n");
+#endif
 
 	k_sem_give(&metairq_sem);
 }
