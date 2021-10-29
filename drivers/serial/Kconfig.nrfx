@@ -5,10 +5,11 @@
 
 menuconfig UART_NRFX
 	bool "nRF UART nrfx drivers"
-	default y if !SOC_PLATFORM_HALTIUM
+	default y
 	select SERIAL_HAS_DRIVER
 	select SERIAL_SUPPORT_INTERRUPT
 	select SERIAL_SUPPORT_ASYNC
+	depends on SOC_FAMILY_NRF
 	depends on (DT_HAS_NORDIC_NRF_UART_ENABLED || DT_HAS_NORDIC_NRF_UARTE_ENABLED)
 	help
 	  Enable support for nrfx UART drivers for nRF MCU series.
