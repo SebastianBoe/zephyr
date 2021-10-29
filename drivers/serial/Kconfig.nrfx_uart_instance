@@ -61,8 +61,7 @@ config UART_$(nrfx_uart_num)_NRF_HW_ASYNC
 if $(nrfx_uart_num) != 0
 config UART_$(nrfx_uart_num)_ENHANCED_POLL_OUT
 	bool "Efficient poll out on port $(nrfx_uart_num)"
-	default n if (PALLADIUM_EMULATOR || FPGA_EMULATOR || SYSTEMC_EMULATOR)
-	default y
+	depends on !(EMULATOR_Z1 || EMULATOR_FPGA || EMULATOR_SYSTEMC)
 	help
 	  When enabled, polling out does not trigger interrupt which stops TX.
 	  Feature uses a PPI channel.
