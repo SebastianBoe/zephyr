@@ -74,6 +74,18 @@ static struct nrf5_802154_data nrf5_data;
 #else
 #define EUI64_ADDR (NRF_UICR->CUSTOMER)
 #endif /* CONFIG_SOC_NRF5340_CPUAPP */
+#else
+#if defined(CONFIG_SOC_NRF5340_CPUAPP) || defined(CONFIG_SOC_NRF5340_CPUNET)
+#define EUI64_ADDR (NRF_FICR->INFO.DEVICEID)
+#elif defined(CONFIG_SOC_NRF5440_CPUAPP) || defined(CONFIG_SOC_NRF5440_CPUNET)
+/* TODO: Replace with the DEVICE ID value on nRF54. This value is not available
+ * in the current FICR structuretype definition.
+ */
+static uint64_t unknown_ieee_addr[2] = { 1 };
+#define EUI64_ADDR unknown_ieee_addr
+#else
+#define EUI64_ADDR (NRF_FICR->DEVICEID)
+#endif /* CONFIG_SOC_NRF5340_CPUAPP || CONFIG_SOC_NRF5340_CPUNET */
 #endif /* CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE */
 
 #if defined(CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE)
