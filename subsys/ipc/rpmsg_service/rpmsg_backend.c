@@ -40,6 +40,10 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME, CONFIG_RPMSG_SERVICE_LOG_LEVEL);
 #define VRING_ALIGNMENT		4
 #define VRING_SIZE		    16
 
+#if defined(CONFIG_IPM_NRFX_BELLBOARD)
+#define BELLBOARD_ID (29)
+#endif
+
 #define IPM_WORK_QUEUE_STACK_SIZE CONFIG_RPMSG_SERVICE_WORK_QUEUE_STACK_SIZE
 #define IPM_WORK_QUEUE_PRIORITY   K_HIGHEST_APPLICATION_THREAD_PRIO
 
@@ -129,6 +133,8 @@ static void virtio_notify(struct virtqueue *vq)
 	uint32_t current_core = sse_200_platform_get_cpu_id();
 
 	status = ipm_send(ipm_handle, 0, current_core ? 0 : 1, 0, 1);
+#elif defined(CONFIG_IPM_NRFX_BELLBOARD)
+	status = ipm_send(ipm_handle, 0, BELLBOARD_ID, NULL, 0);
 #else
 	uint32_t dummy_data = 0x55005500; /* Some data must be provided */
 
