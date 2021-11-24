@@ -605,7 +605,11 @@ static int nrf5_tx(const struct device *dev,
 		break;
 #if NRF_802154_CSMA_CA_ENABLED
 	case IEEE802154_TX_MODE_CSMA_CA:
+#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+		ret = nrf5_tx_immediate(pkt, nrf5_radio->tx_psdu, true);
+#else
 		ret = nrf5_tx_csma_ca(pkt, nrf5_radio->tx_psdu);
+#endif
 		break;
 #endif
 #if defined(CONFIG_NET_PKT_TXTIME)
