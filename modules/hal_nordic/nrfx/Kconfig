@@ -413,7 +413,6 @@ config NRFX_USBREG
 
 config NRFX_VEVIF
 	bool "Enable VEVIF driver"
-	depends on HAS_HW_NRF_VEVIF
 
 config NRFX_WDT
 	bool
