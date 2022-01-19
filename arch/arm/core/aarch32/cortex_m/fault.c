@@ -988,6 +988,11 @@ static inline z_arch_esf_t *get_esf(uint32_t msp, uint32_t psp, uint32_t exc_ret
 void z_arm_fault(uint32_t msp, uint32_t psp, uint32_t exc_return,
 	_callee_saved_t *callee_regs)
 {
+#ifdef CONFIG_ARM_HALT_ON_FAULT
+loop:
+	goto loop;
+#endif
+
 	uint32_t reason = K_ERR_CPU_EXCEPTION;
 	int fault = SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk;
 	bool recoverable, nested_exc;

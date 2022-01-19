@@ -435,6 +435,15 @@ config CORTEX_M_NULL_POINTER_EXCEPTION_PAGE_SIZE
 
 endif # CORTEX_M_NULL_POINTER_EXCEPTION
 
+config ARM_HALT_ON_FAULT
+	bool "Do nothing except loop the CPU on faults"
+	help
+	  Don't do any fault handling. Just have the CPU enter an infinite
+	  loop on faults. When enabled this saves 400 bytes of flash for
+	  resource constrained firmware, at the expense of robustness and
+	  debugability.
+
+
 rsource "tz/Kconfig"
 
 endif # CPU_CORTEX_M
