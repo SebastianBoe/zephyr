@@ -1940,6 +1940,24 @@
 
 // </e>
 
+// <o> NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK - GRTC CC channels ownership mask.
+#ifndef NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK
+#define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK DT_PROP(DT_INST(0, \
+                                nordic_nrf_grtc), channel_mask)
+#define _NRFX_GRTC_SHIFT_LIMIT DT_PROP(DT_INST(0, nordic_nrf_grtc), cc_num)
+
+#define _NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK_CHK_BIT(bit) \
+            ((NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK >> bit) & 0x1UL)
+
+#define _NRFX_GRTC_SHIFT_ELEM(i, _) i,
+#define _NRFX_GRTC_SHIFT_LIST \
+            UTIL_LISTIFY(_NRFX_GRTC_SHIFT_LIMIT, _NRFX_GRTC_SHIFT_ELEM)
+#define NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS \
+            FOR_EACH(_NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK_CHK_BIT, \
+                (+), \
+                GET_ARGS_LESS_N(1, _NRFX_GRTC_SHIFT_LIST) 0)
+#endif
+
 // </h>
 
 #endif // NRFX_CONFIG_HALTIUM_GLOBAL_H__
