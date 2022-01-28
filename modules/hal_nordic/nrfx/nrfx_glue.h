@@ -9,7 +9,6 @@
 
 #include <zephyr/sys/__assert.h>
 #include <zephyr/sys/atomic.h>
-#include <zephyr/irq.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +33,10 @@ extern "C" {
 #ifndef NRFX_ASSERT
 #define NRFX_ASSERT(expression)  __ASSERT_NO_MSG(expression)
 #endif
+
+/* Do not move to the top, these headers require NRFX_ASSERT. */
+#include <hal/nrf_vpr_clic.h>
+#include <irq.h>
 
 /**
  * @brief Macro for placing a compile time assertion.
@@ -100,14 +103,22 @@ extern "C" {
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_PENDING_SET(irq_number) nrfx_irq_pending_set(irq_number)
+#if defined(ISA_ARM)
+#define NRFX_IRQ_PENDING_SET(irq_number) NVIC_SetPendingIRQ(irq_number)
+#elif defined(ISA_RISCV)
+#define NRFX_IRQ_PENDING_SET(irq_number) nrf_vpr_clic_int_pending_set(NRF_VPR, irq_number)
+#endif
 
 /**
  * @brief Macro for clearing the pending status of a specific IRQ.
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_PENDING_CLEAR(irq_number) nrfx_irq_pending_clear(irq_number)
+#if defined(ISA_ARM)
+#define NRFX_IRQ_PENDING_CLEAR(irq_number) NVIC_ClearPendingIRQ(irq_number)
+#elif defined(ISA_RISCV)
+#define NRFX_IRQ_PENDING_CLEAR(irq_number) nrf_vpr_clic_int_pending_clear(NRF_VPR, irq_number)
+#endif
 
 /**
  * @brief Macro for checking the pending status of a specific IRQ.
@@ -115,7 +126,11 @@ extern "C" {
  * @retval true  If the IRQ is pending.
  * @retval false Otherwise.
  */
-#define NRFX_IRQ_IS_PENDING(irq_number) nrfx_irq_is_pending(irq_number)
+#if defined(ISA_ARM)
+#define NRFX_IRQ_IS_PENDING(irq_number) (NVIC_GetPendingIRQ(irq_number) == 1)
+#elif defined(ISA_RISCV)
+#define NRFX_IRQ_IS_PENDING(irq_number) nrf_vpr_clic_int_pending_check(NRF_VPR, irq_number)
+#endif
 
 /** @brief Macro for entering into a critical section. */
 #define NRFX_CRITICAL_SECTION_ENTER()  { unsigned int irq_lock_key = irq_lock();
@@ -413,42 +428,6 @@ void nrfx_isr(const void *irq_handler);
 #endif
 
 /** @} */
-
-static inline void nrfx_irq_pending_set(IRQn_Type irq_number)
-{
-	NRFX_ASSERT(INTERRUPT_NUMBER_IS_VALID(irq_number));
-#if ISA_ARM
-	NVIC_SetPendingIRQ(irq_number);
-#elif ISA_RISCV
-	NRF_VPR->CLIC.CLICINT[irq_number] =
-		((NRF_VPR->CLIC.CLICINT[irq_number] & ~VPR_CLIC_CLICINT_IP_Msk) |
-		 (VPR_CLIC_CLICINT_IP_Pending << VPR_CLIC_CLICINT_IP_Pos));
-#endif
-}
-
-static inline void nrfx_irq_pending_clear(IRQn_Type irq_number)
-{
-	NRFX_ASSERT(INTERRUPT_NUMBER_IS_VALID(irq_number));
-#if ISA_ARM
-	NVIC_ClearPendingIRQ(irq_number);
-#elif ISA_RISCV
-	NRF_VPR->CLIC.CLICINT[irq_number] =
-		((NRF_VPR->CLIC.CLICINT[irq_number] & ~VPR_CLIC_CLICINT_IP_Msk) |
-		 (VPR_CLIC_CLICINT_IP_NotPending << VPR_CLIC_CLICINT_IP_Pos));
-#endif
-}
-
-static inline bool nrfx_irq_is_pending(IRQn_Type irq_number)
-{
-	NRFX_ASSERT(INTERRUPT_NUMBER_IS_VALID(irq_number));
-#if ISA_ARM
-	return (NVIC_GetPendingIRQ(irq_number) == 1);
-#elif ISA_RISCV
-	return VPR_CLIC_CLICINT_IP_Pending ==
-	((NRF_VPR->CLIC.CLICINT[irq_number] & VPR_CLIC_CLICINT_IP_Msk)
-	 >> VPR_CLIC_CLICINT_IP_Pos);
-#endif
-}
 
 #ifdef __cplusplus
 }
