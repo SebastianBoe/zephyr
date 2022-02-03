@@ -33,6 +33,8 @@ class Vhx(WestCommand):
                                          description=self.description)
         parser.add_argument('-d', '--build-dir', default='',
                             help=FIND_BUILD_DIR_DESCRIPTION)
+        parser.add_argument('-w', '--width', type=int, default=128,
+            help='Line width of the VHX output')
         return parser
 
     def do_run(self, args, unknown_args):
@@ -44,4 +46,4 @@ class Vhx(WestCommand):
         dest_path = build_dir + "/zephyr/zephyr.vhx"
         log.inf("Converting {} to {} ...".format(os.path.relpath(src_path),
                                                  os.path.relpath(dest_path)))
-        vhx_convert.convert_hex2vhx(src_path, dest_path)
+        vhx_convert.convert_hex2vhx(src_path, dest_path, args.width)
