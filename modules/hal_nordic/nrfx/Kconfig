@@ -13,23 +13,22 @@ config NRFX_ADC
 
 config NRFX_BELLBOARD
 	bool "Enable BELLBOARD driver"
-	depends on HAS_HW_NRF_BELLBOARD
 
 config NRFX_BELLBOARD0
 	bool "Enable BELLBOARD0 instance"
-	depends on HAS_HW_NRF_BELLBOARD
+	depends on NRFX_BELLBOARD
 
 config NRFX_BELLBOARD1
 	bool "Enable BELLBOARD1 instance"
-	depends on HAS_HW_NRF_BELLBOARD
+	depends on NRFX_BELLBOARD
 
 config NRFX_BELLBOARD2
 	bool "Enable BELLBOARD2 instance"
-	depends on HAS_HW_NRF_BELLBOARD
+	depends on NRFX_BELLBOARD
 
 config NRFX_BELLBOARD3
 	bool "Enable BELLBOARD3 instance"
-	depends on HAS_HW_NRF_BELLBOARD
+	depends on NRFX_BELLBOARD
 
 config NRFX_CLOCK
 	bool "CLOCK driver"
