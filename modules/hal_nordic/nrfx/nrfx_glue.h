@@ -35,7 +35,9 @@ extern "C" {
 #endif
 
 /* Do not move to the top, these headers require NRFX_ASSERT. */
+#if ISA_RISCV
 #include <hal/nrf_vpr_clic.h>
+#endif
 #include <irq.h>
 
 /**
