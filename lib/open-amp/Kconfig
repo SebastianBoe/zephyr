@@ -54,13 +54,11 @@ config IPC_ENDPOINTS_NO
 
 config IPC_AUTO_SHMEM_ALLOCATE
     bool "Auto shmem allocation"
-    default false
     help
       Auto shared memory allocation for each instance.
 
 config IPC_COPY_NO_BLOCKING
     bool "No blocking message copy."
-    default false
     help
       Enables no-copy mechanism for obtaining IPC messages.
 
