@@ -10,7 +10,7 @@
 #include <hal/nrf_ficr.h>
 #include <zephyr/sys/byteorder.h>
 #ifndef CONFIG_BOARD_QEMU_CORTEX_M0
-#include <helpers/nrfx_reset_reason.h>
+#include <helpers/include/nrfx_reset_reason.h>
 #endif
 #include <soc_secure.h>
 struct nrf_uid {
