@@ -141,15 +141,8 @@ static bool switch_to_spim(void)
 		NRFX_SPIM_PIN_NOT_USED,
 		NRFX_SPIM_PIN_NOT_USED,
 		NRF_DT_GPIOS_TO_PSEL(SPIM_NODE, cs_gpios));
-	spim_config.frequency = NRF_SPIM_FREQ_1M;
-	spim_config.skip_gpio_cfg = true;
-	spim_config.skip_psel_cfg = true;
-
-	ret = pinctrl_apply_state(PINCTRL_DT_DEV_CONFIG_GET(SPIM_NODE),
-				  PINCTRL_STATE_DEFAULT);
-	if (ret < 0) {
-		return ret;
-	}
+	spim_config.nrfy_config.frequency = NRF_SPIM_FREQ_1M;
+	spim_config.miso_pull = NRF_GPIO_PIN_PULLDOWN;
 
 	err = nrfx_spim_init(&spim, &spim_config, spim_handler, NULL);
 	if (err != NRFX_SUCCESS) {
@@ -219,6 +212,7 @@ static bool switch_to_uarte(void)
 	}
 
 	nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(
+<<<<<<< HEAD
 		NRF_UARTE_PSEL_DISCONNECTED,
 		NRF_UARTE_PSEL_DISCONNECTED);
 	uarte_config.baudrate = NRF_UARTE_BAUDRATE_1000000;
@@ -230,6 +224,12 @@ static bool switch_to_uarte(void)
 	if (ret < 0) {
 		return ret;
 	}
+=======
+		/* Take pin numbers from devicetree. */
+		DT_PROP(UARTE_NODE, tx_pin),
+		DT_PROP(UARTE_NODE, rx_pin));
+	uarte_config.nrfy_config.baudrate = NRF_UARTE_BAUDRATE_1000000;
+>>>>>>> samples: boards: nrf: align structures to new drivers implementation
 
 	err = nrfx_uarte_init(&uarte, &uarte_config, uarte_handler);
 	if (err != NRFX_SUCCESS) {
