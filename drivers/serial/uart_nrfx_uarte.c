@@ -605,8 +605,8 @@ static int uarte_nrfx_rx_counting_init(const struct device *dev)
 	if (HW_RX_COUNTING_ENABLED(data)) {
 		nrfx_timer_config_t tmr_config = NRFX_TIMER_DEFAULT_CONFIG;
 
-		tmr_config.mode = NRF_TIMER_MODE_COUNTER;
-		tmr_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
+		tmr_config.nrfy_config.mode = NRF_TIMER_MODE_COUNTER;
+		tmr_config.nrfy_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
 		ret = nrfx_timer_init(&cfg->timer,
 				      &tmr_config,
 				      timer_handler);
@@ -803,7 +803,7 @@ static void user_callback(const struct device *dev, struct uart_event *evt)
 	struct uarte_nrfx_data *data = dev->data;
 
 	//TODO: Will be removed when new shim, compatible with nrfx API will be proposed
-	NRFY_CACHE_INVALIDATE(data->async->rx_buf, data->async->rx_buf_len);
+	NRFY_CACHE_INV(data->async->rx_buf, data->async->rx_buf_len);
 
 	if (data->async->user_callback) {
 		data->async->user_callback(dev, evt, data->async->user_data);
@@ -821,7 +821,7 @@ static void notify_uart_rx_rdy(const struct device *dev, size_t len)
 	};
 
 	//TODO: Will be removed when new shim, compatible with nrfx API will be proposed
-	NRFY_CACHE_INVALIDATE(evt.data.rx.buf + evt.data.rx.offset, evt.data.rx.len);
+	NRFY_CACHE_INV(evt.data.rx.buf + evt.data.rx.offset, evt.data.rx.len);
 
 	user_callback(dev, &evt);
 }
@@ -1608,7 +1608,7 @@ static int uarte_nrfx_fifo_read(const struct device *dev,
 	int num_rx = 0;
 	NRF_UARTE_Type *uarte = get_uarte_instance(dev);
 #if !defined(CONFIG_SOC_PLATFORM_HALTIUM)
-	const struct uarte_nrfx_data *data = dev->data(dev);
+	struct uarte_nrfx_data *data = dev->data;
 #endif
 
 	nrfy_uarte_xfer_desc_t xfer_desc = {
