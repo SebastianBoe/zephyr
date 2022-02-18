@@ -29,16 +29,17 @@ static int wdt_nrf_setup(const struct device *dev, uint8_t options)
 	nrfx_wdt_config_t * wdt_conf = &data->config;
 
 	/* Activate all available options. Run in all cases. */
-	wdt_conf->behaviour = NRF_WDT_BEHAVIOUR_RUN_SLEEP_HALT;
+	wdt_conf->behaviour = NRF_WDT_BEHAVIOUR_RUN_SLEEP_MASK |
+			      NRF_WDT_BEHAVIOUR_RUN_HALT_MASK;
 
 	/* Deactivate running in sleep mode. */
 	if (options & WDT_OPT_PAUSE_IN_SLEEP) {
-		wdt_conf->behaviour &= ~NRF_WDT_BEHAVIOUR_RUN_SLEEP;
+		wdt_conf->behaviour &= ~NRF_WDT_BEHAVIOUR_RUN_SLEEP_MASK;
 	}
 
 	/* Deactivate running when debugger is attached. */
 	if (options & WDT_OPT_PAUSE_HALTED_BY_DBG) {
-		wdt_conf->behaviour &= ~NRF_WDT_BEHAVIOUR_RUN_HALT;
+		wdt_conf->behaviour &= ~NRF_WDT_BEHAVIOUR_RUN_HALT_MASK;
 	}
 
 	nrfx_wdt_reconfigure(&config->wdt, wdt_conf);
@@ -127,7 +128,6 @@ static const struct wdt_driver_api wdt_nrfx_driver_api = {
 
 static void wdt_event_handler(const struct device *dev, uint32_t requests)
 {
-	const struct wdt_nrfx_config *config = dev->config;
 	struct wdt_nrfx_data *data = dev->data;
 
 	for (uint8_t i = 0; i < data->m_allocated_channels; i++) {
@@ -149,12 +149,13 @@ static void wdt_event_handler(const struct device *dev, uint32_t requests)
 	static int wdt_##idx##_init(const struct device *dev)		       \
 	{								       \
 		const struct wdt_nrfx_config *config = dev->config;	       \
+		const struct wdt_nrfx_data *data = dev->data;		       \
 		nrfx_err_t err_code;					       \
 		IRQ_CONNECT(DT_IRQN(WDT(idx)), DT_IRQ(WDT(idx), priority),     \
 			    nrfx_isr, nrfx_wdt_##idx##_irq_handler, 0);	       \
 		err_code = nrfx_wdt_init(&config->wdt,			       \
-				 &config->config,			       \
-				 wdt_##idx##_event_handler);		       \
+					 &data->config,			       \
+					 wdt_##idx##_event_handler);	       \
 		if (err_code != NRFX_SUCCESS) {				       \
 			return -EBUSY;					       \
 		}							       \
@@ -163,7 +164,8 @@ static void wdt_event_handler(const struct device *dev, uint32_t requests)
 	static struct wdt_nrfx_data wdt_##idx##_data = {		       \
 		.m_allocated_channels = 0,				       \
 		.config = {						       \
-			.behaviour   = NRF_WDT_BEHAVIOUR_RUN_SLEEP_HALT,       \
+			.behaviour   = NRF_WDT_BEHAVIOUR_RUN_SLEEP_MASK |      \
+				       NRF_WDT_BEHAVIOUR_RUN_HALT_MASK,        \
 			.reload_value  = 2000,				       \
 		}							       \
 	};								       \
