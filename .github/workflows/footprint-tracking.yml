@@ -53,6 +53,14 @@ jobs:
 
       - name: west setup
         run: |
+          # disable the keychain credential helper
+          git config --global credential.helper ""
+          # enable the local store credential helper
+          git config --global --add credential.helper store
+          # add credential
+          echo "https://x-access-token:${{ secrets.NCS_GITHUB_TOKEN }}@github.com" >> ~/.git-credentials
+          echo "git-credentials file:"
+          cat ~/.git-credentials
           west init -l . || true
           west config --global update.narrow true
           west update 2>&1 1> west.update.log || west update 2>&1 1> west.update2.log

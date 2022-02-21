@@ -15,6 +15,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         ref: ${{ github.event.pull_request.head.sha }}
+        persist-credentials: false
         fetch-depth: 0
 
     - name: cache-pip
@@ -36,6 +37,14 @@ jobs:
       run: |
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
+        # disable the keychain credential helper
+        git config --global credential.helper ""
+        # enable the local store credential helper
+        git config --global --add credential.helper store
+        # add credential
+        echo "https://x-access-token:${{ secrets.NCS_GITHUB_TOKEN }}@github.com" >> ~/.git-credentials
+        echo "git-credentials file:"
+        cat ~/.git-credentials
         git remote -v
         # Ensure there's no merge commits in the PR
         #[[ "$(git rev-list --merges --count origin/${BASE_REF}..)" == "0" ]] || \
@@ -48,9 +57,10 @@ jobs:
         -c title-starts-with-subsystem.regex=".*" $COMMITS
         git rebase origin/${BASE_REF}
         # debug
+        git config -l
         git log  --pretty=oneline | head -n 10
         west init -l . || true
-        west update 2>&1 1> west.update.log || west update 2>&1 1> west.update2.log
+        west -v update
 
     - name: Run Compliance Tests
       continue-on-error: true
