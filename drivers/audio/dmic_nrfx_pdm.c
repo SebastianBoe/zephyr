@@ -162,7 +162,7 @@ static bool check_pdm_frequencies(const struct dmic_nrfx_pdm_drv_cfg *drv_cfg,
 		    act_freq <= pdm_cfg->io.max_pdm_clk_freq &&
 		    is_better(act_freq, ratio, req_rate,
 			      best_diff, best_rate, best_freq)) {
-			config->clock_freq = clk_factor * 4096;
+			config->nrfy_config.clock_freq = clk_factor * 4096;
 
 			better_found = true;
 		}
@@ -197,7 +197,7 @@ static bool check_pdm_frequencies(const struct dmic_nrfx_pdm_drv_cfg *drv_cfg,
 
 			if (is_better(freq_val, ratio, req_rate,
 				      best_diff, best_rate, best_freq)) {
-				config->clock_freq = freqs[i].freq_enum;
+				config->nrfy_config.clock_freq = freqs[i].freq_enum;
 
 				/* Stop if an exact rate match is found. */
 				if (*best_diff == 0) {
@@ -245,7 +245,7 @@ static bool find_suitable_clock(const struct dmic_nrfx_pdm_drv_cfg *drv_cfg,
 
 		if (check_pdm_frequencies(drv_cfg, config, pdm_cfg, ratio,
 					  &best_diff, &best_rate, &best_freq)) {
-			config->ratio = ratios[r].ratio_enum;
+			config->nrfy_config.ratio = ratios[r].ratio_enum;
 
 			/* Look no further if a configuration giving the exact
 			 * PCM rate is found.
@@ -340,14 +340,14 @@ static int dmic_nrfx_pdm_configure(const struct device *dev,
 	}
 
 	nrfx_cfg = drv_cfg->nrfx_def_cfg;
-	nrfx_cfg.mode = channel->req_num_chan == 1
+	nrfx_cfg.nrfy_config.mode = channel->req_num_chan == 1
 		      ? NRF_PDM_MODE_MONO
 		      : NRF_PDM_MODE_STEREO;
-	nrfx_cfg.edge = channel->req_chan_map_lo == def_map
+	nrfx_cfg.nrfy_config.edge = channel->req_chan_map_lo == def_map
 		      ? NRF_PDM_EDGE_LEFTFALLING
 		      : NRF_PDM_EDGE_LEFTRISING;
 #if NRF_PDM_HAS_MCLKCONFIG
-	nrfx_cfg.mclksrc = drv_cfg->clk_src == ACLK
+	nrfx_cfg.nrfy_config.mclksrc = drv_cfg->clk_src == ACLK
 			 ? NRF_PDM_MCLKSRC_ACLK
 			 : NRF_PDM_MCLKSRC_PCLK32M;
 #endif
