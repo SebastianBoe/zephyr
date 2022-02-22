@@ -24,9 +24,19 @@
 /* scheduling priority used by each thread */
 #define PRIORITY 7
 
-/* delay between greetings (in ms) */
+/* delay between greetings */
+#if !defined(CONFIG_EMULATOR_SYSTEMC)
 #define SLEEPTIME 500
+#else
+#define SLEEPTIME 1
+#endif
 
+/* busy wait delay */
+#if !defined(CONFIG_EMULATOR_SYSTEMC)
+#define BUSYWAIT 100000
+#else
+#define BUSYWAIT 1
+#endif
 
 /*
  * @param my_name      thread identification string
@@ -61,8 +71,12 @@ void helloLoop(const char *my_name,
 		}
 
 		/* wait a while, then let other thread have a turn */
-		k_busy_wait(100000);
+		k_busy_wait(BUSYWAIT);
+#if !defined(CONFIG_EMULATOR_SYSTEMC)
 		k_msleep(SLEEPTIME);
+#else
+		k_usleep(SLEEPTIME);
+#endif
 		k_sem_give(other_sem);
 	}
 }
