@@ -124,6 +124,76 @@ config SPI_4_NRF_SPIM
 	help
 	  Enable nRF SPI Master with EasyDMA on port 4.
 
+config SPI_4_NRF_RX_DELAY
+	int "SPIM4 MISO sampling delay"
+	depends on SPI_4_NRF_SPIM && SOC_NRF5340_CPUAPP
+	range 0 7
+	default 2
+	help
+	  Number of 64 MHz clock cycles (15.625 ns) delay from the sampling
+	  edge of SCK (leading or trailing, depending on the CPHA setting used)
+	  until the input serial data on MISO is actually sampled.
+
+config SPI_120_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM120
+	select NRFX_SPIM120
+	help
+	  Enable nRF SPI Master with EasyDMA on port 120.
+
+config SPI_121_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM121
+	select NRFX_SPIM121
+	help
+	  Enable nRF SPI Master with EasyDMA on port 121.
+
+config SPI_130_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM130
+	select NRFX_SPIM130
+	help
+	  Enable nRF SPI Master with EasyDMA on port 130.
+
+config SPI_131_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM131
+	select NRFX_SPIM131
+	help
+	  Enable nRF SPI Master with EasyDMA on port 131.
+
+config SPI_132_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM132
+	select NRFX_SPIM132
+	help
+	  Enable nRF SPI Master with EasyDMA on port 132.
+
+config SPI_133_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM133
+	select NRFX_SPIM133
+	help
+	  Enable nRF SPI Master with EasyDMA on port 133.
+
+config SPI_134_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM134
+	select NRFX_SPIM134
+	help
+	  Enable nRF SPI Master with EasyDMA on port 134.
+
+config SPI_135_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM135
+	select NRFX_SPIM135
+	help
+	  Enable nRF SPI Master with EasyDMA on port 135.
+
+config SPI_136_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM136
+	select NRFX_SPIM136
+	help
+	  Enable nRF SPI Master with EasyDMA on port 136.
+
+config SPI_137_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM137
+	select NRFX_SPIM137
+	help
+	  Enable nRF SPI Master with EasyDMA on port 137.
+
 config SPI_NRFX_RAM_BUFFER_SIZE
 	int "Size of RAM buffers for SPIM peripherals"
 	default 8

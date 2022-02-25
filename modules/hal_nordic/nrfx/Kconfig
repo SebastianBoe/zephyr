@@ -248,6 +248,56 @@ config NRFX_SPIM4
 	depends on $(dt_nodelabel_has_compat,spi4,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
+config NRFX_SPIM120
+	bool "Enable SPIM120 instance"
+	depends on HAS_HW_NRF_SPIM120
+	select NRFX_SPIM
+
+config NRFX_SPIM121
+	bool "Enable SPIM121 instance"
+	depends on HAS_HW_NRF_SPIM121
+	select NRFX_SPIM
+
+config NRFX_SPIM130
+	bool "Enable SPIM130 instance"
+	depends on HAS_HW_NRF_SPIM130
+	select NRFX_SPIM
+
+config NRFX_SPIM131
+	bool "Enable SPIM131 instance"
+	depends on HAS_HW_NRF_SPIM131
+	select NRFX_SPIM
+
+config NRFX_SPIM132
+	bool "Enable SPIM132 instance"
+	depends on HAS_HW_NRF_SPIM132
+	select NRFX_SPIM
+
+config NRFX_SPIM133
+	bool "Enable SPIM133 instance"
+	depends on HAS_HW_NRF_SPIM133
+	select NRFX_SPIM
+
+config NRFX_SPIM134
+	bool "Enable SPIM134 instance"
+	depends on HAS_HW_NRF_SPIM134
+	select NRFX_SPIM
+
+config NRFX_SPIM135
+	bool "Enable SPIM135 instance"
+	depends on HAS_HW_NRF_SPIM135
+	select NRFX_SPIM
+
+config NRFX_SPIM136
+	bool "Enable SPIM136 instance"
+	depends on HAS_HW_NRF_SPIM136
+	select NRFX_SPIM
+
+config NRFX_SPIM137
+	bool "Enable SPIM137 instance"
+	depends on HAS_HW_NRF_SPIM137
+	select NRFX_SPIM
+
 config NRFX_SPIS
 	bool
 
