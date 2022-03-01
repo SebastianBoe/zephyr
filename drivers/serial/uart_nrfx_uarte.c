@@ -44,16 +44,30 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 
 #endif /* !defined(CONFIG_SOC_PLATFORM_HALTIUM) */
 
-#if	(defined(CONFIG_UART_0_NRF_UARTE) &&         \
-	 defined(CONFIG_UART_0_INTERRUPT_DRIVEN)) || \
-	(defined(CONFIG_UART_1_NRF_UARTE) &&         \
-	 defined(CONFIG_UART_1_INTERRUPT_DRIVEN)) || \
-	(defined(CONFIG_UART_2_NRF_UARTE) &&         \
-	 defined(CONFIG_UART_2_INTERRUPT_DRIVEN)) || \
-	(defined(CONFIG_UART_3_NRF_UARTE) &&         \
-	 defined(CONFIG_UART_3_INTERRUPT_DRIVEN)) || \
-	(defined(CONFIG_UART_136_NRF_UARTE) &&       \
-	 defined(CONFIG_UART_136_INTERRUPT_DRIVEN))
+#if	(defined(CONFIG_UART_0_NRF_UARTE) &&           \
+	 defined(CONFIG_UART_0_INTERRUPT_DRIVEN)) ||   \
+	(defined(CONFIG_UART_1_NRF_UARTE) &&           \
+	 defined(CONFIG_UART_1_INTERRUPT_DRIVEN)) ||   \
+	(defined(CONFIG_UART_2_NRF_UARTE) &&           \
+	 defined(CONFIG_UART_2_INTERRUPT_DRIVEN)) ||   \
+	(defined(CONFIG_UART_3_NRF_UARTE) &&           \
+	 defined(CONFIG_UART_3_INTERRUPT_DRIVEN)) ||   \
+	(defined(CONFIG_UART_130_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_130_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_131_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_131_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_132_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_132_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_133_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_133_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_134_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_134_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_135_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_135_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_136_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_136_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_137_NRF_UARTE) &&         \
+	 defined(CONFIG_UART_137_INTERRUPT_DRIVEN))
 	#define UARTE_INTERRUPT_DRIVEN	1
 #endif
 
@@ -61,7 +75,14 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 	(defined(CONFIG_UART_1_NRF_UARTE) && !defined(CONFIG_UART_1_ASYNC)) || \
 	(defined(CONFIG_UART_2_NRF_UARTE) && !defined(CONFIG_UART_2_ASYNC)) || \
 	(defined(CONFIG_UART_3_NRF_UARTE) && !defined(CONFIG_UART_3_ASYNC)) || \
-	(defined(CONFIG_UART_136_NRF_UARTE) && !defined(CONFIG_UART_136_ASYNC))
+	(defined(CONFIG_UART_130_NRF_UARTE) && !defined(CONFIG_UART_130_ASYNC)) || \
+	(defined(CONFIG_UART_131_NRF_UARTE) && !defined(CONFIG_UART_131_ASYNC)) || \
+	(defined(CONFIG_UART_132_NRF_UARTE) && !defined(CONFIG_UART_132_ASYNC)) || \
+	(defined(CONFIG_UART_133_NRF_UARTE) && !defined(CONFIG_UART_133_ASYNC)) || \
+	(defined(CONFIG_UART_134_NRF_UARTE) && !defined(CONFIG_UART_134_ASYNC)) || \
+	(defined(CONFIG_UART_135_NRF_UARTE) && !defined(CONFIG_UART_135_ASYNC)) || \
+	(defined(CONFIG_UART_136_NRF_UARTE) && !defined(CONFIG_UART_136_ASYNC)) || \
+	(defined(CONFIG_UART_137_NRF_UARTE) && !defined(CONFIG_UART_137_ASYNC))
 #define UARTE_ANY_NONE_ASYNC 1
 #endif
 
@@ -2152,6 +2173,34 @@ UART_NRF_UARTE_DEVICE(2);
 UART_NRF_UARTE_DEVICE(3);
 #endif
 
+#ifdef CONFIG_UART_130_NRF_UARTE
+UART_NRF_UARTE_DEVICE(130);
+#endif
+
+#ifdef CONFIG_UART_131_NRF_UARTE
+UART_NRF_UARTE_DEVICE(131);
+#endif
+
+#ifdef CONFIG_UART_132_NRF_UARTE
+UART_NRF_UARTE_DEVICE(132);
+#endif
+
+#ifdef CONFIG_UART_133_NRF_UARTE
+UART_NRF_UARTE_DEVICE(133);
+#endif
+
+#ifdef CONFIG_UART_134_NRF_UARTE
+UART_NRF_UARTE_DEVICE(134);
+#endif
+
+#ifdef CONFIG_UART_135_NRF_UARTE
+UART_NRF_UARTE_DEVICE(135);
+#endif
+
 #ifdef CONFIG_UART_136_NRF_UARTE
 UART_NRF_UARTE_DEVICE(136);
+#endif
+
+#ifdef CONFIG_UART_137_NRF_UARTE
+UART_NRF_UARTE_DEVICE(137);
 #endif
