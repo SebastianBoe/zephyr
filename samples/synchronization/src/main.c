@@ -25,14 +25,14 @@
 #define PRIORITY 7
 
 /* delay between greetings */
-#if !defined(CONFIG_EMULATOR_SYSTEMC)
+#if !defined(CONFIG_EMULATOR_SYSTEMC) && !defined(CONFIG_EMULATOR_FPGA)
 #define SLEEPTIME 500
 #else
 #define SLEEPTIME 1
 #endif
 
 /* busy wait delay */
-#if !defined(CONFIG_EMULATOR_SYSTEMC)
+#if !defined(CONFIG_EMULATOR_SYSTEMC) && !defined(CONFIG_EMULATOR_FPGA)
 #define BUSYWAIT 100000
 #else
 #define BUSYWAIT 1
@@ -72,7 +72,7 @@ void helloLoop(const char *my_name,
 
 		/* wait a while, then let other thread have a turn */
 		k_busy_wait(BUSYWAIT);
-#if !defined(CONFIG_EMULATOR_SYSTEMC)
+#if !defined(CONFIG_EMULATOR_SYSTEMC) && !defined(CONFIG_EMULATOR_FPGA)
 		k_msleep(SLEEPTIME);
 #else
 		k_usleep(SLEEPTIME);
