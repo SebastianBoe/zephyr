@@ -72,8 +72,7 @@ jobs:
         # debug
         ls -la
         git log  --pretty=oneline | head -n 10
-        ./scripts/ci/check_compliance.py --annotate -e Kconfig -e Kconfig \
-        -c origin/${BASE_REF}..
+        ./scripts/ci/check_compliance.py -m Codeowners -m Devicetree -m Gitlint -m Identity -m Nits -m pylint -m checkpatch -c origin/${BASE_REF}..
 
     - name: upload-results
       uses: actions/upload-artifact@v3
