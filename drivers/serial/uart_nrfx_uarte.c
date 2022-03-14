@@ -241,9 +241,14 @@ static void endtx_isr(const struct device *dev)
  *
  * This simply calls the callback function, if one exists.
  *
+ * @note: This function has public linkage, and MUST have this particular name.
+ * The architecture test (tests/arch/arm_irq_vector_table) needs to put that function
+ * in a custom vector table. This function can be reverted to static linkage when
+ * config UART_<INSTANCE>_ENHANCED_POLL_OUT will be available for nrf54 targets.
+ *
  * @param arg Argument to ISR.
  */
-static void uarte_nrfx_isr_int(void *arg)
+void uarte_nrfx_isr_int(void *arg)
 {
 	const struct device *dev = arg;
 	const struct uarte_nrfx_config *config = dev->config;
