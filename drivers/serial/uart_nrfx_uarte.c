@@ -102,12 +102,11 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 /* Size of hardware fifo in RX path. */
 #define UARTE_HW_RX_FIFO_SIZE 5
 
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
-/* DMA doesn't work from all memories on Palladium. Hopefully this memory is not used. */
-uint8_t * dma_char_buf = (uint8_t *)0x2FC04200;
-uint8_t * dma_buf      = (uint8_t *)0x2FC04204;
-uint8_t * dma_rx_data  = (uint8_t *)0x2FC04300;
-#endif
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
+uint8_t * dma_char_buf = (uint8_t *)(DT_REG_ADDR(DT_CHOSEN(nrfx_uarte_gram_buffer)) + 0x200);
+uint8_t * dma_buf      = (uint8_t *)(DT_REG_ADDR(DT_CHOSEN(nrfx_uarte_gram_buffer)) + 0x204);
+uint8_t * dma_rx_data  = (uint8_t *)(DT_REG_ADDR(DT_CHOSEN(nrfx_uarte_gram_buffer)) + 0x300);
+#endif /* DT_HAS_CHOSEN(nrfx,uarte-gram-buffer) */
 
 #ifdef UARTE_ANY_ASYNC
 struct uarte_async_cb {
@@ -779,7 +778,7 @@ static int uarte_nrfx_tx(const struct device *dev, const uint8_t *buf,
 		return -EBUSY;
 	}
 
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 	(void)memcpy(dma_buf, buf, len);
 	buf = dma_buf;
 #endif
@@ -1521,7 +1520,7 @@ static int uarte_nrfx_poll_in(const struct device *dev, unsigned char *c)
 #endif
 
 	nrfy_uarte_xfer_desc_t xfer_desc = {
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 		.p_buffer = dma_rx_data,
 #else
 		.p_buffer = &data->rx_data,
@@ -1575,7 +1574,7 @@ static void uarte_nrfx_poll_out(const struct device *dev, unsigned char c)
 		key = wait_tx_ready(dev);
 	}
 
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 	(void)data;
 	*dma_char_buf = c;
 	tx_start(dev, dma_char_buf, 1);
@@ -1606,7 +1605,7 @@ static int uarte_nrfx_fifo_fill(const struct device *dev,
 
 	unsigned int key = irq_lock();
 
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 	(void)memcpy(dma_buf, data->int_driven->tx_buffer, len);
 #endif
 
@@ -1614,7 +1613,7 @@ static int uarte_nrfx_fifo_fill(const struct device *dev,
 		data->int_driven->fifo_fill_lock = 0;
 		len = 0;
 	} else {
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 		tx_start(dev, dma_buf, len);
 #else
 		tx_start(dev, data->int_driven->tx_buffer, len);
@@ -1638,7 +1637,7 @@ static int uarte_nrfx_fifo_read(const struct device *dev,
 #endif
 
 	nrfy_uarte_xfer_desc_t xfer_desc = {
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 		.p_buffer = dma_rx_data,
 #else
 		.p_buffer = &data->rx_data,
@@ -1873,7 +1872,7 @@ static int uarte_instance_init(const struct device *dev,
 		if (!cfg->disable_rx) {
 			nrf_uarte_event_clear(uarte, NRF_UARTE_EVENT_ENDRX);
 
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 			nrfy_uarte_rx_buffer_set(uarte, dma_rx_data, 1);
 #else
 			nrfy_uarte_rx_buffer_set(uarte, data->rx_data, 1);
@@ -1894,7 +1893,7 @@ static int uarte_instance_init(const struct device *dev,
 	 * Pointer to RAM variable (data->tx_buffer) is set because otherwise
 	 * such operation may result in HardFault or RAM corruption.
 	 */
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if DT_HAS_CHOSEN(nrfx_uarte_gram_buffer)
 	nrfy_uarte_tx_buffer_set(uarte, dma_buf, 0);
 #else
 	nrfy_uarte_tx_buffer_set(uarte, data->char_out, 0);
