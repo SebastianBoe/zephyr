@@ -78,6 +78,19 @@ BUILD_ASSERT(RTC1_IRQn == 22,
 #undef _ISR_OFFSET
 // Interrupt lines 96-98 is the first set of consecutive interrupts implemented in Haltium.
 #define _ISR_OFFSET 96
+
+#include <device.h>
+extern void uarte_nrfx_isr_int(void *);
+
+/* Interrupt Service Routine needed to handle incoming UARTE_ENDTX event */
+void uarte_isr(void)
+{
+	/* Macro for extracting address of UART used by zephyr */
+	const struct device *uart_console_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+
+	uarte_nrfx_isr_int((void *)uart_console_dev);
+}
+
 #endif /* CONFIG_SOC_PLATFORM_HALTIUM */
 
 
@@ -221,7 +234,15 @@ vth __irq_vector_table _irq_vector_table[] = {
 #endif
 #elif defined(CONFIG_SOC_PLATFORM_HALTIUM)
 vth __irq_vector_table _irq_vector_table[] = {
-	[_ISR_OFFSET]isr0,isr1,isr2
+	[_ISR_OFFSET]isr0, isr1, isr2,
+	[SERIAL0_IRQn]uarte_isr,
+	[SERIAL1_IRQn]uarte_isr,
+	[SERIAL2_IRQn]uarte_isr,
+	[SERIAL3_IRQn]uarte_isr,
+	[SERIAL4_IRQn]uarte_isr,
+	[SERIAL5_IRQn]uarte_isr,
+	[SERIAL6_IRQn]uarte_isr,
+	[SERIAL7_IRQn]uarte_isr
 };
 #endif
 #elif defined(CONFIG_SOC_SERIES_CC13X2_CC26X2) || defined(CONFIG_SOC_SERIES_CC13X2X7_CC26X2X7)
