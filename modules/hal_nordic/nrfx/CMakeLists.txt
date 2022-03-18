@@ -12,6 +12,7 @@ set(HELPERS_DIR ${NRFX_DIR}/helpers)
 zephyr_include_directories(${NRFX_DIR})
 zephyr_include_directories(${INC_DIR})
 zephyr_include_directories(${NRFX_DIR}/helpers/include)
+zephyr_include_directories(${NRFX_DIR}/soc)
 zephyr_include_directories(${MDK_DIR})
 zephyr_include_directories(.)
 
