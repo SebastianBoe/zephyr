@@ -1,0 +1,17 @@
+manifest:
+
+  version: "0.12"
+  remotes:
+    - name: ncs-test
+      url-base: https://projecttools.nordicsemi.no/bitbucket/scm/NCS-TEST
+
+
+  projects:
+    - name: test_zephyr
+      remote: ncs-test
+      repo-path: test-sdk-zephyr-hcs
+      revision: haltium-dev
+      import:
+        name-blocklist: [sdk-zephyr]
+      userdata:
+        run_downstream: always
