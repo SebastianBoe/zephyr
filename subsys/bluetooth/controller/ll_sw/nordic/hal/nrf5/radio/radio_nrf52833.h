@@ -409,28 +409,6 @@ static inline void hal_radio_stop(void)
 
 static inline void hal_radio_ram_prio_setup(void)
 {
-	struct {
-		uint32_t volatile reserved_0[0x5a0 >> 2];
-		uint32_t volatile bridge_type;
-		uint32_t volatile reserved_1[((0xe00 - 0x5a0) >> 2) - 1];
-		struct {
-			uint32_t volatile CPU0;
-			uint32_t volatile SPIS1;
-			uint32_t volatile RADIO;
-			uint32_t volatile ECB;
-			uint32_t volatile CCM;
-			uint32_t volatile AAR;
-			uint32_t volatile SAADC;
-			uint32_t volatile UARTE;
-			uint32_t volatile SERIAL0;
-			uint32_t volatile SERIAL2;
-			uint32_t volatile NFCT;
-			uint32_t volatile I2S;
-			uint32_t volatile PDM;
-			uint32_t volatile PWM;
-		} RAMPRI;
-	} volatile *NRF_AMLI = (void volatile *)0x40000000UL;
-
 	NRF_AMLI->RAMPRI.CPU0    = 0xFFFFFFFFUL;
 	NRF_AMLI->RAMPRI.SPIS1   = 0xFFFFFFFFUL;
 	NRF_AMLI->RAMPRI.RADIO   = 0x00000000UL;
