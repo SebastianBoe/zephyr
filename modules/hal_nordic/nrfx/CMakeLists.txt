@@ -11,7 +11,7 @@ set(HELPERS_DIR ${NRFX_DIR}/helpers)
 
 zephyr_include_directories(${NRFX_DIR})
 zephyr_include_directories(${INC_DIR})
-zephyr_include_directories(${NRFX_DIR}/helpers/include)
+zephyr_include_directories(${NRFX_DIR}/helpers)
 zephyr_include_directories(${NRFX_DIR}/soc)
 zephyr_include_directories(${MDK_DIR})
 zephyr_include_directories(.)
@@ -67,7 +67,7 @@ zephyr_library_sources_ifdef(CONFIG_SOC_NRF5340_CPUNET ${MDK_DIR}/system_nrf5340
 zephyr_library_sources_ifdef(CONFIG_SOC_SERIES_NRF91X  ${MDK_DIR}/system_nrf91.c)
 
 zephyr_library_sources(nrfx_glue.c)
-zephyr_library_sources(${HELPERS_DIR}/src/nrfx_flag32_allocator.c)
+zephyr_library_sources(${HELPERS_DIR}/nrfx_flag32_allocator.c)
 
 zephyr_library_sources_ifdef(CONFIG_NRFX_PRS     ${SRC_DIR}/prs/nrfx_prs.c)
 
