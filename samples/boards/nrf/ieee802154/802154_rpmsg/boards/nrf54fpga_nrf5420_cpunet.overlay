@@ -5,11 +5,11 @@
  */
 
 / {
-	ipc0: ipc0 {
+	ipc0: ipc_remote {
 		compatible = "zephyr,ipc-openamp-static-vrings";
 		memory-region = <&gram00>;
-		mboxes = <&mbox_remote 29>,
-			 <&mbox_local 29>;
+		mboxes = <&bellboard_cpuapp 29>,
+			 <&bellboard_cpunet 29>;
 		mbox-names = "tx", "rx";
 		role = "remote";
 		status = "okay";
@@ -20,7 +20,7 @@
 	/delete-node/ bellboard@9a000;
 	/delete-node/ bellboard@9b000;
 
-	mbox_local: bellboard@9b000 {
+	bellboard_cpunet: bellboard@9b000 {
 		compatible = "nordic,mbox-nrf-ids";
 		reg = <0x9b000 0x1000>;
 		interrupts = <96 NRF_DEFAULT_IRQ_PRIORITY>;
@@ -29,7 +29,7 @@
 		#mbox-cells = <1>;
 	};
 
-	mbox_remote: bellboard0@9a000 {
+	bellboard_cpuapp: bellboard0@9a000 {
 		compatible = "nordic,mbox-nrf-ids";
 		reg = <0x9a000 0x1000>;
 		domain = <0>;
