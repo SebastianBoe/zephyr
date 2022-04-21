@@ -10,7 +10,6 @@ menuconfig UART_NRFX
 	select SERIAL_SUPPORT_INTERRUPT
 	select SERIAL_SUPPORT_ASYNC
 	depends on SOC_FAMILY_NRF
-	depends on (DT_HAS_NORDIC_NRF_UART_ENABLED || DT_HAS_NORDIC_NRF_UARTE_ENABLED)
 	help
 	  Enable support for nrfx UART drivers for nRF MCU series.
 	  Peripherals with the same instance ID cannot be used together,
@@ -28,402 +27,35 @@ config UART_ASYNC_TX_CACHE_SIZE
 	  in RAM, because EasyDMA in UARTE peripherals can only transfer data
 	  from RAM.
 
-# ----------------- port 0 -----------------
-config UART_0_NRF_UART
-	def_bool HAS_HW_NRF_UART0
-	depends on DT_HAS_NORDIC_NRF_UART_ENABLED
-	select NRF_UART_PERIPHERAL
-	help
-	  Enable nRF UART without EasyDMA on port 0.
-
-config UART_0_NRF_UARTE
-	def_bool HAS_HW_NRF_UARTE0
-	depends on DT_HAS_NORDIC_NRF_UARTE_ENABLED
-	select NRF_UARTE_PERIPHERAL
-	help
-	  Enable nRF UART with EasyDMA on port 0.
-
-if UART_0_NRF_UART || UART_0_NRF_UARTE
-
-config UART_0_ENHANCED_POLL_OUT
-	bool "Efficient poll out on port 0"
-	default y
-	depends on UART_0_NRF_UARTE
-	help
-	  When enabled, polling out does not trigger interrupt which stops TX.
-	  Feature uses a PPI channel.
-
-config UART_0_INTERRUPT_DRIVEN
-	bool "Interrupt support on port 0"
-	depends on UART_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART interrupt support on port 0.
-
-config UART_0_ASYNC
-	bool "Asynchronous API support on port 0"
-	depends on UART_ASYNC_API && !UART_0_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART Asynchronous API support on port 0.
-
-config UART_0_NRF_PARITY_BIT
-	bool "Parity bit"
-	help
-	  Enable parity bit.
-
-config UART_0_NRF_TX_BUFFER_SIZE
-	int "Size of RAM buffer"
-	depends on UART_0_NRF_UARTE
-	range 1 65535
-	default 32
-	help
-	  Size of the transmit buffer for API function: fifo_fill.
-	  This value is limited by range of TXD.MAXCNT register for
-	  particular SoC.
-
-config UART_0_NRF_HW_ASYNC
-	bool "Use hardware RX byte counting"
-	depends on UART_0_NRF_UARTE
-	depends on UART_ASYNC_API
-	help
-	  If default driver uses interrupts to count incoming bytes, it is possible
-	  that with higher speeds and/or high cpu load some data can be lost.
-	  It is recommended to use hardware byte counting in such scenarios.
-	  Hardware RX byte counting requires timer instance and one PPI channel
-
-config UART_0_NRF_ASYNC_LOW_POWER
-	bool "Low power mode"
-	depends on UART_0_NRF_UARTE
-	depends on UART_ASYNC_API
-	help
-	  When enabled, UARTE is enabled before each TX or RX usage and disabled
-	  when not used. Disabling UARTE while in idle allows to achieve lowest
-	  power consumption. It is only feasible if receiver is not always on.
-
-config UART_0_NRF_HW_ASYNC_TIMER
-	int "Timer instance"
-	depends on UART_0_NRF_HW_ASYNC
-
-config UART_0_GPIO_MANAGEMENT
-	bool "GPIO management on port 0"
-	depends on PM_DEVICE
-	default y
-	help
-	  If enabled, the driver will configure the GPIOs used by the uart to
-	  their default configuration when device is powered down. The GPIOs
-	  will be configured back to correct state when UART is powered up.
-
-endif # UART_0_NRF_UART || UART_0_NRF_UARTE
-
-# ----------------- port 1 -----------------
-config UART_1_NRF_UARTE
-	def_bool HAS_HW_NRF_UARTE1
-	depends on DT_HAS_NORDIC_NRF_UARTE_ENABLED
-	select NRF_UARTE_PERIPHERAL
-	help
-	  Enable nRF UART with EasyDMA on port 1.
-
-if UART_1_NRF_UARTE
-
-config UART_1_INTERRUPT_DRIVEN
-	bool "Interrupt support on port 1"
-	depends on UART_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART interrupt support on port 1.
-
-config UART_1_ASYNC
-	bool "Asynchronous API support on port 1"
-	depends on UART_ASYNC_API && !UART_1_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART Asynchronous API support on port 1.
-
-config UART_1_ENHANCED_POLL_OUT
-	bool "Efficient poll out on port 1"
-	default n if (PALLADIUM_EMULATOR || FPGA_EMULATOR)
-	default y
-	help
-	  When enabled, polling out does not trigger interrupt which stops TX.
-	  Feature uses a PPI channel.
-
-config UART_1_NRF_PARITY_BIT
-	bool "Parity bit"
-	help
-	  Enable parity bit.
-
-config UART_1_NRF_TX_BUFFER_SIZE
-	int "Size of RAM buffer"
-	depends on UART_INTERRUPT_DRIVEN
-	range 1 65535
-	default 32
-	help
-	  Size of the transmit buffer for API function: fifo_fill.
-	  This value is limited by range of TXD.MAXCNT register for
-	  particular SoC.
-
-config UART_1_NRF_HW_ASYNC
-	bool "Use hardware RX byte counting"
-	depends on UART_1_ASYNC
-	help
-	  If default driver uses interrupts to count incoming bytes, it is possible
-	  that with higher speeds and/or high cpu load some data can be lost.
-	  It is recommended to use hardware byte counting in such scenarios.
-	  Hardware RX byte counting requires timer instance and one PPI channel
-
-config UART_1_NRF_ASYNC_LOW_POWER
-	bool "Low power mode"
-	depends on UART_ASYNC_API
-	help
-	  When enabled, UARTE is enabled before each TX or RX usage and disabled
-	  when not used. Disabling UARTE while in idle allows to achieve lowest
-	  power consumption. It is only feasible if receiver is not always on.
-
-config UART_1_NRF_HW_ASYNC_TIMER
-	int "Timer instance"
-	depends on UART_1_NRF_HW_ASYNC
-
-config UART_1_GPIO_MANAGEMENT
-	bool "GPIO management on port 1"
-	depends on PM_DEVICE
-	default y
-	help
-	  If enabled, the driver will configure the GPIOs used by the uart to
-	  their default configuration when device is powered down. The GPIOs
-	  will be configured back to correct state when UART is powered up.
-
-endif # UART_1_NRF_UARTE
-
-# ----------------- port 2 -----------------
-config UART_2_NRF_UARTE
-	def_bool HAS_HW_NRF_UARTE2
-	depends on DT_HAS_NORDIC_NRF_UARTE_ENABLED
-	select NRF_UARTE_PERIPHERAL
-	help
-	  Enable nRF UART with EasyDMA on port 2.
-
-if UART_2_NRF_UARTE
-
-config UART_2_INTERRUPT_DRIVEN
-	bool "Interrupt support on port 2"
-	depends on UART_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART interrupt support on port 2.
-
-config UART_2_ASYNC
-	bool "Asynchronous API support on port 2"
-	depends on UART_ASYNC_API && !UART_2_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART Asynchronous API support on port 2.
-
-config UART_2_ENHANCED_POLL_OUT
-	bool "Efficient poll out on port 2"
-	default y
-	help
-	  When enabled, polling out does not trigger interrupt which stops TX.
-	  Feature uses a PPI channel.
-
-config UART_2_NRF_PARITY_BIT
-	bool "Parity bit"
-	help
-	  Enable parity bit.
-
-config UART_2_NRF_TX_BUFFER_SIZE
-	int "Size of RAM buffer"
-	range 1 65535
-	default 32
-	help
-	  Size of the transmit buffer for API function: fifo_fill.
-	  This value is limited by range of TXD.MAXCNT register for
-	  particular SoC.
-
-config UART_2_NRF_HW_ASYNC
-	bool "Use hardware RX byte counting"
-	depends on UART_2_ASYNC
-	help
-	  If default driver uses interrupts to count incoming bytes, it is possible
-	  that with higher speeds and/or high cpu load some data can be lost.
-	  It is recommended to use hardware byte counting in such scenarios.
-	  Hardware RX byte counting requires timer instance and one PPI channel
-
-config UART_2_NRF_ASYNC_LOW_POWER
-	bool "Low power mode"
-	depends on UART_ASYNC_API
-	help
-	  When enabled, UARTE is enabled before each TX or RX usage and disabled
-	  when not used. Disabling UARTE while in idle allows to achieve lowest
-	  power consumption. It is only feasible if receiver is not always on.
-
-config UART_2_NRF_HW_ASYNC_TIMER
-	int "Timer instance"
-	depends on UART_2_NRF_HW_ASYNC
-
-config UART_2_GPIO_MANAGEMENT
-	bool "GPIO management on port 2"
-	depends on PM_DEVICE
-	default y
-	help
-	  If enabled, the driver will configure the GPIOs used by the uart to
-	  their default configuration when device is powered down. The GPIOs
-	  will be configured back to correct state when UART is powered up.
-
-endif # UART_2_NRF_UARTE
-
-# ----------------- port 3 -----------------
-config UART_3_NRF_UARTE
-	def_bool HAS_HW_NRF_UARTE3
-	depends on DT_HAS_NORDIC_NRF_UARTE_ENABLED
-	select NRF_UARTE_PERIPHERAL
-	help
-	  Enable nRF UART with EasyDMA on port 3.
-
-if UART_3_NRF_UARTE
-
-config UART_3_INTERRUPT_DRIVEN
-	bool "Interrupt support on port 3"
-	depends on UART_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART interrupt support on port 3.
-
-config UART_3_ASYNC
-	bool "Asynchronous API support on port 3"
-	depends on UART_ASYNC_API && !UART_3_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART Asynchronous API support on port 3.
-
-config UART_3_ENHANCED_POLL_OUT
-	bool "Efficient poll out on port 3"
-	default y
-	help
-	  When enabled, polling out does not trigger interrupt which stops TX.
-	  Feature uses a PPI channel.
-
-config UART_3_NRF_PARITY_BIT
-	bool "Parity bit"
-	help
-	  Enable parity bit.
-
-config UART_3_NRF_TX_BUFFER_SIZE
-	int "Size of RAM buffer"
-	range 1 65535
-	default 32
-	help
-	  Size of the transmit buffer for API function: fifo_fill.
-	  This value is limited by range of TXD.MAXCNT register for
-	  particular SoC.
-
-config UART_3_NRF_HW_ASYNC
-	bool "Use hardware RX byte counting"
-	depends on UART_3_ASYNC
-	help
-	  If default driver uses interrupts to count incoming bytes, it is possible
-	  that with higher speeds and/or high cpu load some data can be lost.
-	  It is recommended to use hardware byte counting in such scenarios.
-	  Hardware RX byte counting requires timer instance and one PPI channel
-
-config UART_3_NRF_ASYNC_LOW_POWER
-	bool "Low power mode"
-	depends on UART_ASYNC_API
-	help
-	  When enabled, UARTE is enabled before each TX or RX usage and disabled
-	  when not used. Disabling UARTE while in idle allows to achieve lowest
-	  power consumption. It is only feasible if receiver is not always on.
-
-config UART_3_NRF_HW_ASYNC_TIMER
-	int "Timer instance"
-	depends on UART_3_NRF_HW_ASYNC
-
-config UART_3_GPIO_MANAGEMENT
-	bool "GPIO management on port 3"
-	depends on PM_DEVICE
-	default y
-	help
-	  If enabled, the driver will configure the GPIOs used by the uart to
-	  their default configuration when device is powered down. The GPIOs
-	  will be configured back to correct state when UART is powered up.
-
-endif # UART_3_NRF_UARTE
-
-# ----------------- port 136 -----------------
-config UART_136_NRF_UARTE
-	def_bool $(dt_nodelabel_has_compat,uart136,$(DT_COMPAT_NORDIC_NRF_UARTE))
-	select NRF_UARTE_PERIPHERAL
-	help
-	  Enable nRF UART with EasyDMA on port 136.
-
-if UART_136_NRF_UARTE
-
-config UART_136_INTERRUPT_DRIVEN
-	bool "Enable interrupt support on port 136"
-	depends on UART_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART interrupt support on port 136.
-
-config UART_136_ASYNC
-	bool "Enable Asynchronous API support on port 136"
-	depends on UART_ASYNC_API && !UART_136_INTERRUPT_DRIVEN
-	default y
-	help
-	  This option enables UART Asynchronous API support on port 136.
-
-config UART_136_ENHANCED_POLL_OUT
-	bool "Efficient poll out on port 136"
-	default n if (PALLADIUM_EMULATOR || FPGA_EMULATOR)
-	default y
-	select NRFX_PPI if HAS_HW_NRF_PPI
-	select NRFX_DPPI if HAS_HW_NRF_DPPIC
-	help
-	  When enabled, polling out does not trigger interrupt which stops TX.
-	  Feature uses a PPI channel.
-
-config UART_136_NRF_PARITY_BIT
-	bool "Enable parity bit"
-	help
-	  Enable parity bit.
-
-config UART_136_NRF_TX_BUFFER_SIZE
-	int "Size of RAM buffer"
-	range 1 65535
-	default 32
-	help
-	  Size of the transmit buffer for API function: fifo_fill.
-	  This value is limited by range of TXD.MAXCNT register for
-	  particular SoC.
-
-config UART_136_NRF_HW_ASYNC
-	bool "Use hardware RX byte counting"
-	depends on UART_136_ASYNC
-	help
-	  If default driver uses interrupts to count incoming bytes, it is possible
-	  that with higher speeds and/or high cpu load some data can be lost.
-	  It is recommended to use hardware byte counting in such scenarios.
-	  Hardware RX byte counting requires timer instance and one PPI channel
-
-config UART_136_NRF_HW_ASYNC_TIMER
-	int "Timer instance"
-	depends on UART_136_NRF_HW_ASYNC
-
-config UART_136_GPIO_MANAGEMENT
-	bool "Enable GPIO management on port 3"
-	depends on PM_DEVICE
-	default y
-	help
-	  If enabled, the driver will configure the GPIOs used by the uart to
-	  their default configuration when device is powered down. The GPIOs
-	  will be configured back to correct state when UART is powered up.
-
-endif # UART_136_NRF_UARTE
+nrfx_uart_num = 0
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 1
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 2
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 3
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 130
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 131
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 132
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 133
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 134
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 135
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 136
+rsource "Kconfig.nrfx_uart_instance"
+nrfx_uart_num = 137
+rsource "Kconfig.nrfx_uart_instance"
 
 config NRFX_TIMER0
 	default y
-	depends on UART_0_NRF_HW_ASYNC_TIMER = 0   || UART_1_NRF_HW_ASYNC_TIMER = 0   || \
-		   UART_2_NRF_HW_ASYNC_TIMER = 0   || UART_3_NRF_HW_ASYNC_TIMER = 0   || \
+	depends on UART_0_NRF_HW_ASYNC_TIMER = 0 || UART_1_NRF_HW_ASYNC_TIMER = 0 || \
+		   UART_2_NRF_HW_ASYNC_TIMER = 0 || UART_3_NRF_HW_ASYNC_TIMER = 0 || \
 		   UART_130_NRF_HW_ASYNC_TIMER = 0 || UART_131_NRF_HW_ASYNC_TIMER = 0 || \
 		   UART_132_NRF_HW_ASYNC_TIMER = 0 || UART_133_NRF_HW_ASYNC_TIMER = 0 || \
 		   UART_134_NRF_HW_ASYNC_TIMER = 0 || UART_135_NRF_HW_ASYNC_TIMER = 0 || \
@@ -431,8 +63,8 @@ config NRFX_TIMER0
 
 config NRFX_TIMER1
 	default y
-	depends on UART_0_NRF_HW_ASYNC_TIMER = 1   || UART_1_NRF_HW_ASYNC_TIMER = 1   || \
-		   UART_2_NRF_HW_ASYNC_TIMER = 1   || UART_3_NRF_HW_ASYNC_TIMER = 1   || \
+	depends on UART_0_NRF_HW_ASYNC_TIMER = 1 || UART_1_NRF_HW_ASYNC_TIMER = 1 || \
+		   UART_2_NRF_HW_ASYNC_TIMER = 1 || UART_3_NRF_HW_ASYNC_TIMER = 1 || \
 		   UART_130_NRF_HW_ASYNC_TIMER = 1 || UART_131_NRF_HW_ASYNC_TIMER = 1 || \
 		   UART_132_NRF_HW_ASYNC_TIMER = 1 || UART_133_NRF_HW_ASYNC_TIMER = 1 || \
 		   UART_134_NRF_HW_ASYNC_TIMER = 1 || UART_135_NRF_HW_ASYNC_TIMER = 1 || \
@@ -440,8 +72,8 @@ config NRFX_TIMER1
 
 config NRFX_TIMER2
 	default y
-	depends on UART_0_NRF_HW_ASYNC_TIMER = 2   || UART_1_NRF_HW_ASYNC_TIMER = 2   || \
-		   UART_2_NRF_HW_ASYNC_TIMER = 2   || UART_3_NRF_HW_ASYNC_TIMER = 2   || \
+	depends on UART_0_NRF_HW_ASYNC_TIMER = 2 || UART_1_NRF_HW_ASYNC_TIMER = 2 || \
+		   UART_2_NRF_HW_ASYNC_TIMER = 2 || UART_3_NRF_HW_ASYNC_TIMER = 2 || \
 		   UART_130_NRF_HW_ASYNC_TIMER = 2 || UART_131_NRF_HW_ASYNC_TIMER = 2 || \
 		   UART_132_NRF_HW_ASYNC_TIMER = 2 || UART_133_NRF_HW_ASYNC_TIMER = 2 || \
 		   UART_134_NRF_HW_ASYNC_TIMER = 2 || UART_135_NRF_HW_ASYNC_TIMER = 2 || \
@@ -449,8 +81,8 @@ config NRFX_TIMER2
 
 config NRFX_TIMER3
 	default y
-	depends on UART_0_NRF_HW_ASYNC_TIMER = 3   || UART_1_NRF_HW_ASYNC_TIMER = 3   || \
-		   UART_2_NRF_HW_ASYNC_TIMER = 3   || UART_3_NRF_HW_ASYNC_TIMER = 3   || \
+	depends on UART_0_NRF_HW_ASYNC_TIMER = 3 || UART_1_NRF_HW_ASYNC_TIMER = 3 || \
+		   UART_2_NRF_HW_ASYNC_TIMER = 3 || UART_3_NRF_HW_ASYNC_TIMER = 3 || \
 		   UART_130_NRF_HW_ASYNC_TIMER = 3 || UART_131_NRF_HW_ASYNC_TIMER = 3 || \
 		   UART_132_NRF_HW_ASYNC_TIMER = 3 || UART_133_NRF_HW_ASYNC_TIMER = 3 || \
 		   UART_134_NRF_HW_ASYNC_TIMER = 3 || UART_135_NRF_HW_ASYNC_TIMER = 3 || \
@@ -458,22 +90,17 @@ config NRFX_TIMER3
 
 config NRFX_TIMER4
 	default y
-	depends on UART_0_NRF_HW_ASYNC_TIMER = 4   || UART_1_NRF_HW_ASYNC_TIMER = 4   || \
-		   UART_2_NRF_HW_ASYNC_TIMER = 4   || UART_3_NRF_HW_ASYNC_TIMER = 4   || \
+	depends on UART_0_NRF_HW_ASYNC_TIMER = 4 || UART_1_NRF_HW_ASYNC_TIMER = 4 || \
+		   UART_2_NRF_HW_ASYNC_TIMER = 4 || UART_3_NRF_HW_ASYNC_TIMER = 4 || \
 		   UART_130_NRF_HW_ASYNC_TIMER = 4 || UART_131_NRF_HW_ASYNC_TIMER = 4 || \
 		   UART_132_NRF_HW_ASYNC_TIMER = 4 || UART_133_NRF_HW_ASYNC_TIMER = 4 || \
 		   UART_134_NRF_HW_ASYNC_TIMER = 4 || UART_135_NRF_HW_ASYNC_TIMER = 4 || \
 		   UART_136_NRF_HW_ASYNC_TIMER = 4 || UART_137_NRF_HW_ASYNC_TIMER = 4
 
-#is it needed?
-config NRFX_TIMER
-	default y
-
-
 config UARTE_NRF_HW_ASYNC
 	def_bool y
-	depends on UART_0_NRF_HW_ASYNC   || UART_1_NRF_HW_ASYNC   || UART_2_NRF_HW_ASYNC   || \
-   			   UART_3_NRF_HW_ASYNC   || UART_130_NRF_HW_ASYNC || UART_131_NRF_HW_ASYNC || \
+	depends on UART_0_NRF_HW_ASYNC || UART_1_NRF_HW_ASYNC || UART_2_NRF_HW_ASYNC || \
+   			   UART_3_NRF_HW_ASYNC || UART_130_NRF_HW_ASYNC || UART_131_NRF_HW_ASYNC || \
    			   UART_132_NRF_HW_ASYNC || UART_133_NRF_HW_ASYNC || UART_134_NRF_HW_ASYNC || \
    			   UART_135_NRF_HW_ASYNC || UART_136_NRF_HW_ASYNC
 	select NRFX_PPI if HAS_HW_NRF_PPI
@@ -481,8 +108,8 @@ config UARTE_NRF_HW_ASYNC
 
 config UART_ENHANCED_POLL_OUT
 	def_bool y
-	depends on UART_0_ENHANCED_POLL_OUT   || UART_1_ENHANCED_POLL_OUT   || \
-			   UART_2_ENHANCED_POLL_OUT   || UART_3_ENHANCED_POLL_OUT   || \
+	depends on UART_0_ENHANCED_POLL_OUT || UART_1_ENHANCED_POLL_OUT || \
+			   UART_2_ENHANCED_POLL_OUT || UART_3_ENHANCED_POLL_OUT || \
 			   UART_130_ENHANCED_POLL_OUT || UART_131_ENHANCED_POLL_OUT || \
    			   UART_132_ENHANCED_POLL_OUT || UART_133_ENHANCED_POLL_OUT || \
 			   UART_134_ENHANCED_POLL_OUT || UART_135_ENHANCED_POLL_OUT || \

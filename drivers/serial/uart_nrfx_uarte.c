@@ -2069,7 +2069,6 @@ static int uarte_nrfx_pm_action(const struct device *dev,
 	.disable_rx = DT_PROP(node_id, disable_rx)
 
 #define UART_NRF_UARTE_DEVICE(idx)					       \
-	NRF_DT_CHECK_NODE_HAS_PINCTRL_SLEEP(UARTE(idx));		       \
 	UARTE_INT_DRIVEN(idx);						       \
 	UARTE_ASYNC(idx);						       \
 	PINCTRL_DT_DEFINE(UARTE(idx));					       \
