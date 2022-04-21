@@ -5,6 +5,11 @@
  */
 
 / {
+ 	chosen {
+ 		/delete-property/ nordic,bellboard-cpuapp;
+ 		/delete-property/ nordic,bellboard-cpunet;
+ 	};
+
 	ipc0: ipc_remote {
 		compatible = "zephyr,ipc-openamp-static-vrings";
 		memory-region = <&gram00>;

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <common/nordic_nrf_next/nrfx_bellboard_instances.dtsi>
+
 / {
 	chosen {
 		zephyr,ipc_shm = &gram;
