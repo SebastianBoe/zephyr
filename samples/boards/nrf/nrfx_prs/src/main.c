@@ -137,9 +137,9 @@ static bool switch_to_spim(void)
 	}
 
 	nrfx_spim_config_t spim_config = NRFX_SPIM_DEFAULT_CONFIG(
-		NRFX_SPIM_PIN_NOT_USED,
-		NRFX_SPIM_PIN_NOT_USED,
-		NRFX_SPIM_PIN_NOT_USED,
+		NRF_SPIM_PIN_NOT_CONNECTED,
+		NRF_SPIM_PIN_NOT_CONNECTED,
+		NRF_SPIM_PIN_NOT_CONNECTED,
 		NRF_DT_GPIOS_TO_PSEL(SPIM_NODE, cs_gpios));
 	spim_config.nrfy_config.frequency = NRF_SPIM_FREQ_1M;
 	spim_config.miso_pull = NRF_GPIO_PIN_PULLDOWN;
