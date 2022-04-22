@@ -212,7 +212,6 @@ static bool switch_to_uarte(void)
 	}
 
 	nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(
-<<<<<<< HEAD
 		NRF_UARTE_PSEL_DISCONNECTED,
 		NRF_UARTE_PSEL_DISCONNECTED);
 	uarte_config.baudrate = NRF_UARTE_BAUDRATE_1000000;
@@ -224,12 +223,6 @@ static bool switch_to_uarte(void)
 	if (ret < 0) {
 		return ret;
 	}
-=======
-		/* Take pin numbers from devicetree. */
-		DT_PROP(UARTE_NODE, tx_pin),
-		DT_PROP(UARTE_NODE, rx_pin));
-	uarte_config.nrfy_config.baudrate = NRF_UARTE_BAUDRATE_1000000;
->>>>>>> samples: boards: nrf: align structures to new drivers implementation
 
 	err = nrfx_uarte_init(&uarte, &uarte_config, uarte_handler);
 	if (err != NRFX_SUCCESS) {
