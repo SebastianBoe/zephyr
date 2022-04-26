@@ -444,6 +444,10 @@
 #define NRFX_WDT1_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_TBM
+#define NRFX_TBM_ENABLED 1
+#endif
+
 #if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 #include "nrfx_config_bsim.h"
 #endif
