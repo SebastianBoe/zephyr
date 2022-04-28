@@ -566,7 +566,7 @@ static const struct _dmic_ops dmic_ops = {
 		.event_handler = event_handler##idx,			     \
 		.nrfx_def_cfg =	NRFX_PDM_DEFAULT_CONFIG(0, 0),		     \
 		.nrfx_def_cfg.skip_gpio_cfg = true,			     \
-		.nrfx_def_cfg.skip_psel_cfg = true,			     \
+		.nrfx_def_cfg.nrfy_config.skip_psel_cfg = true,			     \
 		.pcfg = PINCTRL_DT_DEV_CONFIG_GET(PDM(idx)),		     \
 		.clk_src = PDM_CLK_SRC(idx),				     \
 	};								     \
