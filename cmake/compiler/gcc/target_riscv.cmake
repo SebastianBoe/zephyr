@@ -3,6 +3,9 @@
 set(riscv_mabi "lp")
 set(riscv_march "rv")
 
+find_program(CMAKE_ASM_COMPILER ${CROSS_COMPILE}${CC}
+             PATHS ${TOOLCHAIN_HOME} NO_DEFAULT_PATH)
+
 if(CONFIG_64BIT)
     string(CONCAT riscv_mabi  ${riscv_mabi} "64")
     string(CONCAT riscv_march ${riscv_march} "64")

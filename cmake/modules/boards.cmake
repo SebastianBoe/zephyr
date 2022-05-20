@@ -82,6 +82,10 @@ endif()
 
 zephyr_boilerplate_watch(BOARD)
 
+if(BOARD_DIR)
+  unset(BOARD_DIR CACHE)
+endif()
+
 foreach(root ${BOARD_ROOT})
   # Check that the board root looks reasonable.
   if(NOT IS_DIRECTORY "${root}/boards")
