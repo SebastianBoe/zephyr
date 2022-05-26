@@ -8,7 +8,7 @@
 #include <zephyr/pm/device.h>
 #include <zephyr/drivers/pinctrl.h>
 #include <soc.h>
-#include <hal/nrf_gpio.h>
+#include <haly/nrfy_gpio.h>
 #include <stdbool.h>
 
 #include <zephyr/logging/log.h>
@@ -95,7 +95,7 @@ static bool pwm_period_check_and_set(const struct device *dev,
 static bool channel_psel_get(uint32_t channel, uint32_t *psel,
 			     const struct pwm_nrfx_config *config)
 {
-	*psel = nrf_pwm_pin_get(config->pwm.p_registers, (uint8_t)channel);
+	*psel = nrf_pwm_pin_get(config->pwm.p_reg, (uint8_t)channel);
 
 	return (((*psel & PWM_PSEL_OUT_CONNECT_Msk) >> PWM_PSEL_OUT_CONNECT_Pos)
 		== PWM_PSEL_OUT_CONNECT_Connected);
@@ -335,14 +335,13 @@ static int pwm_nrfx_pm_action(const struct device *dev,
 		.pwm = NRFX_PWM_INSTANCE(idx),				      \
 		.initial_config = {					      \
 			.skip_gpio_cfg = true,				      \
-			.skip_psel_cfg = true,				      \
-			.base_clock = NRF_PWM_CLK_1MHz,			      \
-			.count_mode = (PWM_PROP(idx, center_aligned)	      \
+			.nrfy_config.base_clock = NRF_PWM_CLK_1MHz,	      \
+			.nrfy_config.count_mode = (PWM_PROP(idx, center_aligned) \
 				       ? NRF_PWM_MODE_UP_AND_DOWN	      \
 				       : NRF_PWM_MODE_UP),		      \
-			.top_value = 1000,				      \
-			.load_mode = NRF_PWM_LOAD_INDIVIDUAL,		      \
-			.step_mode = NRF_PWM_STEP_TRIGGERED,		      \
+			.nrfy_config.top_value = 1000,			      \
+			.nrfy_config.load_mode = NRF_PWM_LOAD_INDIVIDUAL,     \
+			.nrfy_config.step_mode = NRF_PWM_STEP_TRIGGERED,      \
 		},							      \
 		.seq.values.p_raw = pwm_nrfx_##idx##_data.seq_values,	      \
 		.seq.length = NRF_PWM_CHANNEL_COUNT,			      \
