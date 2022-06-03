@@ -9,8 +9,8 @@ manifest:
   projects:
     - name: test_zephyr
       remote: ncs-test
-      repo-path: test-sdk-zephyr-hcs
-      revision: haltium-dev
+      repo-path: test-ci-nrfconnect-cfg-null
+      revision: master
       import:
         name-blocklist: [sdk-zephyr]
       userdata:
