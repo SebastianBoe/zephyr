@@ -80,13 +80,13 @@ config NRFX_EGU5
 	select NRFX_EGU
 
 config NRFX_EGU020
-	bool "Enable EGU020 instance"
-	depends on HAS_HW_NRF_EGU020
+	bool "EGU020 driver instance"
+	depends on $(dt_nodelabel_has_compat,egu020,$(DT_COMPAT_NORDIC_NRF_EGU))
 	select NRFX_EGU
 
 config NRFX_EGU130
-	bool "Enable EGU130 instance"
-	depends on HAS_HW_NRF_EGU130
+	bool "EGU130 driver instance"
+	depends on $(dt_nodelabel_has_compat,egu130,$(DT_COMPAT_NORDIC_NRF_EGU))
 	select NRFX_EGU
 
 config NRFX_GPIOTE
@@ -258,53 +258,53 @@ config NRFX_SPIM4
 	select NRFX_SPIM
 
 config NRFX_SPIM120
-	bool "Enable SPIM120 instance"
-	depends on HAS_HW_NRF_SPIM120
+	bool "SPIM120 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi120,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM121
-	bool "Enable SPIM121 instance"
-	depends on HAS_HW_NRF_SPIM121
+	bool "SPIM121 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi121,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM130
-	bool "Enable SPIM130 instance"
-	depends on HAS_HW_NRF_SPIM130
+	bool "SPIM130 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi130,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM131
-	bool "Enable SPIM131 instance"
-	depends on HAS_HW_NRF_SPIM131
+	bool "SPIM131 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi131,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM132
-	bool "Enable SPIM132 instance"
-	depends on HAS_HW_NRF_SPIM132
+	bool "SPIM132 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi132,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM133
-	bool "Enable SPIM133 instance"
-	depends on HAS_HW_NRF_SPIM133
+	bool "SPIM133 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi133,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM134
-	bool "Enable SPIM134 instance"
-	depends on HAS_HW_NRF_SPIM134
+	bool "SPIM134 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi134,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM135
-	bool "Enable SPIM135 instance"
-	depends on HAS_HW_NRF_SPIM135
+	bool "SPIM135 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi135,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM136
-	bool "Enable SPIM136 instance"
-	depends on HAS_HW_NRF_SPIM136
+	bool "SPIM136 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi136,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIM137
-	bool "Enable SPIM137 instance"
-	depends on HAS_HW_NRF_SPIM137
+	bool "SPIM137 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi137,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
 config NRFX_SPIS
@@ -328,6 +328,51 @@ config NRFX_SPIS2
 config NRFX_SPIS3
 	bool "SPIS3 driver instance"
 	depends on $(dt_nodelabel_has_compat,spi3,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS120
+	bool "SPIS120 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi120,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS130
+	bool "SPIS130 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi130,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS131
+	bool "SPIS131 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi131,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS132
+	bool "SPIS132 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi132,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS133
+	bool "SPIS133 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi133,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS134
+	bool "SPIS134 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi134,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS135
+	bool "SPIS135 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi135,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS136
+	bool "SPIS136 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi136,$(DT_COMPAT_NORDIC_NRF_SPIS))
+	select NRFX_SPIS
+
+config NRFX_SPIS137
+	bool "SPIS137 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi137,$(DT_COMPAT_NORDIC_NRF_SPIS))
 	select NRFX_SPIS
 
 config NRFX_SYSTICK
@@ -456,9 +501,49 @@ config NRFX_UARTE3
 	depends on $(dt_nodelabel_has_compat,uart3,$(DT_COMPAT_NORDIC_NRF_UARTE))
 	select NRFX_UARTE
 
+config NRFX_UARTE120
+	bool "UARTE120 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart120,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE130
+	bool "UARTE130 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart130,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE131
+	bool "UARTE131 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart131,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE132
+	bool "UARTE132 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart132,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE133
+	bool "UARTE133 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart133,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE134
+	bool "UARTE134 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart134,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE135
+	bool "UARTE135 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart135,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
 config NRFX_UARTE136
-	bool "Enable UARTE136 instance"
-	depends on HAS_HW_NRF_UARTE136
+	bool "UARTE136 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart136,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE137
+	bool "UARTE137 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart137,$(DT_COMPAT_NORDIC_NRF_UARTE))
 	select NRFX_UARTE
 
 config NRFX_USBD

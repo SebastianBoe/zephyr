@@ -10,7 +10,7 @@ config HAS_HW_NRF_ADC
 	def_bool $(dt_compat_enabled,$(DT_COMPAT_NORDIC_NRF_ADC))
 
 config HAS_HW_NRF_BELLBOARD
-	bool
+	def_bool $(dt_compat_enabled,$(DT_COMPAT_NORDIC_NRF_BELLBOARD))
 
 config HAS_HW_NRF_BPROT
 	def_bool $(dt_compat_enabled,$(DT_COMPAT_NORDIC_NRF_BPROT))
@@ -66,10 +66,10 @@ config HAS_HW_NRF_EGU5
 	def_bool $(dt_nodelabel_enabled_with_compat,egu5,$(DT_COMPAT_NORDIC_NRF_EGU))
 
 config HAS_HW_NRF_EGU020
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,egu020,$(DT_COMPAT_NORDIC_NRF_EGU))
 
 config HAS_HW_NRF_EGU130
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,egu130,$(DT_COMPAT_NORDIC_NRF_EGU))
 
 config HAS_HW_NRF_GPIO0
 	def_bool $(dt_nodelabel_enabled_with_compat,gpio0,$(DT_COMPAT_NORDIC_NRF_GPIO))
@@ -201,34 +201,34 @@ config HAS_HW_NRF_SPIM4
 	def_bool $(dt_nodelabel_enabled_with_compat,spi4,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM120
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi120,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM121
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi121,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM130
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi130,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM131
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi131,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM132
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi132,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM133
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi133,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM134
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi134,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM135
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi135,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM136
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi136,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIM137
-	bool
+	def_bool $(dt_nodelabel_enabled_with_compat,spi137,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
 config HAS_HW_NRF_SPIS0
 	def_bool $(dt_nodelabel_enabled_with_compat,spi0,$(DT_COMPAT_NORDIC_NRF_SPIS))
@@ -241,6 +241,33 @@ config HAS_HW_NRF_SPIS2
 
 config HAS_HW_NRF_SPIS3
 	def_bool $(dt_nodelabel_enabled_with_compat,spi3,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS120
+	def_bool $(dt_nodelabel_enabled_with_compat,spi120,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS130
+	def_bool $(dt_nodelabel_enabled_with_compat,spi130,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS131
+	def_bool $(dt_nodelabel_enabled_with_compat,spi131,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS132
+	def_bool $(dt_nodelabel_enabled_with_compat,spi132,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS133
+	def_bool $(dt_nodelabel_enabled_with_compat,spi133,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS134
+	def_bool $(dt_nodelabel_enabled_with_compat,spi134,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS135
+	def_bool $(dt_nodelabel_enabled_with_compat,spi135,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS136
+	def_bool $(dt_nodelabel_enabled_with_compat,spi136,$(DT_COMPAT_NORDIC_NRF_SPIS))
+
+config HAS_HW_NRF_SPIS137
+	def_bool $(dt_nodelabel_enabled_with_compat,spi137,$(DT_COMPAT_NORDIC_NRF_SPIS))
 
 config HAS_HW_NRF_SPU
 	def_bool $(dt_compat_enabled,$(DT_COMPAT_NORDIC_NRF_SPU))
@@ -325,6 +352,9 @@ config HAS_HW_NRF_UARTE2
 
 config HAS_HW_NRF_UARTE3
 	def_bool $(dt_nodelabel_enabled_with_compat,uart3,$(DT_COMPAT_NORDIC_NRF_UARTE))
+
+config HAS_HW_NRF_UARTE120
+	def_bool $(dt_nodelabel_enabled_with_compat,uart120,$(DT_COMPAT_NORDIC_NRF_UARTE))
 
 config HAS_HW_NRF_UARTE130
 	def_bool $(dt_nodelabel_enabled_with_compat,uart130,$(DT_COMPAT_NORDIC_NRF_UARTE))
