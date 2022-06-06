@@ -3,8 +3,4 @@
 #ifndef NRFX_CONFIG_HALTIUM_NETWORK_H__
 #define NRFX_CONFIG_HALTIUM_NETWORK_H__
 
-#define DPPI_CH_NUM         16
-#define DPPI_GROUP_NUM      2
-#define DPPI_PRESENT        1
-
 #endif // NRFX_CONFIG_HALTIUM_NETWORK_H__
