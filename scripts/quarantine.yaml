@@ -243,3 +243,9 @@
   platforms:
     - native_posix
   comment: "Needs gcc > 9.4.0"
+
+- scenarios:
+    - sample.boards.nrf.802154_rpmsg
+  platforms:
+    - nrf5340dk_nrf5340_cpunet
+  comment: "https://projecttools.nordicsemi.no/jira/browse/NRFX-1900"
