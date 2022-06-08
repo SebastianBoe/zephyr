@@ -17,4 +17,47 @@ choice
 config NRFS_BACKEND_PRISM_DISPATCHER
 	bool "PRISM Dispatcher"
 
+config NRFS_BACKEND_IPC_SERVICE
+	bool "Ipc service backend for nrfs"
+
 endchoice
+
+config NRFS_MAX_BACKEND_PACKET_SIZE
+	int "Maximum ipc data packet size in bytes"
+	range 8 128
+	default 32
+
+config NRFS_BACKEND_RX_TASK_STACK_SIZE
+	int "Stack size used for incoming messages task"
+	range 128 16384
+	default 512
+
+config NRFS_BACKEND_TX_TASK_STACK_SIZE
+	int "Stack size used for outgoing messages task"
+	range 128 16384
+	default 512
+
+config NRFS_BACKEND_RX_TASK_PRIORITY
+	int "Priority of rx backend task"
+	range 0 128
+	default 2
+
+config NRFS_BACKEND_TX_TASK_PRIORITY
+	int "Priority of tx backend task"
+	range 0 128
+	default 2
+
+config NRFS_BACKEND_RX_MSG_QUEUE_SIZE
+	int "Size of rx buffer message queue size"
+	range 1 16
+	default 2
+
+config NRFS_BACKEND_TX_MSG_QUEUE_SIZE
+	int "Size of tx buffer message queue size"
+	range 1 16
+	default 2
+
+config NRFS_BACKEND_TX_MAX_RETRIES
+	int "Max number of retries when sending message"
+	range 0 100
+	default 5
