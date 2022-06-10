@@ -155,7 +155,7 @@ config SCHED_CPU_MASK_PIN_ONLY
 
 config MAIN_STACK_SIZE
 	int "Size of stack for initialization and main thread"
-	default 2048 if COVERAGE_GCOV
+	default 2048 if COVERAGE_GCOV || RISCV
 	default 512 if ZTEST && !(RISCV || X86 || ARM)
 	default 1024
 	help

@@ -1946,7 +1946,7 @@
 #ifndef NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK
 
 /* TODO: Leave 'owned_channels` version only when it appears and
- *		 remove `channel_mask` property.
+ *       remove `channel_mask` property (NRFX-1945).
  */
 #if DT_NODE_HAS_PROP(DT_INST(0, nordic_nrf_grtc), owned_channels)
 
