@@ -3,6 +3,8 @@
 #ifndef NRFX_CONFIG_HALTIUM_GLOBAL_H__
 #define NRFX_CONFIG_HALTIUM_GLOBAL_H__
 
+#include <devicetree.h>
+
 // <h> nRF_Drivers
 
 // <e> NRFX_CLOCK_ENABLED - nrfx_clock - CLOCK peripheral driver.
@@ -1942,8 +1944,30 @@
 
 // <o> NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK - GRTC CC channels ownership mask.
 #ifndef NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK
+
+/* TODO: Leave 'owned_channels` version only when it appears and
+ *		 remove `channel_mask` property.
+ */
+#if DT_NODE_HAS_PROP(DT_INST(0, nordic_nrf_grtc), owned_channels)
+
+#define NRFX_GRTC_OWNED_CHANNELS DT_PROP(DT_INST(0, \
+			nordic_nrf_grtc), owned_channels)
+
+#define NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS DT_PROP_LEN(DT_INST(0, \
+			nordic_nrf_grtc), owned_channels)
+
+#define _NRFX_GRTC_SHIFT(val, _) (1 << (DT_PROP_BY_IDX(DT_INST(0, \
+			nordic_nrf_grtc), owned_channels, val)))
+
+#define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK \
+			(LISTIFY(NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS, _NRFX_GRTC_SHIFT, (|)))
+
+#else
+
+#define NRFX_GRTC_USE_CHANNEL_MASK_PROPERTY 1
+
 #define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK DT_PROP(DT_INST(0, \
-								nordic_nrf_grtc), channel_mask)
+			nordic_nrf_grtc), channel_mask)
 #define _NRFX_GRTC_SHIFT_LIMIT DT_PROP(DT_INST(0, nordic_nrf_grtc), cc_num)
 
 #define _NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK_CHK_BIT(bit, _) \
@@ -1953,8 +1977,8 @@
 			LISTIFY(_NRFX_GRTC_SHIFT_LIMIT, \
 				_NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK_CHK_BIT, (+))
 
-#endif
-
+#endif /* DT_NODE_HAS_PROP(DT_INST(0, nordic_nrf_grtc), owned_channels) */
+#endif /* NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK */
 // </h>
 
 #endif /* NRFX_CONFIG_HALTIUM_GLOBAL_H__ */
