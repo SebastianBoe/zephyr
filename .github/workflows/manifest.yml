@@ -4,7 +4,7 @@ on:
 
 jobs:
   contribs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     name: Manifest
     steps:
       - name: Checkout the code
@@ -16,7 +16,7 @@ jobs:
           persist-credentials: false
 
       - name: Manifest
-        uses: zephyrproject-rtos/action-manifest@a6d0c6e52bbbb7d6df23ceb42842edcb4582b8dc
+        uses: zephyrproject-rtos/action-manifest@930b67a19fe9c84f4726aa1b33337c5aca6dfe5e
         with:
           github-token: ${{ secrets.NCS_GITHUB_TOKEN }}
           manifest-path: 'west.yml'
