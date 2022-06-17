@@ -9,6 +9,7 @@
 	sck-pin = <32>;
 	miso-pin = <40>;
 	mosi-pin = <41>;
+	memory-regions = <&ram3x_cpuapp>;
 };
 
 &gpio1 {
