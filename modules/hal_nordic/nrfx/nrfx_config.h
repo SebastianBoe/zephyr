@@ -484,13 +484,31 @@
     #include <nrfx_config_nrf5340_network.h>
 #elif defined(NRF9120_XXAA) || defined(NRF9160_XXAA)
     #include <nrfx_config_nrf91.h>
-#elif defined(HALTIUM_XXAA)
-    #include <nrfx_config_haltium_global.h>
+#elif defined(NRF9230_XXAA)
+    #include <nrfx_config_nrf9230_global.h>
 
     #if defined(NRF_APPLICATION)
-        #include <nrfx_config_haltium_application.h>
+        #include <nrfx_config_nrf9230_application.h>
     #elif defined(NRF_RADIOCORE)
-        #include <nrfx_config_haltium_network.h>
+        #include <nrfx_config_nrf9230_network.h>
+    #elif defined(NRF_CELLCORE)
+        #include <nrfx_config_nrf9230_cellular.h>
+    #endif
+#elif defined(LILIUMSOC1_XXAA)
+    #include <nrfx_config_liliumsoc1_global.h>
+
+    #if defined(NRF_APPLICATION)
+        #include <nrfx_config_liliumsoc1_application.h>
+    #elif defined(NRF_RADIOCORE)
+        #include <nrfx_config_liliumsoc1_network.h>
+    #endif
+#elif defined(LILIUMFP1_XXAA)
+    #include <nrfx_config_liliumfp1_global.h>
+
+    #if defined(NRF_APPLICATION)
+        #include <nrfx_config_liliumfp1_application.h>
+    #elif defined(NRF_RADIOCORE)
+        #include <nrfx_config_liliumfp1_network.h>
     #endif
 #else
     #error "Unknown device."

@@ -1,7 +1,11 @@
-/*$$$LICENCE_NORDIC_STANDARD<2020>$$$*/
+/*
+ * Copyright (c) 2022, Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-#ifndef NRFX_CONFIG_HALTIUM_GLOBAL_H__
-#define NRFX_CONFIG_HALTIUM_GLOBAL_H__
+#ifndef NRFX_CONFIG_LILIUMSOC1_GLOBAL_H__
+#define NRFX_CONFIG_LILIUMSOC1_GLOBAL_H__
 
 #include <devicetree.h>
 
@@ -1981,4 +1985,4 @@
 #endif /* NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK */
 // </h>
 
-#endif /* NRFX_CONFIG_HALTIUM_GLOBAL_H__ */
+#endif // NRFX_CONFIG_LILIUMSOC1_GLOBAL_H__
