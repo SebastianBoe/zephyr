@@ -12,5 +12,7 @@ string
 	default "v2m_musca_b1_ns" if $(BOARD) = "v2m_musca_b1"
 	default "mimxrt1170_evk_cm4" if $(BOARD) = "mimxrt1170_evk_cm7"
 	default "mimxrt1160_evk_cm4" if $(BOARD) = "mimxrt1160_evk_cm7"
+	default "nrf54emu_nrf5420soc1_cpunet" if $(BOARD) = "nrf54emu_nrf5420soc1_cpuapp"
+	default "nrf54fpga_nrf5420soc1_cpune" if $(BOARD) = "nrf54fpga_nrf5420soc1_cpuapp"
 	default "nrf54emu_nrf5420_cpunet" if $(BOARD) = "nrf54emu_nrf5420_cpuapp"
 	default "nrf54fpga_nrf5420_cpune" if $(BOARD) = "nrf54fpga_nrf5420_cpuapp"
