@@ -34,8 +34,9 @@ struct timer_data {
  */
 #define BUSY_TICK_SLEW_PPM 130000U
 #else
-/* On other platforms assume the clocks are perfectly aligned. */
-#define BUSY_TICK_SLEW_PPM 0U
+/* On other platforms assume the clocks are almost perfectly aligned - maximum
+ * allowed slew is 0.5%. */
+#define BUSY_TICK_SLEW_PPM 5000U
 #endif
 #define PPM_DIVISOR 1000000U
 
