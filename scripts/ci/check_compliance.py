@@ -195,13 +195,11 @@ class CheckPatch(ComplianceTest):
         if not os.path.exists(checkpatch):
             self.skip(f'{checkpatch} not found')
 
-        diff = subprocess.Popen(('git', 'diff', COMMIT_RANGE),
-                                stdout=subprocess.PIPE,
-                                cwd=GIT_TOP)
+        exclude_dir = os.path.join('modules', 'hal_nordic', 'nrfx')
+
         try:
-            subprocess.run((checkpatch, '--mailback', '--no-tree', '-'),
+            subprocess.run((checkpatch, '--exclude', exclude_dir, '--no-tree', '-g', COMMIT_RANGE),
                            check=True,
-                           stdin=diff.stdout,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT,
                            shell=True, cwd=GIT_TOP)
