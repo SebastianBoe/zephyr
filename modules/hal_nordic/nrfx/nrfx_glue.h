@@ -108,7 +108,7 @@ extern "C" {
 #if defined(ISA_ARM)
 #define NRFX_IRQ_PENDING_SET(irq_number) NVIC_SetPendingIRQ(irq_number)
 #elif defined(ISA_RISCV)
-#define NRFX_IRQ_PENDING_SET(irq_number) nrf_vpr_clic_int_pending_set(NRF_VPR, irq_number)
+#define NRFX_IRQ_PENDING_SET(irq_number) nrf_vpr_clic_int_pending_set(NRF_VPRCLIC, irq_number)
 #endif
 
 /**
@@ -119,7 +119,7 @@ extern "C" {
 #if defined(ISA_ARM)
 #define NRFX_IRQ_PENDING_CLEAR(irq_number) NVIC_ClearPendingIRQ(irq_number)
 #elif defined(ISA_RISCV)
-#define NRFX_IRQ_PENDING_CLEAR(irq_number) nrf_vpr_clic_int_pending_clear(NRF_VPR, irq_number)
+#define NRFX_IRQ_PENDING_CLEAR(irq_number) nrf_vpr_clic_int_pending_clear(NRF_VPRCLIC, irq_number)
 #endif
 
 /**
@@ -131,7 +131,7 @@ extern "C" {
 #if defined(ISA_ARM)
 #define NRFX_IRQ_IS_PENDING(irq_number) (NVIC_GetPendingIRQ(irq_number) == 1)
 #elif defined(ISA_RISCV)
-#define NRFX_IRQ_IS_PENDING(irq_number) nrf_vpr_clic_int_pending_check(NRF_VPR, irq_number)
+#define NRFX_IRQ_IS_PENDING(irq_number) nrf_vpr_clic_int_pending_check(NRF_VPRCLIC, irq_number)
 #endif
 
 /** @brief Macro for entering into a critical section. */
