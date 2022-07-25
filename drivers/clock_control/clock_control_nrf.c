@@ -680,7 +680,7 @@ static int clk_init(const struct device *dev)
 	if (IS_ENABLED(CONFIG_CLOCK_CONTROL_NRF_DRIVER_CALIBRATION)) {
 		struct nrf_clock_control_data *data = dev->data;
 
-		z_nrf_clock_calibration_init(&data->mgr[0].mgr);
+		z_nrf_clock_calibration_init(data->mgr);
 	}
 
 	nrfx_clock_enable();

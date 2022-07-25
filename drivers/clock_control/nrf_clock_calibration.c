@@ -45,7 +45,7 @@ static void cal_lf_callback(struct onoff_manager *mgr,
 			    uint32_t state, int res);
 
 static struct onoff_client cli;
-static struct onoff_manager *mgrs;
+static struct onoff_delayed_manager *mgrs;
 
 /* Temperature sensor is only needed if
  * CONFIG_CLOCK_CONTROL_NRF_CALIBRATION_MAX_SKIP > 0, since a value of 0
@@ -87,22 +87,22 @@ static void clk_release(struct onoff_manager *mgr)
 
 static void hf_request(void)
 {
-	clk_request(&mgrs[CLOCK_CONTROL_NRF_TYPE_HFCLK], &cli, cal_hf_callback);
+	clk_request(&(mgrs[CLOCK_CONTROL_NRF_TYPE_HFCLK].mgr), &cli, cal_hf_callback);
 }
 
 static void lf_request(void)
 {
-	clk_request(&mgrs[CLOCK_CONTROL_NRF_TYPE_LFCLK], &cli, cal_lf_callback);
+	clk_request(&mgrs[CLOCK_CONTROL_NRF_TYPE_LFCLK].mgr, &cli, cal_lf_callback);
 }
 
 static void hf_release(void)
 {
-	clk_release(&mgrs[CLOCK_CONTROL_NRF_TYPE_HFCLK]);
+	clk_release(&mgrs[CLOCK_CONTROL_NRF_TYPE_HFCLK].mgr);
 }
 
 static void lf_release(void)
 {
-	clk_release(&mgrs[CLOCK_CONTROL_NRF_TYPE_LFCLK]);
+	clk_release(&mgrs[CLOCK_CONTROL_NRF_TYPE_LFCLK].mgr);
 }
 
 static void cal_lf_callback(struct onoff_manager *mgr,
@@ -235,7 +235,7 @@ static void measure_temperature(struct k_work *work)
 }
 #endif /* USE_TEMP_SENSOR */
 
-void z_nrf_clock_calibration_init(struct onoff_manager *onoff_mgrs)
+void z_nrf_clock_calibration_init(struct onoff_delayed_manager *onoff_mgrs)
 {
 	mgrs = onoff_mgrs;
 	total_cnt = 0;
