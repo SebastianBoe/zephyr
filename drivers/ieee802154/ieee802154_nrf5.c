@@ -25,7 +25,9 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <zephyr/debug/stack.h>
 
 #include <soc.h>
+#if !(defined(CONFIG_BOARD_NRF54FPGA_NRF5420_CPUAPP) || defined(CONFIG_BOARD_NRF54FPGA_NRF5420_SOC1_CPUAPP))
 #include <soc_secure.h>
+#endif
 #include <zephyr/device.h>
 #include <zephyr/init.h>
 #include <zephyr/debug/stack.h>
@@ -112,9 +114,9 @@ static uint64_t unknown_ieee_addr[2] = { 1 };
 
 static void nrf5_get_eui64(uint8_t *mac)
 {
-	uint64_t factoryAddress;
+	uint64_t factoryAddress = {0};
 	uint32_t index = 0;
-
+#if !(defined(CONFIG_BOARD_NRF54FPGA_NRF5420_CPUAPP) || defined(CONFIG_BOARD_NRF54FPGA_NRF5420_SOC1_CPUAPP))
 #if !defined(CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE)
 	uint32_t deviceid[2];
 
@@ -131,6 +133,7 @@ static void nrf5_get_eui64(uint8_t *mac)
 	/* Use device identifier assigned during the production. */
 	factoryAddress = (uint64_t)EUI64_ADDR[EUI64_ADDR_HIGH] << 32;
 	factoryAddress |= EUI64_ADDR[EUI64_ADDR_LOW];
+#endif
 #endif
 	memcpy(mac + index, &factoryAddress, sizeof(factoryAddress) - index);
 }
