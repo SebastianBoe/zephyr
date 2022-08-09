@@ -1949,11 +1949,6 @@
 // <o> NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK - GRTC CC channels ownership mask.
 #ifndef NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK
 
-/* TODO: Leave 'owned_channels` version only when it appears and
- *       remove `channel_mask` property (NRFX-1945).
- */
-#if DT_NODE_HAS_PROP(DT_INST(0, nordic_nrf_grtc), owned_channels)
-
 #define NRFX_GRTC_OWNED_CHANNELS DT_PROP(DT_INST(0, \
 			nordic_nrf_grtc), owned_channels)
 
@@ -1966,22 +1961,6 @@
 #define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK \
 			(LISTIFY(NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS, _NRFX_GRTC_SHIFT, (|)))
 
-#else
-
-#define NRFX_GRTC_USE_CHANNEL_MASK_PROPERTY 1
-
-#define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK DT_PROP(DT_INST(0, \
-			nordic_nrf_grtc), channel_mask)
-#define _NRFX_GRTC_SHIFT_LIMIT DT_PROP(DT_INST(0, nordic_nrf_grtc), cc_num)
-
-#define _NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK_CHK_BIT(bit, _) \
-			((NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK >> bit) & 0x1UL)
-
-#define NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS \
-			LISTIFY(_NRFX_GRTC_SHIFT_LIMIT, \
-				_NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK_CHK_BIT, (+))
-
-#endif /* DT_NODE_HAS_PROP(DT_INST(0, nordic_nrf_grtc), owned_channels) */
 #endif /* NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK */
 // </h>
 
