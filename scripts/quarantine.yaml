@@ -208,38 +208,43 @@
 # Tests failing on native posix because of gcc 9.4.0 in docker image
 - scenarios:
     - sample.modules.chre
-    - libraries.cbprintf_package_fp_cpp
     - libraries.cbprintf_package_cpp
     - libraries.cbprintf_package_fp_align_offset_cpp
+    - libraries.cbprintf_package_fp_cpp
     - libraries.cbprintf_package_long_double_align_offset_cpp
     - libraries.cbprintf_package_long_double_cpp
     - libraries.cbprintf_package_nano_cpp
     - libraries.cbprintf_package_no_generic_cpp
-    - logging.log2_api_deferred_64b_timestamp_cpp
-    - logging.log2_api_deferred_func_prefix_cpp
-    - logging.log2_api_deferred_no_overflow_cpp
-    - logging.log2_api_deferred_overflow_cpp
-    - logging.log2_api_deferred_overflow_rt_filter_cpp
-    - logging.log2_api_deferred_printk_cpp
-    - logging.log2_api_deferred_static_filter_cpp
-    - logging.log2_api_immediate_64b_timestamp_cpp
-    - logging.log2_api_immediate_cpp
-    - logging.log2_api_immediate_printk_cpp
-    - logging.log2_api_immediate_rt_filter_cpp
-    - logging.log2_api_immediate_static_filter_cpp
+    - logging.log_api_deferred_64b_timestamp_cpp
+    - logging.log_api_deferred_64b_timestamp_cpp.tagged_args
     - logging.log_api_deferred_func_prefix_cpp
+    - logging.log_api_deferred_func_prefix_cpp.tagged_args
     - logging.log_api_deferred_no_overflow_cpp
+    - logging.log_api_deferred_no_overflow_cpp.tagged_args
     - logging.log_api_deferred_overflow_cpp
+    - logging.log_api_deferred_overflow_cpp.tagged_args
     - logging.log_api_deferred_overflow_rt_filter_cpp
+    - logging.log_api_deferred_overflow_rt_filter_cpp.tagged_args
+    - logging.log_api_deferred_printk_cpp
+    - logging.log_api_deferred_printk_cpp.tagged_args
     - logging.log_api_deferred_static_filter_cpp
+    - logging.log_api_deferred_static_filter_cpp.tagged_args
     - logging.log_api_frontend_cpp
     - logging.log_api_frontend_dbg_cpp
     - logging.log_api_frontend_immediate_cpp
     - logging.log_api_frontend_no_backends_cpp
     - logging.log_api_frontend_only_cpp
+    - logging.log_api_immediate_64b_timestamp_cpp
+    - logging.log_api_immediate_64b_timestamp_cpp.tagged_args
     - logging.log_api_immediate_cpp
+    - logging.log_api_immediate_cpp.tagged_args
+    - logging.log_api_immediate_printk_cpp
+    - logging.log_api_immediate_printk_cpp.tagged_args
     - logging.log_api_immediate_rt_filter_cpp
+    - logging.log_api_immediate_rt_filter_cpp.tagged_args
     - logging.log_api_immediate_static_filter_cpp
+    - logging.log_api_immediate_static_filter_cpp.tagged_args
+    - testing.ztest.base.cpp
   platforms:
     - native_posix
   comment: "Needs gcc > 9.4.0"
