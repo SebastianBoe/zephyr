@@ -25,7 +25,8 @@ void nrf_802154_sl_fault_handler(uint32_t id, int32_t line, const char *err)
 
 int check_status_flag(const struct device *arg)
 {
-	volatile uint8_t *p = (volatile uint8_t *) DT_REG_ADDR(DT_NODELABEL(gram00));
+	volatile uint8_t *p =
+		(volatile uint8_t *)DT_REG_ADDR(DT_PHANDLE(DT_NODELABEL(ipc0), memory_region));
 
 	/*
 	 * Resetting the emulator doesn't also clear the memory. This means
