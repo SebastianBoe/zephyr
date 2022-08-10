@@ -1949,17 +1949,41 @@
 // <o> NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK - GRTC CC channels ownership mask.
 #ifndef NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK
 
-#define NRFX_GRTC_OWNED_CHANNELS DT_PROP(DT_INST(0, \
-			nordic_nrf_grtc), owned_channels)
+/* TODO: Remove `child-owned-channels` property when it will be possible determine
+ *       which channels should be owned by child core.
+ *	 Then the `NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK` parameter should equal:
+ *	 - for APP: `owned-channels-by-app` & ~`owned-channels-by-child-core`
+ *	 - for child-core: `owned-channels-by-child-core`
+ */
 
-#define NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS DT_PROP_LEN(DT_INST(0, \
+#define _NRFX_GRTC_NUM_OF_OWNED_CHANNELS DT_PROP_LEN(DT_INST(0, \
 			nordic_nrf_grtc), owned_channels)
-
-#define _NRFX_GRTC_SHIFT(val, _) (1 << (DT_PROP_BY_IDX(DT_INST(0, \
+#define _NRFX_GRTC_SHIFT_OWNED(val, _) (1 << (DT_PROP_BY_IDX(DT_INST(0, \
 			nordic_nrf_grtc), owned_channels, val)))
+#define _NRFX_GRTC_OWNED_CHANNEL_MASK \
+			(LISTIFY(_NRFX_GRTC_NUM_OF_OWNED_CHANNELS, _NRFX_GRTC_SHIFT_OWNED, (|)))
 
+#if DT_NODE_HAS_PROP(DT_INST(0, nordic_nrf_grtc), child_owned_channels)
+#define _NRFX_GRTC_SHIFT_FORBIDDEN(val, _) (1 << (DT_PROP_BY_IDX(DT_INST(0, \
+			nordic_nrf_grtc), child_owned_channels, val)))
+#define _NRFX_GRTC_NUM_OF_FORBIDDEN_CHANNELS DT_PROP_LEN(DT_INST(0, \
+			nordic_nrf_grtc), child_owned_channels)
+#define NRFX_GRTC_CONFIG_FORBIDDEN_CC_CHANNEL_MASK \
+			(LISTIFY(_NRFX_GRTC_NUM_OF_FORBIDDEN_CHANNELS, _NRFX_GRTC_SHIFT_FORBIDDEN, (|)))
+#else
+#define _NRFX_GRTC_NUM_OF_FORBIDDEN_CHANNELS 0
+#define NRFX_GRTC_CONFIG_FORBIDDEN_CC_CHANNEL_MASK 0
+#endif
+
+#define NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS \
+			(_NRFX_GRTC_NUM_OF_OWNED_CHANNELS - _NRFX_GRTC_NUM_OF_FORBIDDEN_CHANNELS)
 #define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK \
-			(LISTIFY(NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS, _NRFX_GRTC_SHIFT, (|)))
+			(_NRFX_GRTC_OWNED_CHANNEL_MASK &~ NRFX_GRTC_CONFIG_FORBIDDEN_CC_CHANNEL_MASK)
+
+#if((_NRFX_GRTC_OWNED_CHANNEL_MASK | NRFX_GRTC_CONFIG_FORBIDDEN_CC_CHANNEL_MASK) != \
+		_NRFX_GRTC_OWNED_CHANNEL_MASK)
+#error `child-owned-channels` parameter must be a subset of `owned-channels` parameter.
+#endif
 
 #endif /* NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK */
 // </h>
