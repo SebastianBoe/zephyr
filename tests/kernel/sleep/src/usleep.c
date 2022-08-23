@@ -24,7 +24,8 @@
  * maximum effect of timeout to 3 ticks on this platform.
  */
 
-#if defined(CONFIG_NRF_RTC_TIMER) && (CONFIG_SYS_CLOCK_TICKS_PER_SEC > 16384)
+#if (defined(CONFIG_NRF_RTC_TIMER) && CONFIG_SYS_CLOCK_TICKS_PER_SEC > 16384) || \
+       defined(CONFIG_NRF_GRTC_TIMER)
 /* The overhead of k_usleep() adds three ticks per loop iteration on
  * nRF51, which has a slow CPU clock.
  */
