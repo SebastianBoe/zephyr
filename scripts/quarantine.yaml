@@ -250,6 +250,14 @@
   comment: "Needs gcc > 9.4.0"
 
 - scenarios:
+    - sample.net.zperf.netusb_ecm
+    - sample.net.zperf.netusb_eem
+    - sample.net.zperf.netusb_rndis
+  platforms:
+    - nrf52833dk_nrf52833
+  comment: "Ram overflows, also in the upstream"
+
+- scenarios:
     - sample.boards.nrf.802154_rpmsg
   platforms:
     - nrf5340dk_nrf5340_cpunet
