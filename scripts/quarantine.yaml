@@ -262,3 +262,11 @@
   platforms:
     - nrf5340dk_nrf5340_cpunet
   comment: "https://projecttools.nordicsemi.no/jira/browse/NRFX-1900"
+
+- scenarios:
+    - sample.net.zperf.netusb_ecm
+    - sample.net.zperf.netusb_eem
+    - sample.net.zperf.netusb_rndis
+  platforms:
+    - nrf52833dk_nrf52833
+  comment: "Ram overflows, also in the upstream"
