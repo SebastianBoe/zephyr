@@ -113,3 +113,15 @@ zephyr_library_sources_ifdef(CONFIG_NRFX_WDT     ${SRC_DIR}/nrfx_wdt.c)
 if(CONFIG_NRFX_TWI OR CONFIG_NRFX_TWIM)
   zephyr_library_sources(${SRC_DIR}/nrfx_twi_twim.c)
 endif()
+
+if(CONFIG_NRFX_PPI)
+  zephyr_library_sources(${HELPERS_DIR}/nrfx_gppi_ppi.c)
+endif()
+
+if(NOT CONFIG_SOC_PLATFORM_HALTIUM AND CONFIG_NRFX_DPPI)
+  zephyr_library_sources(${HELPERS_DIR}/nrfx_gppi_dppi.c)
+endif()
+
+if(CONFIG_SOC_PLATFORM_HALTIUM AND CONFIG_NRFX_DPPI)
+  zephyr_library_sources(${HELPERS_DIR}/nrfx_gppi_dppi_ppib.c)
+endif()
