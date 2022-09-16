@@ -1,6 +1,7 @@
 # nRF5 temperature sensor configuration options
 
 # Copyright (c) 2016 ARM Ltd.
+# Copyright (c) 2022 Nordic Semiconductor ASA
 # SPDX-License-Identifier: Apache-2.0
 
 config TEMP_NRF5_FORCE_ALT
@@ -14,7 +15,7 @@ config TEMP_NRF5
 	bool "nRF5 Temperature Sensor"
 	default y
 	depends on DT_HAS_NORDIC_NRF_TEMP_ENABLED
-	depends on HAS_HW_NRF_TEMP
+	depends on HAS_HW_NRF_TEMP || (NRFS && HAS_NRF_TEMP_NRFS)
 	depends on MULTITHREADING || TEMP_NRF5_FORCE_ALT
 	help
 	  Enable driver for nRF5 temperature sensor.

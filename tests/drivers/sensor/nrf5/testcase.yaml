@@ -1,0 +1,4 @@
+tests:
+  drivers.sensor.nrf5:
+    platform_allow: nrf54emu_nrf5420_cpuapp nrf54emu_nrf5420soc1_cpuapp nrf54fpga_nrf5420soc1_cpuapp nrf54fpga_nrf5420_cpuapp
+    tags: drivers
