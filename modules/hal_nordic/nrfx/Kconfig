@@ -91,7 +91,8 @@ config NRFX_EGU130
 
 config NRFX_GPIOTE
 	bool "GPIOTE driver"
-	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_GPIOTE))
+	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_GPIOTE)) || \
+		   $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_GPIOTE_V2))
 
 config NRFX_GPIOTE_NUM_OF_EVT_HANDLERS
 	int "Number of event handlers"

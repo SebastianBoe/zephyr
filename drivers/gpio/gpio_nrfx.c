@@ -358,7 +358,9 @@ static void nrfx_gpio_handler(nrfx_gpiote_pin_t abs_pin,
 	gpio_fire_callbacks(list, port, BIT(pin));
 }
 
-#define GPIOTE_NODE DT_INST(0, nordic_nrf_gpiote)
+#define GPIOTE_NODE COND_CODE_1(DT_NODE_EXISTS(DT_INST(0, nordic_nrf_gpiote_v2)), \
+				(DT_INST(0, nordic_nrf_gpiote_v2)), \
+				(DT_INST(0, nordic_nrf_gpiote)))
 
 static int gpio_nrfx_init(const struct device *port)
 {
