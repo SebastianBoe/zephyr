@@ -9,6 +9,7 @@
 
 #include <zephyr/sys/__assert.h>
 #include <zephyr/sys/atomic.h>
+#include <zephyr/devicetree.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -343,8 +344,18 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 				   NRFX_PPI_GROUPS_USED_BY_802154_DRV | \
 				   NRFX_PPI_GROUPS_USED_BY_MPSL)
 
+#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#define GPIOTE_CH_OWNED_CH(node_id, prop, idx) \
+	| BIT(DT_PROP_BY_IDX(node_id, prop, idx))
+
+#define GPIOTE_OWNED_CHANNELS \
+	(0 DT_FOREACH_PROP_ELEM(DT_INST(0, nordic_nrf_gpiote_v2), owned_channels, GPIOTE_CH_OWNED_CH))
+#else
+#define GPIOTE_OWNED_CHANNELS 0xFFFFFFFF
+#endif
+
 /** @brief Bitmask that defines GPIOTE channels that are reserved for use outside of the nrfx library. */
-#define NRFX_GPIOTE_CHANNELS_USED NRFX_GPIOTE_CHANNELS_USED_BY_BT_CTLR
+#define NRFX_GPIOTE_CHANNELS_USED (NRFX_GPIOTE_CHANNELS_USED_BY_BT_CTLR | ~GPIOTE_OWNED_CHANNELS)
 
 #if defined(CONFIG_BT_CTLR)
 /*
