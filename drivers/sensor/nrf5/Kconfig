@@ -19,3 +19,26 @@ config TEMP_NRF5
 	depends on MULTITHREADING || TEMP_NRF5_FORCE_ALT
 	help
 	  Enable driver for nRF5 temperature sensor.
+
+config TEMP_NRF5_TRIGGER
+	bool "Trigger support"
+	depends on TEMP_NRF5
+	default y
+	help
+	  Enable trigger support for the TEMP_NRF5 sensor.
+
+if TEMP_NRF5_TRIGGER
+
+config TEMP_NRF5_TRIGGER_THREAD_STACK_SIZE
+	int "Stack size for the trigger workqueue thread"
+	default 512
+	help
+	  Size of the stack used for the internal trigger workqueue thread.
+
+config TEMP_NRF5_TRIGGER_THREAD_PRIO
+	int "Priority for the trigger workqueue thread"
+	default -16
+	help
+	  Priority level for the internal trigger workqueue thread.
+
+endif # TEMP_NRF5_TRIGGER
