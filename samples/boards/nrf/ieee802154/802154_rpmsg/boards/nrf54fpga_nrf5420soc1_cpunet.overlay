@@ -12,7 +12,7 @@
 
 	ipc0: ipc_remote {
 		compatible = "zephyr,ipc-openamp-static-vrings";
-		memory-region = <&gram00>;
+		memory-region = <&ram00>;
 		mboxes = <&bellboard_cpuapp 29>,
 			 <&bellboard_cpunet 29>;
 		mbox-names = "tx", "rx";
