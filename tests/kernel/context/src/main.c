@@ -943,7 +943,23 @@ ZTEST(context_one_cpu, test_k_sleep)
 	int i;
 
 
+#if defined(CONFIG_SOC_PLATFORM_HALTIUM) && \
+    defined(CONFIG_RISCV) && \
+    defined(CONFIG_EMULATOR_FPGA)
+	/*
+	 * On haltium FPGA RISCV the overhead introduced by the k_sem_take()
+	 * operation is around 50ms, given that the thread_sleep is already
+	 * taking ~50ms a timeout of 100ms total on the semaphore is definitely
+	 * too tight.
+	 *
+	 * Increase the timeout to 100ms to have a bigger margin when waiting
+	 * on the semaphore (a timeout of 200ms should be enough when
+	 * considering 100ms spent in the thread and 50ms overhead).
+	 */
+	timeout = 100;
+#else
 	timeout = 50;
+#endif
 
 	k_thread_create(&timeout_threads[0], timeout_stacks[0],
 			THREAD_STACKSIZE2, thread_sleep,
