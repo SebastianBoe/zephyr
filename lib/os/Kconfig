@@ -172,6 +172,12 @@ config UTF8
 	  Enable the utf8 API. The API implements functions to specifically
 	  handle UTF-8 encoded strings.
 
+config ONOFF_DELAYED
+	bool "Delayed On-Off Manager"
+	select TIMEOUT_64BIT
+	help
+	  Enable Delayed On-Off Manager.
+
 rsource "Kconfig.cbprintf"
 
 rsource "Kconfig.heap"
