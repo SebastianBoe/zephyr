@@ -20,6 +20,8 @@
 
 #include "common.h"
 
+#define BELLBOARD_ID (29)
+
 #define APP_TASK_STACK_SIZE (1024)
 K_THREAD_STACK_DEFINE(thread_stack, APP_TASK_STACK_SIZE);
 static struct k_thread thread_data;
@@ -90,11 +92,13 @@ static void virtio_notify(struct virtqueue *vq)
 	uint32_t current_core = sse_200_platform_get_cpu_id();
 
 	ipm_send(ipm_handle, 0, current_core ? 0 : 1, 0, 1);
+#elif defined(CONFIG_BOARD_HALTIUM_PALLADIUM_APPLICATION)
+	ipm_send(ipm_handle, 0, BELLBOARD_ID, NULL, 0);
 #else
 	uint32_t dummy_data = 0x55005500; /* Some data must be provided */
 
 	ipm_send(ipm_handle, 0, 0, &dummy_data, sizeof(dummy_data));
-#endif /* #if defined(CONFIG_SOC_MPS2_AN521) */
+#endif
 }
 
 struct virtio_dispatch dispatch = {
