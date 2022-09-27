@@ -34,7 +34,11 @@ config BOARD_ENABLE_CPUNET
 	  the board, the application needs to take into consideration, that the
 	  secure firmware image must already have configured GPIO allocation for the
 	  Network MCU.
-	default y if (BT || NRF_802154_SER_HOST)
+	  Note: The non-secure image can only be started by the secure firmware,
+	  so when this option is used with the non-secure version of the board,
+	  the application needs to take into consideration, that the secure firmware
+	  may already have started the Network MCU.
+	default y if (BT || NET_L2_IEEE802154 || OPENAMP_MULTIINSTANCE)
 
 config DOMAIN_CPUNET_BOARD
 	string
