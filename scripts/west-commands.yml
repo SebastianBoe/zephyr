@@ -56,3 +56,13 @@ west-commands:
       - name: blobs
         class: Blobs
         help: work with binary blobs
+  - file: scripts/west_commands/vhx.py
+    commands:
+      - name: vhx
+        class: Vhx
+        help: Convert .hex file into .vhx format
+  - file: scripts/west_commands/uicr.py
+    commands:
+      - name: uicr
+        class: Uicr
+        help: Generate UICR hex for SecDomFW
