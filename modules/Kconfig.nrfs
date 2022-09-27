@@ -1,0 +1,20 @@
+# Copyright (c) 2020, Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+config NRFS
+	bool "nRF Services Support"
+	help
+	  This option enables the nRF Services library
+
+config NRFS_LOCAL_DOMAIN
+	bool "nRF Services Local Domain Support"
+	help
+	  This option enables the nRF Services Local Domain libraries
+
+choice
+	prompt "nRF Services backend"
+
+config NRFS_BACKEND_PRISM_DISPATCHER
+	bool "PRISM Dispatcher"
+
+endchoice

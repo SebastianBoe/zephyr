@@ -1,0 +1,66 @@
+# Copyright (c) 2020, Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+config PRISM_DISPATCHER
+	bool "PRISM Dispatcher Support"
+	help
+	  This option enables the PRISM Dispatcher library
+
+if PRISM_DISPATCHER
+
+choice
+	prompt "PRISM Dispatcher algorithm"
+	default PRISM_DISPATCHER_ALGO_SINGLEBUF
+
+config PRISM_DISPATCHER_ALGO_SINGLEBUF
+	bool "Enable algorithm with single message buffer"
+
+endchoice
+
+choice
+	prompt "PRISM Dispatcher IPC transport backend"
+	default PRISM_DISPATCHER_BACKEND_OPENAMP
+
+config PRISM_DISPATCHER_BACKEND_OPENAMP
+	select OPENAMP_MULTIINSTANCE
+	bool "Enable OpenAMP as backend"
+
+config PRISM_DISPATCHER_BACKEND_MOCK
+	bool "Enable mocked backend for unit testing purposes"
+
+endchoice
+
+config PRISM_DISPATCHER_APP_ENABLED
+	default n
+	bool "Enable communication channel with Application Domain"
+
+config PRISM_DISPATCHER_NET_ENABLED
+	default n
+	bool "Enable communication channel with Network Domain"
+
+config PRISM_DISPATCHER_SECURE_ENABLED
+	default n
+	bool "Enable communication channel with Secure Domain"
+
+config PRISM_DISPATCHER_MODEM_ENABLED
+	default n
+	bool "Enable communication channel with Modem Domain"
+
+config PRISM_DISPATCHER_SYSCTRL_ENABLED
+	default n
+	bool "Enable communication channel with SysCtrl Domain"
+
+config PRISM_DISPATCHER_EPT_COUNT
+	default 1
+	int "Total number of endpoints used in the application"
+
+config PRISM_DISPATCHER_MSG_SIZE
+	default 512
+	int "Maximum size of payload that may arrive over IPC transport"
+
+config PRISM_DISPATCHER_BACKEND_OPENAMP_VRING_SIZE
+	depends on PRISM_DISPATCHER_BACKEND_OPENAMP
+	default 8
+	int "Number of buffers in the VirtQueue"
+
+endif # PRISM_DISPATCHER
