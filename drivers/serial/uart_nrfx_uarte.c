@@ -11,7 +11,6 @@
 #include <zephyr/drivers/uart.h>
 #include <zephyr/pm/device.h>
 #include <hal/nrf_uarte.h>
-#include <nrfx_timer.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/kernel.h>
 #include <soc.h>
@@ -21,6 +20,10 @@
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
+
+#if !defined(CONFIG_SOC_SERIES_HALTIUM)
+#include <nrfx_gppi.h>
+#include <nrfx_timer.h>
 
 #include <zephyr/drivers/pinctrl.h>
 
@@ -39,6 +42,7 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 #error "No PPI or DPPI"
 #endif
 
+#endif /* !defined(CONFIG_SOC_SERIES_HALTIUM) */
 
 #if	(defined(CONFIG_UART_0_NRF_UARTE) &&         \
 	 defined(CONFIG_UART_0_INTERRUPT_DRIVEN)) || \
@@ -47,14 +51,17 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 	(defined(CONFIG_UART_2_NRF_UARTE) &&         \
 	 defined(CONFIG_UART_2_INTERRUPT_DRIVEN)) || \
 	(defined(CONFIG_UART_3_NRF_UARTE) &&         \
-	 defined(CONFIG_UART_3_INTERRUPT_DRIVEN))
+	 defined(CONFIG_UART_3_INTERRUPT_DRIVEN)) || \
+	(defined(CONFIG_UART_136_NRF_UARTE) &&       \
+	 defined(CONFIG_UART_136_INTERRUPT_DRIVEN))
 	#define UARTE_INTERRUPT_DRIVEN	1
 #endif
 
 #if	(defined(CONFIG_UART_0_NRF_UARTE) && !defined(CONFIG_UART_0_ASYNC)) || \
 	(defined(CONFIG_UART_1_NRF_UARTE) && !defined(CONFIG_UART_1_ASYNC)) || \
 	(defined(CONFIG_UART_2_NRF_UARTE) && !defined(CONFIG_UART_2_ASYNC)) || \
-	(defined(CONFIG_UART_3_NRF_UARTE) && !defined(CONFIG_UART_3_ASYNC))
+	(defined(CONFIG_UART_3_NRF_UARTE) && !defined(CONFIG_UART_3_ASYNC)) || \
+	(defined(CONFIG_UART_136_NRF_UARTE) && !defined(CONFIG_UART_136_ASYNC))
 #define UARTE_ANY_NONE_ASYNC 1
 #endif
 
@@ -73,6 +80,12 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 
 /* Size of hardware fifo in RX path. */
 #define UARTE_HW_RX_FIFO_SIZE 5
+
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+/* DMA doesn't work from all memories on Palladium. Hopefully this memory is not used. */
+uint8_t * dma_char_buf = (uint8_t *)0x2FC04200;
+uint8_t * dma_buf      = (uint8_t *)0x2FC04204;
+#endif
 
 #ifdef UARTE_ANY_ASYNC
 struct uarte_async_cb {
@@ -145,7 +158,9 @@ struct uarte_nrfx_data {
 	atomic_val_t poll_out_lock;
 	uint8_t *char_out;
 	uint8_t *rx_data;
+#if !defined(CONFIG_SOC_SERIES_HALTIUM)
 	gppi_channel_t ppi_ch_endtx;
+#endif
 };
 
 #define UARTE_LOW_POWER_TX BIT(0)
@@ -736,6 +751,11 @@ static int uarte_nrfx_tx(const struct device *dev, const uint8_t *buf,
 		irq_unlock(key);
 		return -EBUSY;
 	}
+
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+	(void)memcpy(dma_buf, buf, len);
+	buf = dma_buf;
+#endif
 
 	data->async->tx_size = len;
 	data->async->tx_buf = buf;
@@ -1503,8 +1523,14 @@ static void uarte_nrfx_poll_out(const struct device *dev, unsigned char c)
 		key = wait_tx_ready(dev);
 	}
 
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+	(void)data;
+	*dma_char_buf = c;
+	tx_start(dev, dma_char_buf, 1);
+#else
 	*data->char_out = c;
 	tx_start(dev, data->char_out, 1);
+#endif
 
 	irq_unlock(key);
 }
@@ -1528,11 +1554,19 @@ static int uarte_nrfx_fifo_fill(const struct device *dev,
 
 	unsigned int key = irq_lock();
 
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+	(void)memcpy(dma_buf, data->int_driven->tx_buffer, len);
+#endif
+
 	if (!is_tx_ready(dev)) {
 		data->int_driven->fifo_fill_lock = 0;
 		len = 0;
 	} else {
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+		tx_start(dev, dma_buf, len);
+#else
 		tx_start(dev, data->int_driven->tx_buffer, len);
+#endif
 	}
 
 	irq_unlock(key);
@@ -1714,6 +1748,7 @@ static const struct uart_driver_api uart_nrfx_uarte_driver_api = {
 static int endtx_stoptx_ppi_init(NRF_UARTE_Type *uarte,
 				 struct uarte_nrfx_data *data)
 {
+#if !defined(CONFIG_SOC_SERIES_HALTIUM)
 	nrfx_err_t ret;
 
 	ret = gppi_channel_alloc(&data->ppi_ch_endtx);
@@ -1726,6 +1761,7 @@ static int endtx_stoptx_ppi_init(NRF_UARTE_Type *uarte,
 		nrf_uarte_event_address_get(uarte, NRF_UARTE_EVENT_ENDTX),
 		nrf_uarte_task_address_get(uarte, NRF_UARTE_TASK_STOPTX));
 	nrfx_gppi_channels_enable(BIT(data->ppi_ch_endtx));
+#endif
 
 	return 0;
 }
@@ -1793,7 +1829,11 @@ static int uarte_instance_init(const struct device *dev,
 	 * Pointer to RAM variable (data->tx_buffer) is set because otherwise
 	 * such operation may result in HardFault or RAM corruption.
 	 */
+#if defined(CONFIG_SOC_SERIES_HALTIUM)
+	nrf_uarte_tx_buffer_set(uarte, dma_buf, 0);
+#else
 	nrf_uarte_tx_buffer_set(uarte, data->char_out, 0);
+#endif
 	nrf_uarte_task_trigger(uarte, NRF_UARTE_TASK_STARTTX);
 
 	/* switch off transmitter to save an energy */
@@ -2071,4 +2111,8 @@ UART_NRF_UARTE_DEVICE(2);
 
 #ifdef CONFIG_UART_3_NRF_UARTE
 UART_NRF_UARTE_DEVICE(3);
+#endif
+
+#ifdef CONFIG_UART_136_NRF_UARTE
+UART_NRF_UARTE_DEVICE(136);
 #endif

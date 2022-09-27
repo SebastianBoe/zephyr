@@ -67,7 +67,7 @@ struct nrf_clock_control_sub_config {
 };
 
 struct nrf_clock_control_data {
-	struct onoff_manager mgr[CLOCK_CONTROL_NRF_TYPE_COUNT];
+	struct onoff_delayed_manager mgr[CLOCK_CONTROL_NRF_TYPE_COUNT];
 	struct nrf_clock_control_sub_data subsys[CLOCK_CONTROL_NRF_TYPE_COUNT];
 };
 
@@ -102,11 +102,19 @@ static struct onoff_manager *get_onoff_manager(const struct device *dev,
 {
 	struct nrf_clock_control_data *data = dev->data;
 
-	return &data->mgr[type];
+	return &data->mgr[type].mgr;
 }
 
 
 #define CLOCK_DEVICE DEVICE_DT_GET(DT_NODELABEL(clock))
+
+struct onoff_delayed_manager *
+z_nrf_clock_control_get_onoff_delayed(clock_control_subsys_t sys)
+{
+	struct nrf_clock_control_data *data = CLOCK_DEVICE->data;
+
+	return &data->mgr[(enum clock_control_nrf_type)sys];
+}
 
 struct onoff_manager *z_nrf_clock_control_get_onoff(clock_control_subsys_t sys)
 {
@@ -419,7 +427,9 @@ static int api_blocking_start(const struct device *dev,
 static clock_control_subsys_t get_subsys(struct onoff_manager *mgr)
 {
 	struct nrf_clock_control_data *data = CLOCK_DEVICE->data;
-	size_t offset = (size_t)(mgr - data->mgr);
+	struct onoff_delayed_manager *dmgr =
+			CONTAINER_OF(mgr, struct onoff_delayed_manager, mgr);
+	size_t offset = (size_t)(dmgr - data->mgr);
 
 	return (clock_control_subsys_t)offset;
 }
@@ -670,7 +680,7 @@ static int clk_init(const struct device *dev)
 	if (IS_ENABLED(CONFIG_CLOCK_CONTROL_NRF_DRIVER_CALIBRATION)) {
 		struct nrf_clock_control_data *data = dev->data;
 
-		z_nrf_clock_calibration_init(data->mgr);
+		z_nrf_clock_calibration_init(&data->mgr[0].mgr);
 	}
 
 	nrfx_clock_enable();

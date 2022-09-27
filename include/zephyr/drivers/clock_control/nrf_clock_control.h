@@ -113,13 +113,22 @@ int z_nrf_clock_calibration_count(void);
  */
 int z_nrf_clock_calibration_skips_count(void);
 
-/** @brief Get onoff service for given clock subsystem.
+/** @brief Get on-off manager for given clock subsystem.
  *
  * @param sys Subsystem.
  *
- * @return Service handler or NULL.
+ * @return On-off manager or NULL.
  */
 struct onoff_manager *z_nrf_clock_control_get_onoff(clock_control_subsys_t sys);
+
+/** @brief Get delayed on-off manager for given clock subsystem.
+ *
+ * @param sys Subsystem.
+ *
+ * @return Delayed on-off manager or NULL.
+ */
+struct onoff_delayed_manager *
+z_nrf_clock_control_get_onoff_delayed(clock_control_subsys_t sys);
 
 /** @brief Permanently enable low frequency clock.
  *
