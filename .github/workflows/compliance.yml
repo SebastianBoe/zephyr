@@ -62,7 +62,7 @@ jobs:
         # debug
         ls -la
         git log  --pretty=oneline | head -n 10
-        ./scripts/ci/check_compliance.py --annotate -e KconfigBasic -e Kconfig \
+        ./scripts/ci/check_compliance.py --annotate -e Kconfig -e Kconfig \
         -c origin/${BASE_REF}..
 
     - name: upload-results

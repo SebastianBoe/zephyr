@@ -1,0 +1,32 @@
+@Library("CI_LIB") _
+HashMap CI_STATE = lib_State.getConfig(JOB_NAME)
+
+pipeline {
+    options{
+        timestamps()
+        timeout(time: CI_STATE.CFG.TIMEOUT.time, unit: CI_STATE.CFG.TIMEOUT.unit)
+        buildDiscarder(logRotator(numToKeepStr: '25'))
+    }
+
+    agent any
+
+    stages {
+        stage('Run dependent jobs') { steps { script {
+            def GIT_BRANCH = env.BRANCH_NAME
+            // PR handling
+            if (env.CHANGE_BRANCH != null && env.CHANGE_BRANCH != env.BRANCH_NAME) {
+                GIT_BRANCH = env.CHANGE_BRANCH
+            }
+
+            def jobs = [:]
+            jobs["vpr-tlm"] = {
+                    build job: '/latest/test-fw-nrfconnect-sysctrl-risc-v-vpr-tlm/master',
+                    parameters: [string(name: 'TEST_BRANCH', value: GIT_BRANCH)],
+                    propagate: true
+                    wait: true
+            }
+
+            parallel jobs
+        }}}
+    }
+}

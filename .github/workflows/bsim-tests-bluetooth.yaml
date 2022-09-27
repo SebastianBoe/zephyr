@@ -3,8 +3,6 @@ name: BabbleSim BT Tests
 on:
   pull_request:
     paths:
-      - ".github/workflows/bsim-tests-bluetooth.yaml"
-      - ".github/workflows/bsim-tests-publish.yaml"
       - "west.yml"
       - "subsys/bluetooth/**"
       - "tests/bsim/bluetooth/**"
@@ -51,17 +49,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          path: ./zephyr
 
       - name: Environment Setup
-        env:
-          BASE_REF: ${{ github.base_ref }}
+        working-directory: ./zephyr
         run: |
-          git config --global user.email "bot@zephyrproject.org"
-          git config --global user.name "Zephyr Bot"
-          rm -fr ".git/rebase-apply"
-          git rebase origin/${BASE_REF}
-          git log  --pretty=oneline | head -n 10
+          # disable the keychain credential helper
+          git config --global credential.helper ""
+          # enable the local store credential helper
+          git config --global --add credential.helper store
+          # add credential
+          echo "https://x-access-token:${{ secrets.NCS_GITHUB_TOKEN }}@github.com" >> ~/.git-credentials
+          echo "git-credentials file:"
+          cat ~/.git-credentials
           west init -l . || true
           west config manifest.group-filter -- +ci
           west config --global update.narrow true
@@ -79,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: bsim-test-results
+          name: Bluetooth Test Results
           path: |
             ./bsim_out/bsim_results.xml
             ${{ github.event_path }}
