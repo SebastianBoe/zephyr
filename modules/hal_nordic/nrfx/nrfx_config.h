@@ -26,6 +26,21 @@
 #define NRFX_ADC_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_BELLBOARD
+#define NRFX_BELLBOARD_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_BELLBOARD0
+#define NRFX_BELLBOARD0_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_BELLBOARD1
+#define NRFX_BELLBOARD1_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_BELLBOARD2
+#define NRFX_BELLBOARD2_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_BELLBOARD3
+#define NRFX_BELLBOARD3_ENABLED 1
+#endif
 #ifdef CONFIG_NRFX_CLOCK
 #define NRFX_CLOCK_ENABLED 1
 #endif
@@ -362,6 +377,10 @@
 #define NRFX_USBREG_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_VEVIF
+#define NRFX_VEVIF_ENABLED 1
+#endif
+
 #ifdef CONFIG_NRFX_WDT
 #define NRFX_WDT_ENABLED 1
 #endif
@@ -412,6 +431,14 @@
     #include <nrfx_config_nrf5340_network.h>
 #elif defined(NRF9120_XXAA) || defined(NRF9160_XXAA)
     #include <nrfx_config_nrf91.h>
+#elif defined(HALTIUM_XXAA)
+    #include <nrfx_config_haltium_global.h>
+
+    #if defined(NRF_APPLICATION)
+        #include <nrfx_config_haltium_application.h>
+    #elif defined(NRF_RADIOCORE)
+        #include <nrfx_config_haltium_network.h>
+    #endif
 #else
     #error "Unknown device."
 #endif

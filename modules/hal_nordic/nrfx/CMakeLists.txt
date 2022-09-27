@@ -11,6 +11,7 @@ set(HELPERS_DIR ${NRFX_DIR}/helpers)
 
 zephyr_include_directories(${NRFX_DIR})
 zephyr_include_directories(${INC_DIR})
+zephyr_include_directories(${NRFX_DIR}/helpers/include)
 zephyr_include_directories(${MDK_DIR})
 zephyr_include_directories(.)
 
@@ -65,11 +66,12 @@ zephyr_library_sources_ifdef(CONFIG_SOC_NRF5340_CPUNET ${MDK_DIR}/system_nrf5340
 zephyr_library_sources_ifdef(CONFIG_SOC_SERIES_NRF91X  ${MDK_DIR}/system_nrf91.c)
 
 zephyr_library_sources(nrfx_glue.c)
-zephyr_library_sources(${HELPERS_DIR}/nrfx_flag32_allocator.c)
+zephyr_library_sources(${HELPERS_DIR}/src/nrfx_flag32_allocator.c)
 
 zephyr_library_sources_ifdef(CONFIG_NRFX_PRS     ${SRC_DIR}/prs/nrfx_prs.c)
 
 zephyr_library_sources_ifdef(CONFIG_NRFX_ADC     ${SRC_DIR}/nrfx_adc.c)
+zephyr_library_sources_ifdef(CONFIG_NRFX_BELLBOARD ${SRC_DIR}/nrfx_bellboard.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_CLOCK   ${SRC_DIR}/nrfx_clock.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_COMP    ${SRC_DIR}/nrfx_comp.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_DPPI    ${SRC_DIR}/nrfx_dppi.c)
@@ -102,6 +104,7 @@ zephyr_library_sources_ifdef(CONFIG_NRFX_UART    ${SRC_DIR}/nrfx_uart.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_UARTE   ${SRC_DIR}/nrfx_uarte.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_USBD    ${SRC_DIR}/nrfx_usbd.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_USBREG  ${SRC_DIR}/nrfx_usbreg.c)
+zephyr_library_sources_ifdef(CONFIG_NRFX_VEVIF   ${SRC_DIR}/nrfx_vevif.c)
 zephyr_library_sources_ifdef(CONFIG_NRFX_WDT     ${SRC_DIR}/nrfx_wdt.c)
 
 if(CONFIG_NRFX_TWI OR CONFIG_NRFX_TWIM)

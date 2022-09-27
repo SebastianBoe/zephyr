@@ -11,6 +11,26 @@ config NRFX_ADC
 	bool "ADC driver"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_ADC))
 
+config NRFX_BELLBOARD
+	bool "Enable BELLBOARD driver"
+	depends on HAS_HW_NRF_BELLBOARD
+
+config NRFX_BELLBOARD0
+	bool "Enable BELLBOARD0 instance"
+	depends on HAS_HW_NRF_BELLBOARD
+
+config NRFX_BELLBOARD1
+	bool "Enable BELLBOARD1 instance"
+	depends on HAS_HW_NRF_BELLBOARD
+
+config NRFX_BELLBOARD2
+	bool "Enable BELLBOARD2 instance"
+	depends on HAS_HW_NRF_BELLBOARD
+
+config NRFX_BELLBOARD3
+	bool "Enable BELLBOARD3 instance"
+	depends on HAS_HW_NRF_BELLBOARD
+
 config NRFX_CLOCK
 	bool "CLOCK driver"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_CLOCK))
@@ -368,6 +388,11 @@ config NRFX_UARTE3
 	depends on $(dt_nodelabel_has_compat,uart3,$(DT_COMPAT_NORDIC_NRF_UARTE))
 	select NRFX_UARTE
 
+config NRFX_UARTE136
+	bool "Enable UARTE136 instance"
+	depends on HAS_HW_NRF_UARTE136
+	select NRFX_UARTE
+
 config NRFX_USBD
 	bool "USBD driver"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_USBD))
@@ -375,6 +400,10 @@ config NRFX_USBD
 config NRFX_USBREG
 	bool "USBREG driver"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_USBREG))
+
+config NRFX_VEVIF
+	bool "Enable VEVIF driver"
+	depends on HAS_HW_NRF_VEVIF
 
 config NRFX_WDT
 	bool
