@@ -21,6 +21,8 @@ manifest:
   remotes:
     - name: upstream
       url-base: https://github.com/zephyrproject-rtos
+    - name: nrfconnect
+      url-base: https://github.com/nrfconnect
 
   #
   # Please add items below based on alphabetical order
@@ -82,9 +84,11 @@ manifest:
       path: modules/hal/microchip
       groups:
         - hal
-    - name: hal_nordic
-      revision: 140140ea047f441fe076d26f79eb54dc9a38bcb6
-      path: modules/hal/nordic
+    - name: sdk-hal_nordic-next
+      remote: nrfconnect
+      revision: 5ef13f8c355ed20e7acdde59e4f237c9d25df2a4
+      path: modules/hal/nordic_haltium
+      submodules: true
       groups:
         - hal
     - name: hal_nuvoton
