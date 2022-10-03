@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+ #include <common/nordic_nrf_next/nrfx_ram3x_dma.dtsi>
+
  /{
 	chosen {
 		/delete-property/ nordic,bellboard-cpuapp;
@@ -26,11 +28,6 @@
 /* ram3x_cpuapp buffer is used by App core UART driver. */
 &ram3x_cpuapp {
 	status = "okay";
-};
-
-&uart136 {
-	status = "okay";
-	memory-regions = <&ram3x_cpuapp>;
 };
 
 &uart135 {
