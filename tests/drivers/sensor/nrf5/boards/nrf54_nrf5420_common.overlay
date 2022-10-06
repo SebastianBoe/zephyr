@@ -9,7 +9,7 @@
  /{
 	chosen {
 		/delete-property/ nordic,bellboard-cpuapp;
-		/delete-property/ nordic,bellboard-cpunet;
+		/delete-property/ nordic,bellboard-cpurad;
 		/delete-property/ nordic,bellboard-cpusec;
 		zephyr,console = &uart135;
 	};
