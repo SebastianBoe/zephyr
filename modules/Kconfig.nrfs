@@ -8,19 +8,23 @@ config NRFS
 
 config NRFS_LOCAL_DOMAIN
 	bool "nRF Services Local Domain Support"
+	imply NRFS
 	help
 	  This option enables the nRF Services Local Domain libraries
-
-choice
-	prompt "nRF Services backend"
 
 config NRFS_BACKEND_PRISM_DISPATCHER
 	bool "PRISM Dispatcher"
 
 config NRFS_BACKEND_IPC_SERVICE
 	bool "Ipc service backend for nrfs"
-
-endchoice
+	imply IPC_SERVICE
+	imply IPC_SERVICE_BACKEND_ICMSG
+	imply MBOX
+	imply MBOX_NRFX_IDS
+	imply EVENTS
+	imply REBOOT
+	help
+	  Ipc service backend for nrfs
 
 config NRFS_MAX_BACKEND_PACKET_SIZE
 	int "Maximum ipc data packet size in bytes"
@@ -35,29 +39,40 @@ config NRFS_BACKEND_RX_TASK_STACK_SIZE
 config NRFS_BACKEND_TX_TASK_STACK_SIZE
 	int "Stack size used for outgoing messages task"
 	range 128 16384
+	default 2048 if LOG
 	default 512
 
 config NRFS_BACKEND_RX_TASK_PRIORITY
 	int "Priority of rx backend task"
-	range 0 128
-	default 2
+	range -16 NUM_PREEMPT_PRIORITIES
+	default -1
 
 config NRFS_BACKEND_TX_TASK_PRIORITY
 	int "Priority of tx backend task"
-	range 0 128
-	default 2
+	range -16 NUM_PREEMPT_PRIORITIES
+	default -1
 
 config NRFS_BACKEND_RX_MSG_QUEUE_SIZE
 	int "Size of rx buffer message queue size"
 	range 1 16
-	default 2
+	default 8
 
 config NRFS_BACKEND_TX_MSG_QUEUE_SIZE
 	int "Size of tx buffer message queue size"
 	range 1 16
-	default 2
+	default 8
 
 config NRFS_BACKEND_TX_MAX_RETRIES
 	int "Max number of retries when sending message"
 	range 0 100
 	default 5
+
+config NRFS_BACKEND_TX_RETRY_DELAY_US
+	int "Delay in us that will be added between send retries"
+	range 0 1000000
+	default 10
+
+config NRFS_BACKEND_RX_QUEUE_MAX_WAIT_US
+	int "Maximum wait time to wait when putting data to rq queue in usec"
+	range 0 1000000
+	default 10
