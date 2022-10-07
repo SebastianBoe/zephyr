@@ -32,7 +32,12 @@
  * Wait 50ms between work submissions, to ensure co-op and prempt
  * preempt thread submit alternatively.
  */
+#if defined(CONFIG_SOC_PLATFORM_HALTIUM) && defined(CONFIG_RISCV)
+#define SUBMIT_WAIT	150
+#else
 #define SUBMIT_WAIT	50
+#endif /* CONFIG_SOC_PLATFORM_HALTIUM && CONFIG_RISCV */
+
 #define STACK_SIZE      (1024 + CONFIG_TEST_EXTRA_STACK_SIZE)
 
 /* How long to wait for the full test suite to complete.  Allow for a
