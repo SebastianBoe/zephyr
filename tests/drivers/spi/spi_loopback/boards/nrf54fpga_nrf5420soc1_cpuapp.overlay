@@ -12,6 +12,11 @@
 	memory-regions = <&ram3x_cpuapp>;
 };
 
-&gpio1 {
+&gpiote130 {
+	status = "okay";
+	owned-channels = <0 1>;
+};
+
+&gpio0 {
 	status = "okay";
 };
