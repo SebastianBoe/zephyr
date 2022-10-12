@@ -880,7 +880,7 @@ static void thread_sleep(void *delta, void *arg2, void *arg3)
 	k_msleep(timeout);
 	timestamp = k_uptime_get() - timestamp;
 
-	int slop = MAX(k_ticks_to_ms_floor64(2), 1);
+	int slop = MAX(k_ticks_to_ms_floor64(3), 1);
 
 	if (timestamp < timeout || timestamp > timeout + slop) {
 		TC_ERROR("timestamp out of range, got %d\n", (int)timestamp);
