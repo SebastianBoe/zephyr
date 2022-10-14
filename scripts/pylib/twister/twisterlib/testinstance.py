@@ -152,6 +152,9 @@ class TestInstance:
                 handler = QEMUHandler(self, "qemu")
                 handler.args.append(f"QEMU_PIPE={handler.get_fifo()}")
                 handler.ready = True
+            elif self.platform.simulation == "systemc":
+                #handler?
+                instance.handler = SystemcHandler(self, "systemc")
             else:
                 handler = SimulationHandler(self, self.platform.simulation)
 

@@ -39,7 +39,7 @@ except ImportError as capture_error:
 logger = logging.getLogger('twister')
 logger.setLevel(logging.DEBUG)
 
-SUPPORTED_SIMS = ["mdb-nsim", "nsim", "renode", "qemu", "tsim", "armfvp", "xt-sim", "native"]
+SUPPORTED_SIMS = ["systemc", "mdb-nsim", "nsim", "renode", "qemu", "tsim", "armfvp", "xt-sim", "native"]
 
 class HarnessImporter:
 
@@ -670,6 +670,129 @@ class DeviceHandler(Handler):
             self.make_device_available(serial_pty)
         else:
             self.make_device_available(serial_device)
+
+class SystemcHandler(Handler):
+
+    def __init__(self, instance, type_str):
+        """Constructor
+        @param instance Test Instance
+        """
+        super().__init__(instance, type_str)
+        self.call_west_flash = False
+
+    def try_kill_process_by_pid(self):
+        if self.pid_fn:
+            pid = int(open(self.pid_fn).read())
+            os.unlink(self.pid_fn)
+            self.pid_fn = None  # clear so we don't try to kill the binary twice
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+
+    def _output_reader(self, proc):
+        self.line = proc.stdout.readline()
+
+    def _output_handler(self, proc, harness):
+        if harness.is_pytest:
+            harness.handle(None)
+            return
+
+        log_out_fp = open(self.log, "wt")
+        timeout_extended = False
+        timeout_time = time.time() + self.timeout
+        while True:
+            this_timeout = timeout_time - time.time()
+            if this_timeout < 0:
+                break
+            reader_t = threading.Thread(target=self._output_reader, args=(proc,), daemon=True)
+            reader_t.start()
+            reader_t.join(this_timeout)
+            if not reader_t.is_alive():
+                line = self.line
+                logger.debug("OUTPUT: {0}".format(line.decode('utf-8', errors="ignore").rstrip()))
+                log_out_fp.write(line.decode('utf-8', errors="ignore"))
+                log_out_fp.flush()
+                harness.handle(line.decode('utf-8', errors="ignore").rstrip())
+                if harness.state:
+                    if not timeout_extended or harness.capture_coverage:
+                        timeout_extended = True
+                        if harness.capture_coverage:
+                            timeout_time = time.time() + 30
+                        else:
+                            timeout_time = time.time() + 2
+            else:
+                reader_t.join(0)
+                break
+        try:
+            # POSIX arch based ztests end on their own,
+            # so let's give it up to 100ms to do so
+            proc.wait(0.1)
+        except subprocess.TimeoutExpired:
+            self.terminate(proc)
+
+        log_out_fp.close()
+
+    def handle(self):
+
+        harness_name = self.instance.testsuite.harness.capitalize()
+        harness_import = HarnessImporter(harness_name)
+        harness = harness_import.instance
+        harness.configure(self.instance)
+
+        env = os.environ.copy()
+
+        self.yaml_file = self.build_dir + '/test.yaml'
+        with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
+            f.write(f"normalboot 0\ncpu:\nsysctrl:\nhex: {self.build_dir}/zephyr/zephyr.hex\ntargetmemory: mram\nmemoffset: 0x0\nstartpc: 0x1E044000\nautostart: yes\nloadhex: yes\n")
+
+        command = ['hgen'] + ['-c'] + [self.yaml_file]
+
+        logger.info("Spawning process: " +
+                     " ".join(shlex.quote(word) for word in command) + os.linesep +
+                     "in directory: " + self.build_dir)
+
+        start_time = time.time()
+
+        with subprocess.Popen(command, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, cwd=self.build_dir, env=env) as proc:
+            logger.debug("Spawning BinaryHandler Thread for %s" % self.name)
+            t = threading.Thread(target=self._output_handler, args=(proc, harness,), daemon=True)
+            t.start()
+            t.join()
+            if t.is_alive():
+                self.terminate(proc)
+                t.join()
+            proc.wait()
+            self.returncode = proc.returncode
+            self.try_kill_process_by_pid()
+
+        handler_time = time.time() - start_time
+
+        # FIXME: This is needed when killing the simulator, the console is
+        # garbled and needs to be reset. Did not find a better way to do that.
+        if sys.stdout.isatty():
+            subprocess.call(["stty", "sane"])
+
+        if harness.is_pytest:
+            harness.pytest_run(self.log)
+
+        self.instance.execution_time = handler_time
+        if not self.terminated and self.returncode != 0:
+            # When a process is killed, the default handler returns 128 + SIGTERM
+            # so in that case the return code itself is not meaningful
+            self.instance.reason = "Failed"
+        elif harness.state:
+            self.instance.status = harness.state
+            if harness.state == "failed":
+                self.instance.reason = "Failed"
+        else:
+            self.instance.status = "failed"
+            self.instance.reason = "Timeout"
+            self.instance.add_missing_case_status("blocked", "Timeout")
+
+        self._final_handle_actions(harness, handler_time)
+
 
 class QEMUHandler(Handler):
     """Spawns a thread to monitor QEMU output from pipes
