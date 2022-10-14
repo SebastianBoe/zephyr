@@ -32,7 +32,7 @@
  * Wait 50ms between work submissions, to ensure co-op and prempt
  * preempt thread submit alternatively.
  */
-#if defined(CONFIG_SOC_PLATFORM_HALTIUM) && defined(CONFIG_RISCV)
+#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
 #define SUBMIT_WAIT	150
 #else
 #define SUBMIT_WAIT	50
