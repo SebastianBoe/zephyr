@@ -742,6 +742,10 @@ class SystemcHandler(Handler):
 
         env = os.environ.copy()
 
+        for file in os.listdir(env['WORKSPACE']):
+            if file.endswith('txt') or file.endswith('yaml') or file.endswith('cfg'):
+                shutil.copyfile(f"{env['WORKSPACE']}/{file}", f"{self.build_dir}/{file}")
+
         self.yaml_file = self.build_dir + '/test.yaml'
         with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
             f.write(f"normalboot 0\ncpu:\nsysctrl:\nhex: {self.build_dir}/zephyr/zephyr.hex\ntargetmemory: mram\nmemoffset: 0x0\nstartpc: 0x1E044000\nautostart: yes\nloadhex: yes\n")
