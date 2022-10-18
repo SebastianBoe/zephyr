@@ -270,3 +270,10 @@
   platforms:
     - nrf52833dk_nrf52833
   comment: "Ram overflows, also in the upstream"
+
+- scenarios:
+    - sample.bluetooth.broadcast_audio_sink
+    - sample.bluetooth.audio_unicast_client
+  platforms:
+    - qemu_cortex_m3
+  comment: "inherited from sdk-zephyr 482dcc7865"
