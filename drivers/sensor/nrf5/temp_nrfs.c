@@ -12,6 +12,7 @@
 #include <hal/nrf_temp.h>
 #include <logging/log.h>
 #include <nrfs_temp.h>
+#include <zephyr/sys/__assert.h>
 
 LOG_MODULE_REGISTER(temp_nrfs, CONFIG_SENSOR_LOG_LEVEL);
 
@@ -59,6 +60,8 @@ struct temp_nrfs_data {
 #endif
 };
 
+static struct temp_nrfs_data temp_nrfs_driver;
+
 static int32_t sensor_value_to_raw_temp(struct sensor_value *value)
 {
 	const uint8_t decimal_places_offset = 100;
@@ -84,23 +87,37 @@ static int temp_nrfs_sensor_trigger_set(const struct device *dev,
 		return -ENOTSUP;
 	}
 
+	if (data->trigger.handler && (data->trigger.handler != handler) && (handler != NULL)) {
+		return -EBUSY;
+	}
+
 	switch (trig->type) {
 	case SENSOR_TRIG_THRESHOLD: {
+		k_mutex_lock(&data->mutex, K_FOREVER);
+		k_work_cancel(&data->trigger.work);
 		data->trigger.trigger = (struct sensor_trigger *)trig;
-		data->trigger.dev = (struct device *)dev;
 		data->trigger.handler = handler;
-		
-		uint16_t measure_rate_ms = CLIP_TO_RANGE(
-			HZ_TO_TICK_DELAY_MS(
-				sensor_value_to_double(&attr->sampling_freq)),
-			0, UINT16_MAX);
+		k_mutex_unlock(&data->mutex);
 
-		nrfs_err_t err = nrfs_temp_subscribe(
-			measure_rate_ms,
-			sensor_value_to_raw_temp(&attr->low_threshold),
-			sensor_value_to_raw_temp(&attr->up_threshold),
-			(void *)data);
-		switch (err){
+		data->trigger.dev = (struct device *)dev;
+
+		nrfs_err_t err;
+		if (handler) {
+			uint16_t measure_rate_ms = CLIP_TO_RANGE(
+				HZ_TO_TICK_DELAY_MS(
+					sensor_value_to_double(&attr->sampling_freq)),
+				0, UINT16_MAX);
+
+			err = nrfs_temp_subscribe(
+				measure_rate_ms,
+				sensor_value_to_raw_temp(&attr->low_threshold),
+				sensor_value_to_raw_temp(&attr->up_threshold),
+				NULL);
+		} else {
+			err = nrfs_temp_unsubscribe();
+		}
+
+		switch (err) {
 			case NRFS_SUCCESS: return 0;
 			case NRFS_ERR_INVALID_STATE: return -ENOTCONN;
 			case NRFS_ERR_IPC: return -EIO;
@@ -157,16 +174,22 @@ static int temp_nrfs_sensor_attr_set(const struct device *dev,
 
 static void sensor_handler(nrfs_temp_evt_t const *p_evt, void *context)
 {
-	struct temp_nrfs_data *data = (struct temp_nrfs_data *)context;
+	ARG_UNUSED(context);
+
+	struct temp_nrfs_data *data = &temp_nrfs_driver;
 
 	switch (p_evt->type) {
 	case NRFS_TEMP_EVT_MEASURE_DONE:
+		k_mutex_lock(&data->mutex, K_FOREVER);
 		data->erc = 0;
 		data->raw_temp = p_evt->raw_temp;
+		k_mutex_unlock(&data->mutex);
 		LOG_DBG("Temperature Measurement done");
+		k_sem_give(&data->ipc_sync_sem);
 		break;
 #if CONFIG_TEMP_NRF5_TRIGGER
 	case NRFS_TEMP_EVT_CHANGE:
+		k_mutex_lock(&data->mutex, K_FOREVER);
 		data->erc = 0;
 		data->raw_temp = p_evt->raw_temp;
 		if (data->trigger.trigger && data->trigger.handler) {
@@ -174,15 +197,14 @@ static void sensor_handler(nrfs_temp_evt_t const *p_evt, void *context)
 				&data->trigger.workq,
 				&data->trigger.work);
 		}
+		k_mutex_unlock(&data->mutex);
 		break;
 #endif // CONFIG_TEMP_NRF5_TRIGGER
 	default:
-		data->erc = -ENOTSUP;
 		LOG_DBG("Temperature handler - unsupported event: 0x%x",
 			p_evt->type);
 		break;
 	}
-	k_sem_give(&data->ipc_sync_sem);
 }
 
 static int temp_nrfs_sample_fetch(const struct device *dev,
@@ -197,8 +219,7 @@ static int temp_nrfs_sample_fetch(const struct device *dev,
 
 	k_mutex_lock(&data->mutex, K_FOREVER);
 
-	if (NRFS_SUCCESS == nrfs_temp_measure_request((void *)data)) {
-
+	if (nrfs_temp_measure_request(NULL) == NRFS_SUCCESS) {
 		k_sem_take(&data->ipc_sync_sem, K_FOREVER);
 
 		erc = data->erc;
@@ -238,7 +259,8 @@ static const struct sensor_driver_api temp_nrfs_driver_api = {
 	.trigger_set = temp_nrfs_sensor_trigger_set,
 #endif // CONFIG_TEMP_NRF5_TRIGGER
 	.sample_fetch = temp_nrfs_sample_fetch,
-	.channel_get = temp_nrfs_channel_get};
+	.channel_get = temp_nrfs_channel_get
+};
 
 static int temp_nrfs_init(const struct device *dev)
 {
@@ -246,7 +268,7 @@ static int temp_nrfs_init(const struct device *dev)
 
 	LOG_DBG("nrfs temp sensor init.");
 
-	k_sem_init(&data->ipc_sync_sem, 0, K_SEM_MAX_LIMIT);
+	k_sem_init(&data->ipc_sync_sem, 0, 1);
 	k_mutex_init(&data->mutex);
 
 #if CONFIG_TEMP_NRF5_TRIGGER
@@ -264,8 +286,6 @@ static int temp_nrfs_init(const struct device *dev)
 #endif // CONFIG_TEMP_NRF5_TRIGGER
 	return nrfs_temp_init(sensor_handler);
 }
-
-static struct temp_nrfs_data temp_nrfs_driver;
 
 DEVICE_DT_INST_DEFINE(0, temp_nrfs_init, NULL, &temp_nrfs_driver, NULL,
 		      POST_KERNEL, CONFIG_SENSOR_INIT_PRIORITY,
