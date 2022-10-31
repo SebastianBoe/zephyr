@@ -5,10 +5,7 @@ sample:
 tests:
   sample.ipc.openamp:
     platform_allow: lpcxpresso54114_m4 lpcxpresso55s69_cpu0 mps2_an521 v2m_musca v2m_musca_b1
-                    nrf54emu_nrf5420soc1_cpurad nrf54emu_nrf5420soc1_cpuapp
-                    nrf54emu_nrf5420_cpurad nrf54emu_nrf5420_cpuapp
-                    nrf54fpga_nrf5420soc1_cpurad nrf54fpga_nrf5420soc1_cpuapp
-                    nrf54fpga_nrf5420_cpurad nrf54fpga_nrf5420_cpuapp
+                    nrf54h20dk_nrf54h20_cpurad@soc1 nrf54h20dk_nrf54h20_cpuapp@soc1
     integration_platforms:
       - mps2_an521
     tags: ipm
