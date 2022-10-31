@@ -144,7 +144,10 @@ class TestInstance:
         options = env.options
         handler = Handler(self, "")
         if options.device_testing:
-            handler = DeviceHandler(self, "device")
+            if "fpga" in self.platform.name:
+                handler = FpgaDeviceHandler(self, "device")
+            else:
+                handler = DeviceHandler(self, "device")
             handler.call_make_run = False
             handler.ready = True
         elif self.platform.simulation != "na":

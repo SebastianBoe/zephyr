@@ -671,6 +671,332 @@ class DeviceHandler(Handler):
         else:
             self.make_device_available(serial_device)
 
+class FpgaDeviceHandler(Handler):
+
+    def __init__(self, instance, type_str):
+        """Constructor
+        @param instance Test Instance
+        """
+        super().__init__(instance, type_str)
+
+        self.testplan = None
+
+    def monitor_serial(self, ser, halt_fileno, harness):
+        if harness.is_pytest:
+            harness.handle(None)
+            return
+
+        log_out_fp = open(self.log, "wt")
+
+        ser_fileno = ser.fileno()
+        readlist = [halt_fileno, ser_fileno]
+
+        if self.coverage:
+            # Set capture_coverage to True to indicate that right after
+            # test results we should get coverage data, otherwise we exit
+            # from the test.
+            harness.capture_coverage = True
+
+        ser.reset_input_buffer()
+
+        logger.debug("Waiting for TC start")
+
+        # reset the target
+        if not self.reset_target():
+            self.set_state("failed", 0)
+            self.instance.reason = "Failed (trigger reset failed)"
+            ser.close()
+            return
+
+        result = ''
+        while 'Zephyr OS build' not in result:
+            raw_read = None
+            try:
+                raw_read = ser.readline()
+            except TypeError:
+                pass
+            # ignore SerialException which may happen during the serial device
+            # power off/on process.
+            except serial.SerialException:
+                pass
+
+            if raw_read:
+                try:
+                    line = raw_read.replace(b'\x00', b'')  # workaround for unexpected NULLs in the output
+                    result += line.decode('utf-8', 'ignore')
+                except UnicodeDecodeError:
+                    logger.error(f'Fail to decode read data:\n{raw_read}')
+                    break
+        logger.debug(f"Found TC start in {result}")
+
+        while ser.isOpen():
+            readable, _, _ = select.select(readlist, [], [], self.timeout)
+
+            if ser_fileno not in readable:
+                continue  # Timeout.
+
+            serial_line = None
+            try:
+                serial_line = ser.readline()
+            except TypeError:
+                pass
+            # ignore SerialException which may happen during the serial device
+            # power off/on process.
+            except serial.SerialException:
+                pass
+
+            # Just because ser_fileno has data doesn't mean an entire line
+            # is available yet.
+            if serial_line:
+                sl = serial_line.decode('utf-8', 'ignore').lstrip()
+                logger.debug("DEVICE: {0}".format(sl.rstrip()))
+
+                log_out_fp.write(sl)
+                log_out_fp.flush()
+                harness.handle(sl.rstrip())
+                # If test is stopped just fail whole test
+                if 'Halting system' in sl:
+                    harness.handle("PROJECT EXECUTION FAILED")
+
+            if harness.state:
+                if not harness.capture_coverage:
+                    ser.close()
+                    break
+
+        log_out_fp.close()
+
+    def device_is_available(self, instance):
+        device = instance.platform.name
+        fixture = instance.testsuite.harness_config.get("fixture")
+        for d in self.testplan.duts:
+            if fixture and fixture not in d.fixtures:
+                continue
+            if d.platform != device or (d.serial is None and d.serial_pty is None):
+                continue
+            d.lock.acquire()
+            avail = False
+            if d.available:
+                d.available = 0
+                d.counter += 1
+                avail = True
+            d.lock.release()
+            if avail:
+                return d
+
+        return None
+
+    def make_device_available(self, serial):
+        for d in self.testplan.duts:
+            if serial in [d.serial_pty, d.serial]:
+                d.available = 1
+
+    @staticmethod
+    def run_custom_script(script, timeout):
+        with subprocess.Popen(script, stderr=subprocess.PIPE, stdout=subprocess.PIPE) as proc:
+            try:
+                stdout, stderr = proc.communicate(timeout=timeout)
+                logger.debug(stdout.decode())
+                if proc.returncode != 0:
+                    logger.error(f"Custom script failure: {stderr.decode(errors='ignore')}")
+
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.communicate()
+                logger.error("{} timed out".format(script))
+    @staticmethod
+    def reset_target():
+        """
+        Reset the target by calling
+        nrfjprog --snr FPGA_SEGGER_ID -f nrf54 --pinreset
+        :return: True if success
+        """
+
+        cmd = [
+            "nrfjprog", "--snr", os.environ['FPGA_SEGGER_ID'],
+            "-f", "nrf54", "--pinreset"
+        ]
+        try:
+            logger.info(f'reset_target: Executing:\n{cmd}')
+            subprocess.run(cmd, shell=False, encoding='UTF-8')
+        except OSError as ose:
+            logger.error(f"reset_target: Could not reset device\n{cmd}\n{ose}")
+            return False
+        return True
+
+    def handle(self):
+
+
+        try:
+            FPGA_RELEASE_NAME = os.environ['FPGA_RELEASE_NAME']     # eldorados / fernandoz
+            FPGA_SEGGER_ID = os.environ['FPGA_SEGGER_ID']
+            FPGA_PRODUCT = os.environ.get("FPGA_PRODUCT", "lilium")
+            WORKSPACE = os.environ['WORKSPACE']
+        except Exception:
+            logger.info('FPGA environment variables are not set.')
+
+        try:
+            from hfv_flasher.HaltiumFlasher import HaltiumFlasher
+        except Exception:
+            logger.info('Cannot import hfv flasher')
+
+        hardware = self.device_is_available(self.instance)
+        while not hardware:
+            logger.debug("Waiting for device {} to become available".format(self.instance.platform.name))
+            time.sleep(1)
+            hardware = self.device_is_available(self.instance)
+
+        serial_pty = hardware.serial_pty
+
+        ser_pty_process = None
+        if serial_pty:
+            master, slave = pty.openpty()
+            try:
+                ser_pty_process = subprocess.Popen(re.split(',| ', serial_pty), stdout=master, stdin=master, stderr=master)
+            except subprocess.CalledProcessError as error:
+                logger.error("Failed to run subprocess {}, error {}".format(serial_pty, error.output))
+                return
+
+            serial_device = os.ttyname(slave)
+        else:
+            serial_device = hardware.serial
+
+        logger.debug(f"Using serial device {serial_device} @ {hardware.baud} baud")
+
+        board_id = hardware.probe_id or hardware.id
+        flasher = HaltiumFlasher(board_id, FPGA_RELEASE_NAME)
+
+        pre_script = hardware.pre_script
+        post_flash_script = hardware.post_flash_script
+        post_script = hardware.post_script
+
+        if pre_script:
+            self.run_custom_script(pre_script, 30)
+        # flash target
+        if 'app' in hardware.platform:
+            hexes = {
+                'dut_app': [self.build_dir + '/zephyr/zephyr.hex']
+            }
+        elif 'rad' in hardware.platform:
+            hexes = {
+                'dut_rad': [self.build_dir + '/zephyr/zephyr.hex']
+            }
+        elif 'sec' in hardware.platform:
+            hexes = {
+                'CP_SECURE': [self.build_dir + '/zephyr/zephyr.hex'],
+                'dut_sysctrl': [WORKSPACE + '/test_objects/build/GRTC_starter.hex']
+            }
+        elif 'sys' in hardware.platform:
+            hexes = {
+                'dut_sysctrl': [self.build_dir + '/zephyr/zephyr.hex']
+            }
+        elif 'ppr' in hardware.platform:
+            hexes = {
+                'dut_ppr': [self.build_dir + '/zephyr/zephyr.hex']
+            }
+        else:
+            hexes = {}
+            logger.error(f"handle: hardware.platform {hardware.platform} is invalid")
+            self.instance.reason = "Flash error (wrong target)"
+            self.set_state("failed", 0)
+            self.make_device_available(serial_device)
+            return
+
+        logger.debug(f'Flash hexes: {hexes}')
+        if hexes:
+            if 'sec' in hardware.platform:
+                import importlib
+                sys.path.append(WORKSPACE)
+                fpga_helper = importlib.import_module("tests.helpers.fpga_helper")
+                fpga_helper.set_empty_fpga(FPGA_SEGGER_ID)
+
+            flasher.nrf_flash(hexes, 0, family=FPGA_PRODUCT)
+
+        if post_flash_script:
+            self.run_custom_script(post_flash_script, 30)
+
+        # start thread that will parse logs on serial port
+        harness_name = self.instance.testsuite.harness.capitalize()
+        harness_import = HarnessImporter(harness_name)
+        harness = harness_import.instance
+        harness.configure(self.instance)
+        read_pipe, write_pipe = os.pipe()
+
+        start_time = time.time()
+
+        try:
+            ser = serial.Serial(
+                serial_device,
+                baudrate=hardware.baud,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS,
+                timeout=self.timeout
+            )
+        except serial.SerialException as e:
+            self.instance.status = "failed"
+            self.instance.reason = "Serial Device Error"
+            logger.error("Serial device error: %s" % (str(e)))
+
+            self.instance.add_missing_case_status("blocked", "Serial Device Error")
+            if serial_pty and ser_pty_process:
+                ser_pty_process.terminate()
+                outs, errs = ser_pty_process.communicate()
+                logger.debug("Process {} terminated outs: {} errs {}".format(serial_pty, outs, errs))
+
+            if serial_pty:
+                self.make_device_available(serial_pty)
+            else:
+                self.make_device_available(serial_device)
+            return
+
+
+        t = threading.Thread(target=self.monitor_serial, daemon=True,
+                             args=(ser, read_pipe, harness))
+        t.start()
+
+        # wait until thread evaluates test result or timeout fires
+        t.join(self.timeout)
+        if t.is_alive():
+            logger.debug("Timed out while monitoring serial output on {}".format(self.instance.platform.name))
+
+        if ser.isOpen():
+            ser.close()
+
+        if serial_pty:
+            ser_pty_process.terminate()
+            outs, errs = ser_pty_process.communicate()
+            logger.debug("Process {} terminated outs: {} errs {}".format(serial_pty, outs, errs))
+
+        os.close(write_pipe)
+        os.close(read_pipe)
+
+        handler_time = time.time() - start_time
+
+        if harness.is_pytest:
+            harness.pytest_run(self.log)
+
+        self.instance.execution_time = handler_time
+        if harness.state:
+            self.instance.status = harness.state
+            if harness.state == "failed":
+                self.instance.reason = "Failed"
+        else:
+            self.instance.status = "error"
+            self.instance.reason = "No Console Output(Timeout)"
+
+        if self.instance.status == "error":
+            self.instance.add_missing_case_status("blocked", self.instance.reason)
+
+        self._final_handle_actions(harness, handler_time)
+
+        if post_script:
+            self.run_custom_script(post_script, 30)
+
+        if serial_pty:
+            self.make_device_available(serial_pty)
+        else:
+            self.make_device_available(serial_device)
+
 class SystemcHandler(Handler):
 
     def __init__(self, instance, type_str):
