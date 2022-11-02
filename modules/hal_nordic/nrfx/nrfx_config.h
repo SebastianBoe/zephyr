@@ -514,6 +514,8 @@
     #elif defined(NRF_RADIOCORE)
         #include <nrfx_config_liliumfp1_network.h>
     #endif
+#elif defined(MOONLIGHT_XXAA)
+    #include <nrfx_config_moonlight_application.h>
 #else
     #error "Unknown device."
 #endif
