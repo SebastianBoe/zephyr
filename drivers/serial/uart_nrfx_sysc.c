@@ -72,7 +72,7 @@ static int sysc_init(const struct device *dev)
 	};							      \
 	DEVICE_DT_DEFINE(UARTE(idx),				      \
 			 sysc_init,				      \
-			 device_pm_control_nop,			      \
+			 NULL,					      \
 			 NULL,					      \
 			 &sysc_##idx##_config,			      \
 			 PRE_KERNEL_1,				      \
@@ -105,4 +105,8 @@ UART_NRF_SYSC_DEVICE(135);
 
 #ifdef CONFIG_UART_136_NRF_UARTE
 UART_NRF_SYSC_DEVICE(136);
+#endif
+
+#ifdef CONFIG_UART_137_NRF_UARTE
+UART_NRF_SYSC_DEVICE(137);
 #endif
