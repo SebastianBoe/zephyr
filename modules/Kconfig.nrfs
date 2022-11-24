@@ -45,12 +45,12 @@ config NRFS_BACKEND_TX_TASK_STACK_SIZE
 config NRFS_BACKEND_RX_TASK_PRIORITY
 	int "Priority of rx backend task"
 	range -16 NUM_PREEMPT_PRIORITIES
-	default -1
+	default 0
 
 config NRFS_BACKEND_TX_TASK_PRIORITY
 	int "Priority of tx backend task"
 	range -16 NUM_PREEMPT_PRIORITIES
-	default -1
+	default 0
 
 config NRFS_BACKEND_RX_MSG_QUEUE_SIZE
 	int "Size of rx buffer message queue size"
@@ -76,3 +76,9 @@ config NRFS_BACKEND_RX_QUEUE_MAX_WAIT_US
 	int "Maximum wait time to wait when putting data to rq queue in usec"
 	range 0 1000000
 	default 10
+
+config NRFS_BACKEND_SERVICE_START_DELAY_MS
+	int "Delay before backend initialization and start in ms"
+	range 0 1000000
+	default 10 if EMULATOR_SYSTEMC
+	default 0
