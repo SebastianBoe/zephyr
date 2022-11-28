@@ -5,7 +5,7 @@ zephyr_library_named(nrf-802154-platform)
 zephyr_interface_library_named(zephyr-802154-interface)
 
 if (CONFIG_NRF_802154_RADIO_DRIVER)
-  if (CONFIG_SOC_PLATFORM_HALTIUM)
+  if (CONFIG_SOC_PLATFORM_HALTIUM OR CONFIG_SOC_PLATFORM_NRF54L)
     target_sources(nrf-802154-platform
       PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/radio/platform/nrf_802154_nonrandom.c
