@@ -388,6 +388,10 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 #include <../src/nrf_802154_peripherals_haltium.h>
 #define NRFX_PPI_CHANNELS_USED_BY_802154_DRV   NRF_802154_DPPI_CHANNELS_USED_MASK
 #define NRFX_PPI_GROUPS_USED_BY_802154_DRV     NRF_802154_DPPI_GROUPS_USED_MASK
+#elif defined(CONFIG_SOC_PLATFORM_NRF54L)
+#include <../src/nrf_802154_peripherals_nrf54l.h>
+#define NRFX_PPI_CHANNELS_USED_BY_802154_DRV   NRF_802154_DPPI_CHANNELS_USED_MASK
+#define NRFX_PPI_GROUPS_USED_BY_802154_DRV     NRF_802154_DPPI_GROUPS_USED_MASK
 #else
 #error Unsupported chip family
 #endif
