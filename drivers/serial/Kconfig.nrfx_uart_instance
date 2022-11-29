@@ -14,7 +14,7 @@ endif
 
 config UART_$(nrfx_uart_num)_NRF_UARTE
 	def_bool HAS_HW_NRF_UARTE$(nrfx_uart_num)
-	depends on DT_HAS_NORDIC_NRF_UARTE_ENABLED
+	depends on DT_HAS_NORDIC_NRF_UARTE_ENABLED || DT_HAS_NORDIC_NRF_UARTE_V2_ENABLED
 	select NRF_UARTE_PERIPHERAL
 	help
 	  Enable nRF UART with EasyDMA on port $(nrfx_uart_num).
