@@ -77,7 +77,7 @@ static bool pwm_period_check_and_set(const struct device *dev,
 
 			nrfx_pwm_config_t reconf = config->initial_config;
 			reconf.nrfy_config.base_clock = data->prescaler;
-			reconf.nrfy_config.top_value  = data->countertop;
+			reconf.nrfy_config.top_value  = (uint16_t)countertop;
 			reconf.skip_gpio_cfg          = true;
 
 			nrfx_pwm_reconfigure(&config->pwm, &reconf);
