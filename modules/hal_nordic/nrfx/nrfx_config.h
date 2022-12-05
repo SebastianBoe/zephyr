@@ -498,6 +498,18 @@
     #elif defined(NRF_CELLCORE)
         #include <nrfx_config_nrf9230_cellular.h>
     #endif
+#elif defined(NRF7140_XXAA)
+    #include <nrfx_config_nrf7140_global.h>
+
+    #if defined(NRF_APPLICATION)
+        #include <nrfx_config_nrf7140_application.h>
+    #elif defined(NRF_RADIOCORE)
+        #include <nrfx_config_nrf7140_network.h>
+    #elif defined(NRF_UMAC)
+        #include <nrfx_config_nrf7140_umac.h>
+    #elif defined(NRF_LMAC)
+        #include <nrfx_config_nrf7140_lmac.h>
+    #endif
 #elif defined(LILIUMSOC1_XXAA)
     #include <nrfx_config_liliumsoc1_global.h>
 
