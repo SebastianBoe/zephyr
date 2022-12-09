@@ -134,6 +134,28 @@
  * @note Values match nrf_gpio_pin_drive_t constants.
  * @{
  */
+#ifdef CONFIG_SOC_PLATFORM_HALTIUM
+
+/** Standard '0', standard '1'. */
+#define NRF_DRIVE_S0S1 0U
+/** High drive '0', standard '1'. */
+#define NRF_DRIVE_H0S1 1U
+/** Standard '0', high drive '1'. */
+#define NRF_DRIVE_S0H1 4U
+/** High drive '0', high drive '1'. */
+#define NRF_DRIVE_H0H1 5U
+/** Disconnect '0' standard '1'. */
+#define NRF_DRIVE_D0S1 2U
+/** Disconnect '0', high drive '1'. */
+#define NRF_DRIVE_D0H1 6U
+/** Standard '0', disconnect '1'. */
+#define NRF_DRIVE_S0D1 8U
+/** High drive '0', disconnect '1'. */
+#define NRF_DRIVE_H0D1 9U
+/** Extra high drive '0', extra high drive '1'. */
+#define NRF_DRIVE_E0E1 15U
+
+#else
 
 /** Standard '0', standard '1'. */
 #define NRF_DRIVE_S0S1 0U
@@ -153,6 +175,8 @@
 #define NRF_DRIVE_H0D1 7U
 /** Extra high drive '0', extra high drive '1'. */
 #define NRF_DRIVE_E0E1 11U
+
+#endif
 
 /** @} */
 
