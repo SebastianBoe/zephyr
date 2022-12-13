@@ -824,20 +824,28 @@ class FpgaDeviceHandler(Handler):
         return True
 
     def handle(self):
-
-
         try:
-            FPGA_RELEASE_NAME = os.environ['FPGA_RELEASE_NAME']     # eldorados / fernandoz
-            FPGA_SEGGER_ID = os.environ['FPGA_SEGGER_ID']
-            FPGA_PRODUCT = os.environ.get("FPGA_PRODUCT", "lilium")
+            FPGA_RELEASE_NAME = os.environ['FPGA_RELEASE_NAME'].lower()
+            FPGA_PRODUCT = os.environ.get("FPGA_PRODUCT", "lilium").lower()
             WORKSPACE = os.environ['WORKSPACE']
         except Exception:
             logger.info('FPGA environment variables are not set.')
 
         try:
+            # for hfv-flasher <= 3.0.0
             from hfv_flasher.HaltiumFlasher import HaltiumFlasher
-        except Exception:
-            logger.info('Cannot import hfv flasher')
+            from hfv_flasher.LumosFlasher import LumosFlasher
+        except ModuleNotFoundError:
+            # for hfv-flasher > 3.0.1
+            from hfv_flasher.haltium_flasher import HaltiumFlasher
+            from hfv_flasher.lumos_flasher import LumosFlasher
+
+        flashers = {
+            'lilium': HaltiumFlasher,
+            'halti': HaltiumFlasher,
+            'lumos': LumosFlasher,
+            'moonlight': LumosFlasher,
+        }
 
         hardware = self.device_is_available(self.instance)
         while not hardware:
@@ -862,8 +870,8 @@ class FpgaDeviceHandler(Handler):
 
         logger.debug(f"Using serial device {serial_device} @ {hardware.baud} baud")
 
-        board_id = hardware.probe_id or hardware.id
-        flasher = HaltiumFlasher(board_id, FPGA_RELEASE_NAME)
+        segger_id = hardware.probe_id or hardware.id
+        flasher = flashers.get(FPGA_PRODUCT)(segger_id, FPGA_RELEASE_NAME)
 
         pre_script = hardware.pre_script
         post_flash_script = hardware.post_flash_script
@@ -907,7 +915,7 @@ class FpgaDeviceHandler(Handler):
                 import importlib
                 sys.path.append(WORKSPACE)
                 fpga_helper = importlib.import_module("tests.helpers.fpga_helper")
-                fpga_helper.set_empty_fpga(FPGA_SEGGER_ID)
+                fpga_helper.set_empty_fpga(segger_id)
 
             flasher.nrf_flash(hexes, 0, family=FPGA_PRODUCT)
 
