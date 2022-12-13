@@ -14,7 +14,7 @@ import glob
 from twisterlib.testsuite import TestCase
 from twisterlib.error import BuildError
 from twisterlib.size_calc import SizeCalculator
-from twisterlib.handlers import Handler, SimulationHandler, BinaryHandler, QEMUHandler, DeviceHandler, SUPPORTED_SIMS
+from twisterlib.handlers import Handler, SimulationHandler, BinaryHandler, QEMUHandler, DeviceHandler, SUPPORTED_SIMS, SystemcHandler, FpgaDeviceHandler
 
 logger = logging.getLogger('twister')
 logger.setLevel(logging.DEBUG)
@@ -144,7 +144,7 @@ class TestInstance:
         options = env.options
         handler = Handler(self, "")
         if options.device_testing:
-            if 'CONFIG_EMULATOR_FPGA=y' in self.extra_args:
+            if 'CONFIG_EMULATOR_FPGA=y' in options.extra_args:
                 handler = FpgaDeviceHandler(self, "device")
             else:
                 handler = DeviceHandler(self, "device")
@@ -155,9 +155,8 @@ class TestInstance:
                 handler = QEMUHandler(self, "qemu")
                 handler.args.append(f"QEMU_PIPE={handler.get_fifo()}")
                 handler.ready = True
-            elif self.platform.simulation == "systemc":
-                #handler?
-                instance.handler = SystemcHandler(self, "systemc")
+            elif 'CONFIG_EMULATOR_SYSTEMC=y' in options.extra_args:
+                handler = SystemcHandler(self, "systemc")
             else:
                 handler = SimulationHandler(self, self.platform.simulation)
 
@@ -179,7 +178,7 @@ class TestInstance:
         self.handler = handler
 
     # Global testsuite parameters
-    def check_runnable(self, enable_slow=False, filter='buildable', fixtures=[]):
+    def check_runnable(self, enable_slow=False, filter='buildable', fixtures=[], extra_args=[]):
 
         # running on simulators is currently not supported on Windows
         if os.name == 'nt' and self.platform.simulation != 'na':
@@ -197,7 +196,8 @@ class TestInstance:
         target_ready = bool(self.testsuite.type == "unit" or \
                         self.platform.type == "native" or \
                         self.platform.simulation in SUPPORTED_SIMS or \
-                        filter == 'runnable')
+                        filter == 'runnable' or \
+                        'CONFIG_EMULATOR_SYSTEMC=y' in extra_args)
 
         for sim in ['nsim', 'mdb-nsim', 'renode', 'tsim', 'native']:
             if self.platform.simulation == sim and self.platform.simulation_exec:
@@ -209,7 +209,6 @@ class TestInstance:
 
 
         testsuite_runnable = self.testsuite_runnable(self.testsuite, fixtures)
-
         return testsuite_runnable and target_ready
 
     def create_overlay(self, platform, enable_asan=False, enable_ubsan=False, enable_coverage=False, coverage_platform=[]):

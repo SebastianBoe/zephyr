@@ -558,7 +558,8 @@ class TestPlan:
                 instance.run = instance.check_runnable(
                     self.options.enable_slow,
                     tfilter,
-                    self.options.fixture
+                    self.options.fixture,
+                    self.options.extra_args
                 )
 
                 instance.metrics['handler_time'] = ts.get('execution_time', 0)
@@ -701,8 +702,10 @@ class TestPlan:
                 instance.run = instance.check_runnable(
                     self.options.enable_slow,
                     tfilter,
-                    self.options.fixture
+                    self.options.fixture,
+                    self.options.extra_args
                 )
+
                 if runnable and self.hwm.duts:
                     for h in self.hwm.duts:
                         if h.platform == plat.name:

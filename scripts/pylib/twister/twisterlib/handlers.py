@@ -16,6 +16,7 @@ import shlex
 import subprocess
 import threading
 import select
+import shutil
 import re
 import psutil
 from twisterlib.environment import ZEPHYR_BASE
@@ -39,7 +40,7 @@ except ImportError as capture_error:
 logger = logging.getLogger('twister')
 logger.setLevel(logging.DEBUG)
 
-SUPPORTED_SIMS = ["systemc", "mdb-nsim", "nsim", "renode", "qemu", "tsim", "armfvp", "xt-sim", "native"]
+SUPPORTED_SIMS = ["mdb-nsim", "nsim", "renode", "qemu", "tsim", "armfvp", "xt-sim", "native"]
 
 class HarnessImporter:
 
@@ -671,7 +672,7 @@ class DeviceHandler(Handler):
         else:
             self.make_device_available(serial_device)
 
-class FpgaDeviceHandler(Handler):
+class FpgaDeviceHandler(DeviceHandler):
 
     def __init__(self, instance, type_str):
         """Constructor
@@ -692,7 +693,7 @@ class FpgaDeviceHandler(Handler):
         ser_fileno = ser.fileno()
         readlist = [halt_fileno, ser_fileno]
 
-        if self.coverage:
+        if self.options.coverage:
             # Set capture_coverage to True to indicate that right after
             # test results we should get coverage data, otherwise we exit
             # from the test.
@@ -766,44 +767,6 @@ class FpgaDeviceHandler(Handler):
 
         log_out_fp.close()
 
-    def device_is_available(self, instance):
-        device = instance.platform.name
-        fixture = instance.testsuite.harness_config.get("fixture")
-        for d in self.testplan.duts:
-            if fixture and fixture not in d.fixtures:
-                continue
-            if d.platform != device or (d.serial is None and d.serial_pty is None):
-                continue
-            d.lock.acquire()
-            avail = False
-            if d.available:
-                d.available = 0
-                d.counter += 1
-                avail = True
-            d.lock.release()
-            if avail:
-                return d
-
-        return None
-
-    def make_device_available(self, serial):
-        for d in self.testplan.duts:
-            if serial in [d.serial_pty, d.serial]:
-                d.available = 1
-
-    @staticmethod
-    def run_custom_script(script, timeout):
-        with subprocess.Popen(script, stderr=subprocess.PIPE, stdout=subprocess.PIPE) as proc:
-            try:
-                stdout, stderr = proc.communicate(timeout=timeout)
-                logger.debug(stdout.decode())
-                if proc.returncode != 0:
-                    logger.error(f"Custom script failure: {stderr.decode(errors='ignore')}")
-
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.communicate()
-                logger.error("{} timed out".format(script))
     @staticmethod
     def reset_target():
         """
@@ -813,7 +776,7 @@ class FpgaDeviceHandler(Handler):
         """
 
         cmd = [
-            "nrfjprog", "--snr", os.environ.get['FPGA_SEGGER_ID'],
+            "nrfjprog", "--snr", os.environ.get('FPGA_SEGGER_ID'),
             "-f", "nrf54", "--pinreset"
         ]
         try:
@@ -826,20 +789,23 @@ class FpgaDeviceHandler(Handler):
 
     def handle(self):
         try:
-            FPGA_RELEASE_NAME = os.environ.get['FPGA_RELEASE_NAME'].lower()
+            FPGA_RELEASE_NAME = os.environ.get('FPGA_RELEASE_NAME', "GUNILLAS").lower()
             FPGA_PRODUCT = os.environ.get("FPGA_PRODUCT", "lilium").lower()
-            CUSTOM_HEXES = os.environ.get('CUSTOM_HEXES')
+            CUSTOM_HEXES = os.environ.get('CUSTOM_HEXES', "")
         except Exception:
             logger.info('FPGA environment variables are not set.')
 
+        import pylink
         try:
             # for hfv-flasher <= 3.0.0
             from hfv_flasher.HaltiumFlasher import HaltiumFlasher
             from hfv_flasher.LumosFlasher import LumosFlasher
+            from hfv_flasher.JLinkExeFlasher import JLinkError
         except ModuleNotFoundError:
             # for hfv-flasher > 3.0.1
             from hfv_flasher.haltium_flasher import HaltiumFlasher
             from hfv_flasher.lumos_flasher import LumosFlasher
+            from hfv_flasher.jlink_exe_flasher import JLinkError
 
         flashers = {
             'lilium': HaltiumFlasher,
@@ -922,7 +888,10 @@ class FpgaDeviceHandler(Handler):
 
         logger.debug(f'Flash hexes: {hexes}')
         if hexes:
-            flasher.nrf_flash(hexes, 0, family=FPGA_PRODUCT)
+            try:
+                flasher.nrf_flash(hexes, 0, family=FPGA_PRODUCT)
+            except (pylink.errors.JLinkException, JLinkError):
+                logger.exception('Flasher error')
 
         if post_flash_script:
             self.run_custom_script(post_flash_script, 30)
