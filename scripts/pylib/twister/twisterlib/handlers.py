@@ -813,7 +813,7 @@ class FpgaDeviceHandler(Handler):
         """
 
         cmd = [
-            "nrfjprog", "--snr", os.environ['FPGA_SEGGER_ID'],
+            "nrfjprog", "--snr", os.environ.get['FPGA_SEGGER_ID'],
             "-f", "nrf54", "--pinreset"
         ]
         try:
@@ -826,9 +826,9 @@ class FpgaDeviceHandler(Handler):
 
     def handle(self):
         try:
-            FPGA_RELEASE_NAME = os.environ['FPGA_RELEASE_NAME'].lower()
+            FPGA_RELEASE_NAME = os.environ.get['FPGA_RELEASE_NAME'].lower()
             FPGA_PRODUCT = os.environ.get("FPGA_PRODUCT", "lilium").lower()
-            WORKSPACE = os.environ['WORKSPACE']
+            CUSTOM_HEXES = os.environ.get('CUSTOM_HEXES')
         except Exception:
             logger.info('FPGA environment variables are not set.')
 
@@ -872,6 +872,9 @@ class FpgaDeviceHandler(Handler):
         logger.debug(f"Using serial device {serial_device} @ {hardware.baud} baud")
 
         segger_id = hardware.probe_id or hardware.id
+        if not segger_id:
+            # board_id not available so use environmental variables instead, it might happen that twister is called using serial port then board_id is unknown
+            segger_id = os.environ.get('FPGA_SEGGER_ID')
         flasher = flashers.get(FPGA_PRODUCT)(segger_id, FPGA_RELEASE_NAME)
 
         pre_script = hardware.pre_script
@@ -891,8 +894,7 @@ class FpgaDeviceHandler(Handler):
             }
         elif 'sec' in hardware.platform:
             hexes = {
-                'CP_SECURE': [self.build_dir + '/zephyr/zephyr.hex'],
-                'dut_sysctrl': [WORKSPACE + '/test_objects/build/GRTC_starter.hex']
+                'CP_SECURE': [self.build_dir + '/zephyr/zephyr.hex']
             }
         elif 'sys' in hardware.platform:
             hexes = {
@@ -910,14 +912,16 @@ class FpgaDeviceHandler(Handler):
             self.make_device_available(serial_device)
             return
 
+        # Parse custom hexes compiled outside Twister required to start the test
+        # Custom hexes can be passed by setting environmental varialbe in form:
+        #   export CUSTOM_HEXES=CP_SECURE:/test_objects/build/GRTC_starter.hex,some_core:/test_objects/build/my_awesome_hex.hex
+        if CUSTOM_HEXES:
+            for hex in CUSTOM_HEXES.split(','):
+                core_name, hex_path = hex.split(':')
+                hexes[core_name] = [hex_path]
+
         logger.debug(f'Flash hexes: {hexes}')
         if hexes:
-            if 'sec' in hardware.platform:
-                import importlib
-                sys.path.append(WORKSPACE)
-                fpga_helper = importlib.import_module("tests.helpers.fpga_helper")
-                fpga_helper.set_empty_fpga(segger_id)
-
             flasher.nrf_flash(hexes, 0, family=FPGA_PRODUCT)
 
         if post_flash_script:
