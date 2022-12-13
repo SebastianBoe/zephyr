@@ -679,6 +679,7 @@ class FpgaDeviceHandler(Handler):
         """
         super().__init__(instance, type_str)
 
+        self.timeout = math.ceil(self.timeout * 1.2)
         self.testplan = None
 
     def monitor_serial(self, ser, halt_fileno, harness):
@@ -1013,6 +1014,7 @@ class SystemcHandler(Handler):
         """
         super().__init__(instance, type_str)
         self.call_west_flash = False
+        self.timeout = math.ceil(self.timeout * 2.0)
 
     def try_kill_process_by_pid(self):
         if self.pid_fn:
