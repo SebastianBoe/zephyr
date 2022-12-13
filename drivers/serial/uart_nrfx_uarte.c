@@ -20,7 +20,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 
-#if !defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L)
 #include <nrfx_gppi.h>
 #include <nrfx_timer.h>
 
@@ -41,7 +41,7 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 #error "No PPI or DPPI"
 #endif
 
-#endif /* !defined(CONFIG_SOC_PLATFORM_HALTIUM) */
+#endif /* !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L) */
 
 #if	(defined(CONFIG_UART_0_NRF_UARTE) &&           \
 	 defined(CONFIG_UART_0_INTERRUPT_DRIVEN)) ||   \
@@ -51,6 +51,16 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 	 defined(CONFIG_UART_2_INTERRUPT_DRIVEN)) ||   \
 	(defined(CONFIG_UART_3_NRF_UARTE) &&           \
 	 defined(CONFIG_UART_3_INTERRUPT_DRIVEN)) ||   \
+	(defined(CONFIG_UART_00_NRF_UARTE) &&          \
+	 defined(CONFIG_UART_00_INTERRUPT_DRIVEN)) ||  \
+	(defined(CONFIG_UART_20_NRF_UARTE) &&          \
+	 defined(CONFIG_UART_20_INTERRUPT_DRIVEN)) ||  \
+	(defined(CONFIG_UART_21_NRF_UARTE) &&          \
+	 defined(CONFIG_UART_21_INTERRUPT_DRIVEN)) ||  \
+	(defined(CONFIG_UART_22_NRF_UARTE) &&          \
+	 defined(CONFIG_UART_22_INTERRUPT_DRIVEN)) ||  \
+	(defined(CONFIG_UART_30_NRF_UARTE) &&          \
+	 defined(CONFIG_UART_30_INTERRUPT_DRIVEN)) ||  \
 	(defined(CONFIG_UART_130_NRF_UARTE) &&         \
 	 defined(CONFIG_UART_130_INTERRUPT_DRIVEN)) || \
 	(defined(CONFIG_UART_131_NRF_UARTE) &&         \
@@ -74,6 +84,10 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 	(defined(CONFIG_UART_1_NRF_UARTE) && !defined(CONFIG_UART_1_ASYNC)) || \
 	(defined(CONFIG_UART_2_NRF_UARTE) && !defined(CONFIG_UART_2_ASYNC)) || \
 	(defined(CONFIG_UART_3_NRF_UARTE) && !defined(CONFIG_UART_3_ASYNC)) || \
+	(defined(CONFIG_UART_00_NRF_UARTE) && !defined(CONFIG_UART_00_ASYNC)) || \
+	(defined(CONFIG_UART_20_NRF_UARTE) && !defined(CONFIG_UART_20_ASYNC)) || \
+	(defined(CONFIG_UART_21_NRF_UARTE) && !defined(CONFIG_UART_21_ASYNC)) || \
+	(defined(CONFIG_UART_22_NRF_UARTE) && !defined(CONFIG_UART_22_ASYNC)) || \
 	(defined(CONFIG_UART_130_NRF_UARTE) && !defined(CONFIG_UART_130_ASYNC)) || \
 	(defined(CONFIG_UART_131_NRF_UARTE) && !defined(CONFIG_UART_131_ASYNC)) || \
 	(defined(CONFIG_UART_132_NRF_UARTE) && !defined(CONFIG_UART_132_ASYNC)) || \
@@ -172,7 +186,7 @@ struct uarte_nrfx_data {
 	atomic_val_t poll_out_lock;
 	uint8_t *char_out;
 	uint8_t *rx_data;
-#if !defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L)
 	gppi_channel_t ppi_ch_endtx;
 #endif
 };
@@ -1772,7 +1786,7 @@ static const struct uart_driver_api uart_nrfx_uarte_driver_api = {
 static int endtx_stoptx_ppi_init(NRF_UARTE_Type *uarte,
 				 struct uarte_nrfx_data *data)
 {
-#if !defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#if !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L)
 	nrfx_err_t ret;
 
 	ret = gppi_channel_alloc(&data->ppi_ch_endtx);
@@ -2130,6 +2144,26 @@ UART_NRF_UARTE_DEVICE(2);
 
 #ifdef CONFIG_UART_3_NRF_UARTE
 UART_NRF_UARTE_DEVICE(3);
+#endif
+
+#ifdef CONFIG_UART_00_NRF_UARTE
+UART_NRF_UARTE_DEVICE(00);
+#endif
+
+#ifdef CONFIG_UART_20_NRF_UARTE
+UART_NRF_UARTE_DEVICE(20);
+#endif
+
+#ifdef CONFIG_UART_21_NRF_UARTE
+UART_NRF_UARTE_DEVICE(21);
+#endif
+
+#ifdef CONFIG_UART_22_NRF_UARTE
+UART_NRF_UARTE_DEVICE(22);
+#endif
+
+#ifdef CONFIG_UART_30_NRF_UARTE
+UART_NRF_UARTE_DEVICE(30);
 #endif
 
 #ifdef CONFIG_UART_130_NRF_UARTE

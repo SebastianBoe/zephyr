@@ -509,6 +509,31 @@ config NRFX_UARTE3
 	depends on $(dt_nodelabel_has_compat,uart3,$(DT_COMPAT_NORDIC_NRF_UARTE))
 	select NRFX_UARTE
 
+config NRFX_UARTE00
+	bool "UARTE00 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart00,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE20
+	bool "UARTE20 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart20,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE21
+	bool "UARTE21 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart21,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE22
+	bool "UARTE22 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart22,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
+config NRFX_UARTE30
+	bool "UARTE30 driver instance"
+	depends on $(dt_nodelabel_has_compat,uart30,$(DT_COMPAT_NORDIC_NRF_UARTE))
+	select NRFX_UARTE
+
 config NRFX_UARTE120
 	bool "UARTE120 driver instance"
 	depends on $(dt_nodelabel_has_compat,uart120,$(DT_COMPAT_NORDIC_NRF_UARTE))

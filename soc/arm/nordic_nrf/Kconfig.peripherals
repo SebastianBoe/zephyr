@@ -353,6 +353,21 @@ config HAS_HW_NRF_UARTE2
 config HAS_HW_NRF_UARTE3
 	def_bool $(dt_nodelabel_enabled_with_compat,uart3,$(DT_COMPAT_NORDIC_NRF_UARTE))
 
+config HAS_HW_NRF_UARTE00
+	def_bool $(dt_nodelabel_enabled_with_compat,uart00,$(DT_COMPAT_NORDIC_NRF_UARTE))
+
+config HAS_HW_NRF_UARTE20
+	def_bool $(dt_nodelabel_enabled_with_compat,uart20,$(DT_COMPAT_NORDIC_NRF_UARTE))
+
+config HAS_HW_NRF_UARTE21
+	def_bool $(dt_nodelabel_enabled_with_compat,uart21,$(DT_COMPAT_NORDIC_NRF_UARTE))
+
+config HAS_HW_NRF_UARTE22
+	def_bool $(dt_nodelabel_enabled_with_compat,uart22,$(DT_COMPAT_NORDIC_NRF_UARTE))
+
+config HAS_HW_NRF_UARTE30
+	def_bool $(dt_nodelabel_enabled_with_compat,uart30,$(DT_COMPAT_NORDIC_NRF_UARTE))
+
 config HAS_HW_NRF_UARTE120
 	def_bool $(dt_nodelabel_enabled_with_compat,uart120,$(DT_COMPAT_NORDIC_NRF_UARTE)) || \
 		$(dt_nodelabel_enabled_with_compat,uart120,$(DT_COMPAT_NORDIC_NRF_UARTE_V2))
