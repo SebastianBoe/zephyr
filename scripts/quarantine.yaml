@@ -293,3 +293,10 @@
   platforms:
     - nrf52dk_nrf52832
   comment: "Ram overflows, also in the upstream"
+
+# awaiting on the new docker image
+- scenarios:
+    - cpp.main.minimal
+  platforms:
+    - native_posix
+  comment: "to be removed after docker 4.2.0 update"
