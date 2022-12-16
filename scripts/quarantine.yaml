@@ -277,3 +277,19 @@
   platforms:
     - qemu_cortex_m3
   comment: "inherited from sdk-zephyr 482dcc7865"
+
+# libsdl2-dev package should be added into docker image
+- scenarios:
+    - sample.display.lvgl.gui
+  platforms:
+    - native_posix
+  comment: "libsdl2-dev package not available"
+
+- scenarios:
+    - kernel.common.picolibc
+    - libraries.picolibc
+    - libraries.libc.picolibc.mem_alloc
+    - libraries.picolibc.sprintf_new
+  platforms:
+    - nrf52dk_nrf52832
+  comment: "Ram overflows, also in the upstream"
