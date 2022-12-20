@@ -145,3 +145,9 @@
 "CI-wifi":
   - "subsys/net/l2/wifi/**/*"
   - "subsys/net/l2/ethernet/**/*"
+
+"CI-test_sdk_hcs":
+  - "**/*"
+
+"CI-test_sdk_sysctrl":
+  - "**/*"
