@@ -11,6 +11,8 @@
 #include <zephyr/drivers/uart.h>
 #include <zephyr/pm/device.h>
 #include <haly/nrfy_uarte.h>
+#include <nrfx_gppi.h>
+#include <nrfx_timer.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/kernel.h>
 #include <soc.h>
@@ -20,28 +22,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 
-#if !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L)
-#include <nrfx_gppi.h>
-#include <nrfx_timer.h>
-
 #include <zephyr/drivers/pinctrl.h>
-
-/* Generalize PPI or DPPI channel management */
-#if defined(CONFIG_HAS_HW_NRF_PPI)
-#include <nrfx_ppi.h>
-#define gppi_channel_t nrf_ppi_channel_t
-#define gppi_channel_alloc nrfx_ppi_channel_alloc
-#define gppi_channel_enable nrfx_ppi_channel_enable
-#elif defined(CONFIG_HAS_HW_NRF_DPPIC)
-#include <nrfx_dppi.h>
-#define gppi_channel_t uint8_t
-#define gppi_channel_alloc nrfx_dppi_channel_alloc
-#define gppi_channel_enable nrfx_dppi_channel_enable
-#else
-#error "No PPI or DPPI"
-#endif
-
-#endif /* !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L) */
 
 #if	(defined(CONFIG_UART_0_NRF_UARTE) &&           \
 	 defined(CONFIG_UART_0_INTERRUPT_DRIVEN)) ||   \
@@ -154,7 +135,7 @@ struct uarte_async_cb {
 	int32_t rx_timeout_left; /* Current time left until user callback */
 	struct k_timer rx_timeout_timer;
 	union {
-		gppi_channel_t ppi;
+		uint8_t ppi;
 		uint32_t cnt;
 	} rx_cnt;
 	volatile int tx_amount;
@@ -199,7 +180,7 @@ struct uarte_nrfx_data {
 	uint8_t *char_out;
 	uint8_t *rx_data;
 #if !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L)
-	gppi_channel_t ppi_ch_endtx;
+	uint8_t ppi_ch_endtx;
 #endif
 };
 
@@ -663,7 +644,7 @@ static int uarte_nrfx_rx_counting_init(const struct device *dev)
 			nrfx_timer_clear(&cfg->timer);
 		}
 
-		ret = gppi_channel_alloc(&data->async->rx_cnt.ppi);
+		ret = nrfx_gppi_channel_alloc(&data->async->rx_cnt.ppi);
 		if (ret != NRFX_SUCCESS) {
 			LOG_ERR("Failed to allocate PPI Channel, "
 				"switching to software byte counting.");
@@ -671,30 +652,14 @@ static int uarte_nrfx_rx_counting_init(const struct device *dev)
 			nrfx_timer_uninit(&cfg->timer);
 		}
 
-#if CONFIG_HAS_HW_NRF_PPI
-		ret = nrfx_ppi_channel_assign(
+		nrfx_gppi_channel_endpoints_setup(
 			data->async->rx_cnt.ppi,
 			nrfy_uarte_event_address_get(uarte,
 						     NRF_UARTE_EVENT_RXDRDY),
 			nrfx_timer_task_address_get(&cfg->timer,
 						    NRF_TIMER_TASK_COUNT));
 
-		if (ret != NRFX_SUCCESS) {
-			return -EIO;
-		}
-#else
-		nrfy_uarte_publish_set(uarte,
-				       NRF_UARTE_EVENT_RXDRDY,
-				       data->async->rx_cnt.ppi);
-		nrf_timer_subscribe_set(cfg->timer.p_reg,
-					NRF_TIMER_TASK_COUNT,
-					data->async->rx_cnt.ppi);
-
-#endif
-		ret = gppi_channel_enable(data->async->rx_cnt.ppi);
-		if (ret != NRFX_SUCCESS) {
-			return -EIO;
-		}
+		nrfx_gppi_channels_enable(BIT(data->async->rx_cnt.ppi));
 	} else {
 		nrfy_uarte_int_enable(uarte, NRF_UARTE_INT_RXDRDY_MASK);
 	}
@@ -801,7 +766,7 @@ static int uarte_nrfx_tx(const struct device *dev, const uint8_t *buf,
 	data->async->tx_buf = buf;
 	nrfy_uarte_int_enable(uarte, NRF_UARTE_INT_TXSTOPPED_MASK);
 
-	if (nrfx_is_in_ram(buf)) {
+	if (nrf_dma_accesible_check(uarte, buf)) {
 		data->async->xfer_buf = buf;
 		data->async->xfer_len = len;
 	} else {
@@ -1801,7 +1766,7 @@ static int endtx_stoptx_ppi_init(NRF_UARTE_Type *uarte,
 #if !defined(CONFIG_SOC_PLATFORM_HALTIUM) && !defined(CONFIG_SOC_PLATFORM_NRF54L)
 	nrfx_err_t ret;
 
-	ret = gppi_channel_alloc(&data->ppi_ch_endtx);
+	ret = nrfx_gppi_channel_alloc(&data->ppi_ch_endtx);
 	if (ret != NRFX_SUCCESS) {
 		LOG_ERR("Failed to allocate PPI Channel");
 		return -EIO;
