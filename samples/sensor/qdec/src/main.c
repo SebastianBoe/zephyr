@@ -66,7 +66,7 @@ void qenc_emulate_init(void) { };
 
 #endif /* QUAD_ENC_EMUL_ENABLED */
 
-int main(void)
+void main(void)
 {
 	struct sensor_value val;
 	int rc;
