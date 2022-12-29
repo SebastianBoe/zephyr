@@ -13,25 +13,13 @@
 	/* TODO: remove and use ipc_cpuapp instead */
 	ipc0: ipc_remote {
 		compatible = "zephyr,ipc-openamp-static-vrings";
-		memory-region = <&ram0x_shm_cpuapp_cpurad>;
+		memory-region = <&shm_cpuapp_cpurad>;
 		mboxes = <&bellboard_cpuapp 29>,
 			 <&bellboard_cpurad 29>;
 		mbox-names = "tx", "rx";
 		role = "remote";
 		status = "okay";
 	};
-};
-
-&ram0x {
-    ram0x_shm_cpuapp_cpurad: memory@0 {
-        compatible = "nordic,allocatable-ram", "mmio-sram";
-        reg = <0x0 DT_SIZE_K(512)>;
-        ranges = <0x0 0x0 DT_SIZE_K(512)>;
-        #address-cells = <1>;
-        #size-cells = <1>;
-        perm-read;
-        perm-write;
-    };
 };
 
 &global_peripherals {
