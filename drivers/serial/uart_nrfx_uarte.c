@@ -102,7 +102,19 @@ LOG_MODULE_REGISTER(uart_nrfx_uarte, CONFIG_UART_LOG_LEVEL);
 #if	(defined(CONFIG_UART_0_NRF_UARTE) && defined(CONFIG_UART_0_ASYNC)) || \
 	(defined(CONFIG_UART_1_NRF_UARTE) && defined(CONFIG_UART_1_ASYNC)) || \
 	(defined(CONFIG_UART_2_NRF_UARTE) && defined(CONFIG_UART_2_ASYNC)) || \
-	(defined(CONFIG_UART_3_NRF_UARTE) && defined(CONFIG_UART_3_ASYNC))
+	(defined(CONFIG_UART_3_NRF_UARTE) && defined(CONFIG_UART_3_ASYNC)) || \
+	(defined(CONFIG_UART_00_NRF_UARTE) && defined(CONFIG_UART_00_ASYNC)) || \
+	(defined(CONFIG_UART_20_NRF_UARTE) && defined(CONFIG_UART_20_ASYNC)) || \
+	(defined(CONFIG_UART_21_NRF_UARTE) && defined(CONFIG_UART_21_ASYNC)) || \
+	(defined(CONFIG_UART_22_NRF_UARTE) && defined(CONFIG_UART_22_ASYNC)) || \
+	(defined(CONFIG_UART_130_NRF_UARTE) && defined(CONFIG_UART_130_ASYNC)) || \
+	(defined(CONFIG_UART_131_NRF_UARTE) && defined(CONFIG_UART_131_ASYNC)) || \
+	(defined(CONFIG_UART_132_NRF_UARTE) && defined(CONFIG_UART_132_ASYNC)) || \
+	(defined(CONFIG_UART_133_NRF_UARTE) && defined(CONFIG_UART_133_ASYNC)) || \
+	(defined(CONFIG_UART_134_NRF_UARTE) && defined(CONFIG_UART_134_ASYNC)) || \
+	(defined(CONFIG_UART_135_NRF_UARTE) && defined(CONFIG_UART_135_ASYNC)) || \
+	(defined(CONFIG_UART_136_NRF_UARTE) && defined(CONFIG_UART_136_ASYNC)) || \
+	(defined(CONFIG_UART_137_NRF_UARTE) && defined(CONFIG_UART_137_ASYNC))
 #define UARTE_ANY_ASYNC 1
 #endif
 
