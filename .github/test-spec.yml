@@ -147,7 +147,18 @@
   - "subsys/net/l2/ethernet/**/*"
 
 "CI-test_sdk_hcs":
-  - "**/*"
+  - "samples/philosophers/*"
+  - "samples/ppr_launcher/*"
+  - "samples/synchronization/*"
+  - "samples/hello_world/*"
+  - "samples/boards/nrf/nrf54h20/**/*"
+  - any:
+    - "!tests/**/*"
+    - "!doc/**/*"
+    - "!samples/**/*"
 
 "CI-test_sdk_sysctrl":
-  - "**/*"
+  - any:
+    - "!tests/**/*"
+    - "!samples/**/*"
+    - "!doc/**/*"
