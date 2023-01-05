@@ -510,13 +510,13 @@
     #elif defined(NRF_LMAC)
         #include <nrfx_config_nrf7140_lmac.h>
     #endif
-#elif defined(LILIUMSOC1_XXAA)
-    #include <nrfx_config_liliumsoc1_global.h>
+#elif defined(NRF54H20_ENGA_XXAA)
+    #include <nrfx_config_nrf54h20_enga_global.h>
 
     #if defined(NRF_APPLICATION)
-        #include <nrfx_config_liliumsoc1_application.h>
+        #include <nrfx_config_nrf54h20_enga_application.h>
     #elif defined(NRF_RADIOCORE)
-        #include <nrfx_config_liliumsoc1_network.h>
+        #include <nrfx_config_nrf54h20_enga_network.h>
     #endif
 #elif defined(LILIUMFP1_XXAA)
     #include <nrfx_config_liliumfp1_global.h>
