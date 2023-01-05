@@ -358,6 +358,38 @@
 #endif
 
 // </e>
+// <e> NRFX_GRTC_ENABLED - nrfx_grtc - GRTC peripheral driver
+//==========================================================
+#ifndef NRFX_GRTC_ENABLED
+#define NRFX_GRTC_ENABLED 0
+#endif
+
+// <o> NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK - GRTC CC channels ownership mask.
+
+#ifndef NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK
+#define NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK 0x000007FF
+#endif
+
+// <o> NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS - GRTC number of assigned CC channels.
+#ifndef NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS
+#define NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS 11
+#endif
+
+// <o> NRFX_GRTC_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
+// <0=> 0 (highest)
+// <1=> 1
+// <2=> 2
+// <3=> 3
+// <4=> 4
+// <5=> 5
+// <6=> 6
+// <7=> 7
+
+#ifndef NRFX_GRTC_DEFAULT_CONFIG_IRQ_PRIORITY
+#define NRFX_GRTC_DEFAULT_CONFIG_IRQ_PRIORITY 7
+#endif
+
+// </e>
 
 // </e>
 
