@@ -4,46 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/ {
- 	chosen {
- 		/delete-property/ nordic,bellboard-cpuapp;
- 		/delete-property/ nordic,bellboard-cpurad;
- 	};
-
-	/* TODO: remove and use ipc_cpuapp instead */
-	ipc0: ipc_remote {
-		compatible = "zephyr,ipc-openamp-static-vrings";
-		memory-region = <&shm_cpuapp_cpurad>;
-		mboxes = <&bellboard_cpuapp 29>,
-			 <&bellboard_cpurad 29>;
-		mbox-names = "tx", "rx";
-		role = "remote";
-		status = "okay";
-	};
-};
-
-&global_peripherals {
-	/delete-node/ bellboard@9a000;
-	/delete-node/ bellboard@9b000;
-
-	bellboard_cpurad: bellboard@9b000 {
-		compatible = "nordic,mbox-nrf-ids";
-		reg = <0x9b000 0x1000>;
-		interrupts = <96 NRF_DEFAULT_IRQ_PRIORITY>;
-		instance = <0>;
-		status = "okay";
-		#mbox-cells = <1>;
-	};
-
-	bellboard_cpuapp: bellboard0@9a000 {
-		compatible = "nordic,mbox-nrf-ids";
-		reg = <0x9a000 0x1000>;
-		domain = <NRF_IDS_DOMAIN_APP>;
-		status = "okay";
-		#mbox-cells = <1>;
-	};
-};
-
 &dppic130 {
     compatible = "nordic,nrf-dppic-global";
     owned-channels = <0 1>;
@@ -76,3 +36,5 @@
 &grtc {
     status = "okay";
 };
+
+ipc0: &ipc_cpuapp { };
