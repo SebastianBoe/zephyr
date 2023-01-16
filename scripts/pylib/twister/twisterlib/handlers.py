@@ -1056,10 +1056,16 @@ class SystemcHandler(Handler):
                 shutil.copyfile(f"{env['WORKSPACE']}/{file}", f"{self.build_dir}/{file}")
 
         self.yaml_file = self.build_dir + '/test.yaml'
-        with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
-            f.write(f"normalboot 0\ncpu:\nsysctrl:\nhex: {self.build_dir}/zephyr/zephyr.hex\ntargetmemory: mram\nmemoffset: 0x0\nstartpc: 0x1E044000\nautostart: yes\nloadhex: yes\n")
+        os.symlink(env['WORKSPACE']+"/libs", self.build_dir + "/libs")
 
-        command = ['hgen'] + ['-c'] + [self.yaml_file]
+        if 'nrf54l15_cpuapp' in self.instance.platform.name:
+            command = ['moonlight-tlm'] + ['-c'] + [self.yaml_file]
+            with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
+                f.write(f"normalboot 0\ncpu:\napp:\nhex: {self.build_dir}/zephyr/zephyr.elf\ntargetmemory: rramc\nmemoffset: 0x0\nstartpc: 0x10000000\nautostart: yes\nloadhex: yes\nclk: 192000000\n")
+        elif 'nrf54h20_cpusys' in self.instance.platform.name:
+            command = ['hgen'] + ['-c'] + [self.yaml_file]
+            with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
+                f.write(f"normalboot 0\ncpu:\nsysctrl:\nhex: {self.build_dir}/zephyr/zephyr.hex\ntargetmemory: mram\nmemoffset: 0x0\nstartpc: 0x1E044000\nautostart: yes\nloadhex: yes\n")
 
         logger.info("Spawning process: " +
                      " ".join(shlex.quote(word) for word in command) + os.linesep +

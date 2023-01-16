@@ -79,6 +79,26 @@ static int sysc_init(const struct device *dev)
 			 CONFIG_KERNEL_INIT_PRIORITY_DEVICE,	      \
 			 &sysc_driver_api);
 
+#ifdef CONFIG_UART_00_NRF_UARTE
+UART_NRF_SYSC_DEVICE(00);
+#endif
+
+#ifdef CONFIG_UART_20_NRF_UARTE
+UART_NRF_SYSC_DEVICE(20);
+#endif
+
+#ifdef CONFIG_UART_21_NRF_UARTE
+UART_NRF_SYSC_DEVICE(21);
+#endif
+
+#ifdef CONFIG_UART_22_NRF_UARTE
+UART_NRF_SYSC_DEVICE(22);
+#endif
+
+#ifdef CONFIG_UART_30_NRF_UARTE
+UART_NRF_SYSC_DEVICE(30);
+#endif
+
 #ifdef CONFIG_UART_130_NRF_UARTE
 UART_NRF_SYSC_DEVICE(130);
 #endif
