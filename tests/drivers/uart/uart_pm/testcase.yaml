@@ -1,7 +1,7 @@
 common:
   tags: drivers uart
   harness: ztest
-  platform_allow: nrf52840dk_nrf52840
+  platform_allow: nrf52840dk_nrf52840  nrf54h20dk_nrf54h20_cpusys@soc1 nrf54h20dk_nrf54h20_cpusec@soc1 nrf54h20dk_nrf54h20_cpuapp@soc1 nrf54h20dk_nrf54h20_cpurad@soc1 nrf54h20dk_nrf54h20_cpuppr@soc1 nrf54l15dk_nrf54l15_cpuapp@soc1
   harness_config:
     fixture: gpio_loopback
   depends_on: gpio
