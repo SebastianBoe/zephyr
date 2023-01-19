@@ -6,12 +6,12 @@
 
 #include <zephyr/kernel.h>
 #include <string.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 
 #include <openthread/platform/entropy.h>
 
 #if defined(CONFIG_ENTROPY_HAS_DRIVER)
-#include <drivers/entropy.h>
+#include <zephyr/drivers/entropy.h>
 #include "platform-zephyr.h"
 
 #else
@@ -20,7 +20,7 @@
 	 * It should be removed after adding a pseudo-entropy device
 	 * like for the net-core in ic-next.
 	 */
-#include <random/rand32.h>
+#include <zephyr/random/rand32.h>
 #endif
 
 LOG_MODULE_REGISTER(net_otPlat_entropy, CONFIG_OPENTHREAD_L2_LOG_LEVEL);

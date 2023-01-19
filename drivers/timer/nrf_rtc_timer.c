@@ -14,7 +14,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/sys_clock.h>
 #include <haly/nrfy_rtc.h>
-#include <spinlock.h>
+#include <zephyr/spinlock.h>
 #include <zephyr/irq.h>
 
 #define EXT_CHAN_COUNT CONFIG_NRF_RTC_TIMER_USER_CHAN_COUNT

@@ -5,8 +5,8 @@
  */
 
 #include "ztest_assert.h"
-#include <device.h>
-#include <drivers/sensor.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/sensor.h>
 #include <fff.h>
 #include <nrfs_temp.h>
 #include <ztest.h>

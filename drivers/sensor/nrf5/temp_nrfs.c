@@ -7,10 +7,10 @@
 #include "kernel.h"
 #define DT_DRV_COMPAT nordic_nrf_temp_nrfs
 
-#include <device.h>
-#include <drivers/sensor.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/sensor.h>
 #include <hal/nrf_temp.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 #include <nrfs_temp.h>
 #include <zephyr/sys/__assert.h>
 

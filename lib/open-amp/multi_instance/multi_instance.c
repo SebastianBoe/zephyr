@@ -22,15 +22,15 @@
  * When those steps are completed, application is ready to exchange data
  * between two cores.
  */
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <errno.h>
-#include <drivers/ipm.h>
+#include <zephyr/drivers/ipm.h>
 #include <../rpmsg/rpmsg_internal.h>
 
 #include "multi_instance.h"
 #include <openamp/virtio_ring.h>
 #include <string.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(multi_inst_ipc, CONFIG_LOG_DEFAULT_LEVEL);
 

@@ -5,8 +5,8 @@
  */
 
 #include <ztest.h>
-#include <device.h>
-#include <drivers/sensor.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/sensor.h>
 #include <internal/nrfs_backend.h>
 #include <internal/backends/nrfs_backend_ipc_service.h>
 

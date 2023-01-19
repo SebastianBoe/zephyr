@@ -79,7 +79,7 @@ BUILD_ASSERT(RTC1_IRQn == 22,
 // Interrupt lines 96-98 is the first set of consecutive interrupts implemented in Haltium.
 #define _ISR_OFFSET 96
 
-#include <device.h>
+#include <zephyr/device.h>
 extern void uarte_nrfx_isr_int(void *);
 
 /* Interrupt Service Routine needed to handle incoming UARTE_ENDTX event */

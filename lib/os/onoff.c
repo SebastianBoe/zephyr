@@ -7,8 +7,8 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/onoff.h>
-#include <sys/onoff_delayed.h>
-#include <timeout_q.h>
+#include <zephyr/sys/onoff_delayed.h>
+#include <zephyr/timeout_q.h>
 #include <stdio.h>
 
 #define SERVICE_REFS_MAX UINT16_MAX

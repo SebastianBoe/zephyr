@@ -39,7 +39,7 @@ extern "C" {
 #if ISA_RISCV
 #include <hal/nrf_vpr_clic.h>
 #endif
-#include <irq.h>
+#include <zephyr/irq.h>
 
 /**
  * @brief Macro for placing a compile time assertion.

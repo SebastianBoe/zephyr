@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <drivers/uart.h>
+#include <zephyr/drivers/uart.h>
 #include <hal/nrf_uarte.h>
 
 #ifdef CONFIG_UART_INTERRUPT_DRIVEN

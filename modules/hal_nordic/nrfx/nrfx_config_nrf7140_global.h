@@ -7,7 +7,7 @@
 #ifndef NRFX_CONFIG_NRF7140_GLOBAL_H__
 #define NRFX_CONFIG_NRF7140_GLOBAL_H__
 
-#include <devicetree.h>
+#include <zephyr/devicetree.h>
 
 // <h> nRF_Drivers
 

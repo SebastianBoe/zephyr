@@ -7,7 +7,7 @@
 #ifndef ZEPHYR_INCLUDE_SYS_ONOFF_DELAYED_H_
 #define ZEPHYR_INCLUDE_SYS_ONOFF_DELAYED_H_
 
-#include <sys/onoff.h>
+#include <zephyr/sys/onoff.h>
 
 #ifdef __cplusplus
 extern "C" {
