@@ -11,7 +11,12 @@
 
 #include "coremark_zephyr.h"
 
-LOG_MODULE_REGISTER(app);
+LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
+
+#if (defined(CONFIG_BOARD_NRF54H20DK_NRF54H20_CPUAPP) && defined(CONFIG_APP_BUILD_MULTICORE))
+#define PPR_START_ADDR          DT_REG_ADDR(DT_NODELABEL(ppr_code))
+#include <hal/nrf_vpr.h>
+#endif
 
 /*
  * Get button configuration from the devicetree. This is mandatory.
