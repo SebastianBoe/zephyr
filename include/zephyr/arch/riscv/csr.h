@@ -182,6 +182,7 @@
 	((val) & ~(which)) | ((fieldval) * ((which) & ~((which)-1)))	\
 )									\
 
+#ifndef csr_read
 #define csr_read(csr)						\
 ({								\
 	register unsigned long __v;				\
@@ -189,7 +190,9 @@
 				: "=r" (__v));			\
 	__v;							\
 })
+#endif
 
+#ifndef csr_write
 #define csr_write(csr, val)					\
 ({								\
 	unsigned long __v = (unsigned long)(val);		\
@@ -197,8 +200,9 @@
 				: : "rK" (__v)			\
 				: "memory");			\
 })
+#endif
 
-
+#ifndef csr_read_set
 #define csr_read_set(csr, val)					\
 ({								\
 	unsigned long __v = (unsigned long)(val);		\
@@ -207,7 +211,9 @@
 				: "memory");			\
 	__v;							\
 })
+#endif
 
+#ifndef csr_set
 #define csr_set(csr, val)					\
 ({								\
 	unsigned long __v = (unsigned long)(val);		\
@@ -215,7 +221,9 @@
 				: : "rK" (__v)			\
 				: "memory");			\
 })
+#endif
 
+#ifndef csr_read_clear
 #define csr_read_clear(csr, val)				\
 ({								\
 	unsigned long __v = (unsigned long)(val);		\
@@ -224,7 +232,9 @@
 				: "memory");			\
 	__v;							\
 })
+#endif
 
+#ifndef csr_clear
 #define csr_clear(csr, val)					\
 ({								\
 	unsigned long __v = (unsigned long)(val);		\
@@ -232,5 +242,6 @@
 				: : "rK" (__v)			\
 				: "memory");			\
 })
+#endif
 
 #endif /* CSR_H_ */
