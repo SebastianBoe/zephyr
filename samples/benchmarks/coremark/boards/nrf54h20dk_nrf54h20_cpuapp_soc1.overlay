@@ -11,12 +11,19 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		/* Configure PPR memory region. Allow to use defined RAM3x
+		/* Configure PPR memory region. Allow to use defined RAM
 		 * region by App and cores owned by App.
 		 */
 		ram3x_app_ppr: memory@2fc00000 {
 			compatible = "nordic,allocatable-ram";
 			reg = <0x2fc00000 DT_SIZE_K(32)>;
+			perm-read;
+			perm-write;
+		};
+
+		ppr_stmesp: memory@ae000000 {
+			compatible = "nordic,allocatable-ram";
+			reg = <0xae000000 DT_SIZE_K(16384)>;
 			perm-read;
 			perm-write;
 		};
@@ -35,25 +42,6 @@
 &mram0 {
 	/* Expand to include PPR */
 	reg = <0x1e0aa000 DT_SIZE_K(576)>;
-};
-
-/* ram3x_cpuapp buffer is used by App core UART driver. */
-&ram3x_cpuapp {
-	status = "okay";
-};
-
-&uart136 {
-	status = "okay";
-	tx-pin = < 0x44 >;
-	rx-pin = < 0x45 >;
-	memory-regions = <&ram3x_cpuapp>;
-};
-
-/* Configure PPR UART. */
-&uart135 {
-	status = "okay";
-	tx-pin = <0x24>;
-	rx-pin = <0x25>;
 };
 
 &grtc {

@@ -5,10 +5,6 @@
  */
 
  / {
-	chosen {
-		zephyr,console = &uart135;
-	};
-
 	leds {
 		compatible = "gpio-leds";
 		led0: led_0 {
@@ -29,22 +25,15 @@
 		led = &led0;
 		button = &button0;
 	};
-};
 
-&ram3x {
-	ram3x_cpuppr: memory@7c80 {
-		compatible = "zephyr,memory-region", "mmio-sram";
-		zephyr,memory-region = "DMA_RAM3x_PPR";
-		#memory-region-cells = < 0x0 >;
-		reg = <0x7c80 0x80>;
+	soc {
+		stmesp: memory@ae000000 {
+			compatible = "nordic,allocatable-ram";
+			reg = <0xae000000 DT_SIZE_K(16384)>;
+			perm-read;
+			perm-write;
+		};
 	};
-};
-
-&uart135 {
-	status = "okay";
-	memory-regions = <&ram3x_cpuppr>;
-	tx-pin = <0x24>;
-	rx-pin = <0x25>;
 };
 
 &gpio9 {

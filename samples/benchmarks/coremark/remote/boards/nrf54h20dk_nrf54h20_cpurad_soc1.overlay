@@ -4,23 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
- /{
-	allocatable_ram {
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		ram3x_rad_uart: memory@2fc00000 {
-			compatible = "nordic,allocatable-ram";
-			reg = <0x2fc00000 DT_SIZE_K(32)>;
-			perm-read;
-			perm-write;
-		};
-	};
-
-	chosen {
-		zephyr,console = &uart136;
-	};
-
+ / {
 	leds {
 		compatible = "gpio-leds";
 		led1: led_1 {
@@ -42,18 +26,6 @@
 		led = &led1;
 		button = &button1;
 	};
-};
-
-/* ram3x_cpurad buffer is used by Rad core UART driver. */
-&ram3x_cpurad {
-	status = "okay";
-};
-
-&uart136 {
-	status = "okay";
-	tx-pin = < 0x44 >;
-	rx-pin = < 0x45 >;
-	memory-regions = <&ram3x_cpurad>;
 };
 
 &gpio9 {
