@@ -13,6 +13,6 @@ if (${BOARD} MATCHES "nrf54h20dk.*")
 endif()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(net)
+project(${IMAGE_NAME})
 
 target_sources(app PRIVATE ../src/main.c)

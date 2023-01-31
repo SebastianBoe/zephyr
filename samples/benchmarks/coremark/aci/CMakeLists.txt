@@ -9,9 +9,20 @@
 # added below.
 if (CONFIG_APP_BUILD_MULTICORE)
   add_child_image(
-    NAME remote
+    NAME remote_rad
     SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../remote
-    DOMAIN remote
+    DOMAIN remote_rad
     BOARD ${CONFIG_APP_REMOTE_BOARD}
+    )
+endif()
+
+if (CONFIG_APP_BUILD_MULTICORE AND
+    CONFIG_BOARD_NRF54H20DK_NRF54H20_CPUAPP AND
+    (CONFIG_COREMARK_THREADS_NUMBER EQUAL 1))
+  add_child_image(
+    NAME remote_ppr
+    SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../remote
+    DOMAIN remote_ppr
+    BOARD "nrf54h20dk_nrf54h20_cpuppr@soc1"
     )
 endif()
