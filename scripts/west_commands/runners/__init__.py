@@ -41,6 +41,7 @@ _names = [
     'misc',
     'nios2',
     'nrfjprog',
+    'nrfjprog54',
     'nrfutil',
     'nsim',
     'openocd',
