@@ -11,6 +11,7 @@ Samples and Demos
    sample_definition_and_criteria
    classic
    basic/*
+   benchmarks/*
    userspace/*
    subsys/subsys.rst
    net/net.rst
