@@ -1,0 +1,20 @@
+#include <common/nordic_nrf_next/nrfx_ram3x_dma.dtsi>
+
+/ {
+	chosen {
+		zephyr,console = &uart135;
+	};
+};
+
+/* ram3x_cpurad buffer is used by Radio core UART driver. */
+&ram3x_cpurad {
+	status = "okay";
+};
+
+/* Configure Radio core UART. */
+&uart135 {
+	status = "okay";
+	tx-pin = <0x24>;
+	rx-pin = <0x25>;
+	memory-regions = <&ram3x_cpurad>;
+};
