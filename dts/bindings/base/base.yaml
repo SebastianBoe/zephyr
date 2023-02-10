@@ -48,7 +48,7 @@ properties:
 
   label:
     type: string
-    deprecated: true
+    # deprecated: true
     description: |
       Human readable string describing the device (used as device_get_binding() argument)
 
