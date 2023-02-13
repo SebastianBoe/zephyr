@@ -25,7 +25,9 @@
 
 LOG_MODULE_REGISTER(net_otPlat_entropy, CONFIG_OPENTHREAD_L2_LOG_LEVEL);
 
+#if defined(CONFIG_ENTROPY_HAS_DRIVER)
 static const struct device *const dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_entropy));
+#endif
 
 otError otPlatEntropyGet(uint8_t *aOutput, uint16_t aOutputLength)
 {
