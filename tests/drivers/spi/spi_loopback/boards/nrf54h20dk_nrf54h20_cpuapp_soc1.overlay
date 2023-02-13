@@ -9,12 +9,9 @@
 	sck-pin = <32>;
 	miso-pin = <40>;
 	mosi-pin = <41>;
+	overrun-character = <0x00>;
 	memory-regions = <&ram3x_cpuapp>;
-};
-
-&gpiote130 {
-	status = "okay";
-	owned-channels = <0 1>;
+	label = "SPI_130";
 };
 
 &gpio0 {
