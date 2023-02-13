@@ -10,7 +10,9 @@ tests:
     min_flash: 34
     filter: dt_compat_enabled("test-gpio-basic-api")
 
-  drivers.gpio.nrf_sense_edge:
-    platform_allow: nrf52840dk_nrf52840 nrf54h20dk_nrf54h20_cpusys@soc1 nrf54h20dk_nrf54h20_cpusec@soc1 nrf54h20dk_nrf54h20_cpuapp@soc1 nrf54h20dk_nrf54h20_cpurad@soc1 nrf54h20dk_nrf54h20_cpuppr@soc1 nrf54l15dk_nrf54l15_cpuapp@soc1
-    extra_args: "DTC_OVERLAY_FILE=boards/nrf52840dk_nrf52840.overlay;\
-                 boards/nrf52840dk_nrf52840_sense_edge.overlay"
+  drivers.gpio.nrf_sense_edge_nrf52:
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: "DTC_OVERLAY_FILE=boards/nrf52840dk_nrf52840_sense_edge.overlay"
+
+  drivers.gpio.nrf_sense_edge_nrf54:
+    platform_allow: nrf54h20dk_nrf54h20_cpuapp@soc1 nrf54h20dk_nrf54h20_cpuppr@soc1
