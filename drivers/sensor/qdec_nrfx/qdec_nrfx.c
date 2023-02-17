@@ -48,9 +48,11 @@ static inline const struct qdec_nrfx_config *get_dev_config(const struct device 
 	return dev->config;
 }
 
+#ifdef CONFIG_PINCTRL
 PINCTRL_DT_DEFINE(DT_DRV_INST(0));
 static const struct pinctrl_dev_config *qdec_nrfx_pcfg =
 	PINCTRL_DT_DEV_CONFIG_GET(DT_DRV_INST(0));
+#endif
 
 static void accumulate(struct qdec_nrfx_data *data, int16_t acc)
 {
@@ -178,7 +180,7 @@ static void qdec_nrfx_gpio_ctrl(const struct device *dev, bool enable)
 	}
 }
 
-NRF_DT_CHECK_NODE_HAS_PINCTRL_SLEEP(DT_DRV_INST(0));
+NRF_DT_CHECK_PIN_ASSIGNMENTS(DT_DRV_INST(0), 1, a_pin, b_pin, led_pin);
 
 static int qdec_nrfx_init(const struct device *dev)
 {
@@ -186,11 +188,13 @@ static int qdec_nrfx_init(const struct device *dev)
 	const nrfx_qdec_t *qdec = &get_dev_config(dev)->qdec;
 	nrfx_err_t err;
 
+#ifdef CONFIG_PINCTRL
 	int ret = pinctrl_apply_state(qdec_nrfx_pcfg, PINCTRL_STATE_DEFAULT);
 
 	if (ret < 0) {
 		return ret;
 	}
+#endif
 
 	err = nrfx_qdec_init(qdec, &config->nrfx_config, qdec_nrfx_event_handler, (void *)dev);
 	if (err == NRFX_ERROR_INVALID_STATE) {
@@ -217,12 +221,13 @@ static int qdec_nrfx_pm_action(const struct device *dev,
 
 	switch (action) {
 	case PM_DEVICE_ACTION_RESUME:
+#ifdef CONFIG_PINCTRL
 		ret = pinctrl_apply_state(qdec_nrfx_pcfg,
 					  PINCTRL_STATE_DEFAULT);
 		if (ret < 0) {
 			return ret;
 		}
-
+#endif
 		qdec_nrfx_gpio_ctrl(dev, true);
 		nrfx_qdec_enable(qdec);
 		break;
@@ -230,24 +235,26 @@ static int qdec_nrfx_pm_action(const struct device *dev,
 	case PM_DEVICE_ACTION_TURN_OFF:
 		/* device must be uninitialized */
 		nrfx_qdec_uninit(qdec);
-
+#ifdef CONFIG_PINCTRL
 		ret = pinctrl_apply_state(qdec_nrfx_pcfg,
 					  PINCTRL_STATE_SLEEP);
 		if (ret < 0) {
 			return ret;
 		}
+#endif
 		break;
 
 	case PM_DEVICE_ACTION_SUSPEND:
 		/* device must be suspended */
 		nrfx_qdec_disable(qdec);
 		qdec_nrfx_gpio_ctrl(dev, false);
-
+#ifdef CONFIG_PINCTRL
 		ret = pinctrl_apply_state(qdec_nrfx_pcfg,
 					  PINCTRL_STATE_SLEEP);
 		if (ret < 0) {
 			return ret;
 		}
+#endif
 		break;
 	default:
 		return -ENOTSUP;
@@ -293,14 +300,11 @@ static const struct sensor_driver_api qdec_nrfx_driver_api = {
 				},						     \
 				.ledpre = DT_INST_PROP(idx, led_pre),		     \
 				.ledpol = NRF_QDEC_LEPOL_ACTIVE_HIGH,		     \
-				.dbfen = NRF_QDEC_DBFEN_DISABLE,		     \
-				.skip_psel_cfg = true				     \
+				.dbfen = NRF_QDEC_DBFEN_DISABLE			     \
 			},							     \
 			.interrupt_priority = DT_IRQ(QDEC_NRFX_NODE(idx), priority), \
 			.sample_inten = false,					     \
 			.reportper_inten = true,				     \
-			.skip_psel_cfg = true,					     \
-			.skip_gpio_cfg = true					     \
 		},								     \
 		QDEC_NRFX_CONFIG_ENABLE_PIN(idx),				     \
 		.steps = DT_INST_PROP(idx, steps),				     \
