@@ -125,6 +125,10 @@
 #define NRFX_GRTC_ENABLED 1
 #endif
 
+#ifndef NRFX_PPIB_ENABLED
+#define NRFX_PPIB_ENABLED 1
+#endif
+
 #ifdef CONFIG_NRFX_GPIOTE
 #define NRFX_GPIOTE_ENABLED 1
 #endif

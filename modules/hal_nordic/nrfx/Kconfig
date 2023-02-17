@@ -46,6 +46,10 @@ config NRFX_DPPI
 	bool "DPPI allocator"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_DPPIC))
 
+config NRFX_PPIB
+	bool "PPIB inter-APB connection"
+	default n
+
 config NRFX_EGU
 	bool
 

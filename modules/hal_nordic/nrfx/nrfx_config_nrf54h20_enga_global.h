@@ -9,6 +9,10 @@
 
 #include <zephyr/devicetree.h>
 
+/* Nodes definitions. */
+#define _IDX_TO_INSTANCE(node_id, prop, idx) DT_PROP_BY_IDX(node_id, prop, idx)
+#define _INST_NUM_TO_INSTANCE(periph_name, inst_num) CONCAT(periph_name, inst_num)
+
 // <h> nRF_Drivers
 
 // <e> NRFX_CLOCK_ENABLED - nrfx_clock - CLOCK peripheral driver.
@@ -170,7 +174,7 @@
 // <e> NRFX_DPPI_ENABLED - nrfx_dppi - DPPI allocator.
 //==========================================================
 #ifndef NRFX_DPPI_ENABLED
-#define NRFX_DPPI_ENABLED 0
+#define NRFX_DPPI_ENABLED 1
 #endif
 // <e> NRFX_DPPI_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
@@ -220,6 +224,54 @@
 #ifndef NRFX_DPPI_CONFIG_DEBUG_COLOR
 #define NRFX_DPPI_CONFIG_DEBUG_COLOR 0
 #endif
+
+/* source(publish) channels masks generation. */
+#define _NRFX_DPPI_PUB_NUM_OF_OWNED_CHANNELS(node) DT_PROP_LEN(node, source_channels)
+#define _NRFX_DPPI_PUB_SHIFT_OWNED(val, node) (1 << (DT_PROP_BY_IDX(node, source_channels, val)))
+#define _NRFX_DPPI_PUB_CONFIG_ALLOWED_CHANNELS_MASK(node) \
+		COND_CODE_1(DT_NODE_HAS_PROP(node, source_channels),	\
+			(LISTIFY(_NRFX_DPPI_PUB_NUM_OF_OWNED_CHANNELS(node), \
+				_NRFX_DPPI_PUB_SHIFT_OWNED, (|), node)), (0))
+
+#define NRFX_DPPI_PUB_CONFIG_ALLOWED_CHANNELS_MASK_BY_INST_NUM(inst_num) \
+		_NRFX_DPPI_PUB_CONFIG_ALLOWED_CHANNELS_MASK(DT_NODELABEL( \
+				_INST_NUM_TO_INSTANCE(dppic, inst_num)))
+
+/* sink(subscribe) channels masks generation. */
+#define _NRFX_DPPI_SUB_NUM_OF_OWNED_CHANNELS(node) DT_PROP_LEN(node, sink_channels)
+#define _NRFX_DPPI_SUB_SHIFT_OWNED(val, node) (1 << (DT_PROP_BY_IDX(node, sink_channels, val)))
+#define _NRFX_DPPI_SUB_CONFIG_ALLOWED_CHANNELS_MASK(node) \
+		COND_CODE_1(DT_NODE_HAS_PROP(node, sink_channels),	\
+			(LISTIFY(_NRFX_DPPI_SUB_NUM_OF_OWNED_CHANNELS(node), \
+				_NRFX_DPPI_SUB_SHIFT_OWNED, (|), node)), (0))
+
+#define NRFX_DPPI_SUB_CONFIG_ALLOWED_CHANNELS_MASK_BY_INST_NUM(inst_num) \
+		_NRFX_DPPI_SUB_CONFIG_ALLOWED_CHANNELS_MASK(DT_NODELABEL( \
+				_INST_NUM_TO_INSTANCE(dppic, inst_num)))
+
+#define NRFX_DPPI_PUB_OR_SUB_MASK(inst_num) \
+    NRFX_COND_CODE_0(DT_NODE_HAS_PROP(DT_NODELABEL(_INST_NUM_TO_INSTANCE(dppic, inst_num)), source_channels), \
+        (NRFX_COND_CODE_0(DT_NODE_HAS_PROP(DT_NODELABEL(_INST_NUM_TO_INSTANCE(dppic, inst_num)), sink_channels), \
+                          (0), (1))), (1))
+
+/* Variables names generation. */
+#define _NRFX_DPPIC_VAR_NAME_PREFIX(dppicx) CONCAT(m_, dppicx)
+#define _NRFX_DPPIC_CHANNELS_ENTRY_VAR_NAME(dppicx) \
+		CONCAT(_NRFX_DPPIC_VAR_NAME_PREFIX(dppicx), _channels)
+
+/* Variables entries generation. */
+#define _NRFX_DPPI_CHANNELS_ENTRY_BY_IDX(instance) \
+		static nrfx_atomic_t \
+		_NRFX_DPPIC_CHANNELS_ENTRY_VAR_NAME(instance) \
+		__attribute__((used)) = \
+		_NRFX_DPPI_PUB_CONFIG_ALLOWED_CHANNELS_MASK(instance) | \
+		_NRFX_DPPI_SUB_CONFIG_ALLOWED_CHANNELS_MASK(instance);
+
+#define NRFX_INTERCONNECT_APB_GLOBAL_DPPI_DEFINE \
+		DT_FOREACH_STATUS_OKAY(nordic_nrf_dppic_global, _NRFX_DPPI_CHANNELS_ENTRY_BY_IDX)
+
+#define NRFX_DPPI_CHANNELS_SINGLE_VAR_NAME_BY_INST_NUM(inst_num) \
+        _NRFX_DPPIC_CHANNELS_ENTRY_VAR_NAME(DT_NODELABEL(_INST_NUM_TO_INSTANCE(dppic, inst_num)))
 
 // </e>
 
@@ -405,6 +457,61 @@
 #ifndef NRFX_IPC_ENABLED
 #define NRFX_IPC_ENABLED 0
 #endif
+
+/* Channels masks generation. */
+#define _NRFX_IPC_NUM_OF_OWNED_CHANNELS(node) DT_PROP_LEN(node, owned_channels)
+#define _NRFX_IPC_SHIFT_OWNED(val, node) (1 << (DT_PROP_BY_IDX(node, owned_channels, val)))
+#define _NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(node) \
+		COND_CODE_1(DT_NODE_HAS_PROP(node, owned_channels),	\
+			(LISTIFY(_NRFX_IPC_NUM_OF_OWNED_CHANNELS(node), \
+				_NRFX_IPC_SHIFT_OWNED, (|), node)), \
+			(COND_CODE_1(DT_NODE_HAS_COMPAT(node, nordic_nrf_ipct_local), \
+				((1 << DT_PROP(node, channels)) - 1), \
+				(0))))
+
+#define NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(ipctx_node) \
+		_NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(DT_NODELABEL(ipctx_node))
+
+#define _NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK_BY_IDX(node_id, prop, idx) \
+		_NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(_IDX_TO_INSTANCE(node_id, prop, idx))
+
+#define NRFX_IPCTx_PUB_CONFIG_ALLOWED_CHANNELS_MASK_BY_INST_NUM(inst_num) \
+		COND_CODE_1(IS_EMPTY(inst_num), \
+			(NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(_INST_NUM_TO_INSTANCE(DT_LOCAL_IPCT_INSTANCE, ))), \
+			(NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(_INST_NUM_TO_INSTANCE(ipct, inst_num))))
+
+#define NRFX_IPCTx_SUB_CONFIG_ALLOWED_CHANNELS_MASK_BY_INST_NUM(inst_num) \
+		COND_CODE_1(IS_EMPTY(inst_num), \
+			(NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(_INST_NUM_TO_INSTANCE(DT_LOCAL_IPCT_INSTANCE, ))), \
+			(NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(_INST_NUM_TO_INSTANCE(ipct, inst_num))))
+
+#define NRFX_IPCT_PUB_OR_SUB_MASK(inst_num) \
+		COND_CODE_1(IS_EMPTY(inst_num), \
+			(COND_CODE_1(DT_NODE_HAS_STATUS(DT_NODELABEL(_INST_NUM_TO_INSTANCE(DT_LOCAL_IPCT_INSTANCE, )), okay), (1), (0))), \
+			(COND_CODE_1(DT_NODE_HAS_PROP(DT_NODELABEL(_INST_NUM_TO_INSTANCE(ipct, inst_num)), owned_channels), (1), (0))))
+
+
+/* Variables names generation. */
+#define _NRFX_IPCT_VAR_NAME_PREFIX(ipctx) CONCAT(m_, ipctx)
+#define _NRFX_IPCT_CHANNELS_ENTRY_VAR_NAME(ipctx) \
+		CONCAT(_NRFX_IPCT_VAR_NAME_PREFIX(ipctx), _channels)
+
+/* Variables entries generation. */
+#define _NRFX_IPC_CHANNELS_ENTRY_BY_IDX(instance) \
+			static nrfx_atomic_t \
+			_NRFX_IPCT_CHANNELS_ENTRY_VAR_NAME(instance) \
+			__attribute__((used)) = \
+			_NRFX_IPC_CONFIG_ALLOWED_CHANNELS_MASK(instance);
+
+#define NRFX_INTERCONNECT_IPCT_GLOBAL_DEFINE \
+		DT_FOREACH_STATUS_OKAY(nordic_nrf_ipct_global, _NRFX_IPC_CHANNELS_ENTRY_BY_IDX)
+
+#define NRFX_IPCTx_CHANNELS_SINGLE_VAR_NAME_BY_INST_NUM(inst_num) \
+	COND_CODE_1(IS_EMPTY(inst_num), \
+	(_NRFX_IPCT_CHANNELS_ENTRY_VAR_NAME(DT_NODELABEL( \
+		_INST_NUM_TO_INSTANCE(DT_LOCAL_IPCT_INSTANCE, )))), \
+	(_NRFX_IPCT_CHANNELS_ENTRY_VAR_NAME(DT_NODELABEL( \
+		_INST_NUM_TO_INSTANCE(ipct, inst_num)))))
 
 // </e>
 
