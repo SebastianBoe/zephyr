@@ -1018,18 +1018,19 @@ class SystemcHandler(Handler):
             reader_t.start()
             reader_t.join(this_timeout)
             if not reader_t.is_alive():
-                line = self.line
-                logger.debug("OUTPUT: {0}".format(line.decode('utf-8', errors="ignore").rstrip()))
-                log_out_fp.write(line.decode('utf-8', errors="ignore"))
-                log_out_fp.flush()
-                harness.handle(line.decode('utf-8', errors="ignore").rstrip())
-                if harness.state:
-                    if not timeout_extended or harness.capture_coverage:
-                        timeout_extended = True
-                        if harness.capture_coverage:
-                            timeout_time = time.time() + 30
-                        else:
-                            timeout_time = time.time() + 2
+                if self.line != b"":
+                    line = self.line
+                    logger.debug("OUTPUT: {0}".format(line.decode('utf-8', errors="ignore").rstrip()))
+                    log_out_fp.write(line.decode('utf-8', errors="ignore"))
+                    log_out_fp.flush()
+                    harness.handle(line.decode('utf-8', errors="ignore").rstrip())
+                    if harness.state:
+                        if not timeout_extended or harness.capture_coverage:
+                            timeout_extended = True
+                            if harness.capture_coverage:
+                                timeout_time = time.time() + 30
+                            else:
+                                timeout_time = time.time() + 2
             else:
                 reader_t.join(0)
                 break
@@ -1075,7 +1076,7 @@ class SystemcHandler(Handler):
 
         with subprocess.Popen(command, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, cwd=self.build_dir, env=env) as proc:
-            logger.debug("Spawning BinaryHandler Thread for %s" % self.name)
+            logger.debug("Spawning SystemC Handler Thread for %s" % self.name)
             t = threading.Thread(target=self._output_handler, args=(proc, harness,), daemon=True)
             t.start()
             t.join()
@@ -1098,6 +1099,7 @@ class SystemcHandler(Handler):
 
         self.instance.execution_time = handler_time
         if not self.terminated and self.returncode != 0:
+            self.instance.status = "failed"
             # When a process is killed, the default handler returns 128 + SIGTERM
             # so in that case the return code itself is not meaningful
             self.instance.reason = "Failed"
