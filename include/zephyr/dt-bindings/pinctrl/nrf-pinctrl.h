@@ -133,7 +133,9 @@
  * @note Values match nrf_gpio_pin_drive_t constants.
  * @{
  */
-#ifdef CONFIG_SOC_PLATFORM_HALTIUM
+#if defined(CONFIG_SOC_SERIES_NRF54HX) ||                                     \
+	defined(CONFIG_SOC_SERIES_NRF54LX) ||                                 \
+	defined(CONFIG_SOC_SERIES_NRF92X)
 
 /** Standard '0', standard '1'. */
 #define NRF_DRIVE_S0S1 0U
