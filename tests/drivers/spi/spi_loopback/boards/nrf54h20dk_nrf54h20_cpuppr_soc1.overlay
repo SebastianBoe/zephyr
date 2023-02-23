@@ -4,11 +4,26 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+&pinctrl {
+	spi130_default: spi130_default {
+		psels = <NRF_PSEL(SPI_SCK, 0, 0)>,
+			<NRF_PSEL(SPI_MISO, 0, 6)>,
+			<NRF_PSEL(SPI_MOSI, 0, 7)>;
+	};
+
+	spi130_sleep: spi130_sleep {
+		psels = <NRF_PSEL(SPI_SCK, 0, 0)>,
+			<NRF_PSEL(SPI_MISO, 0, 6)>,
+			<NRF_PSEL(SPI_MOSI, 0, 7)>;
+		low-power-enable;
+	};
+};
+
 &spi130 {
 	status = "okay";
-	sck-pin = <0>;
-	miso-pin = <6>;
-	mosi-pin = <7>;
+	pinctrl-0 = <&spi130_default>;
+	pinctrl-1 = <&spi130_sleep>;
+	pinctrl-names = "default", "sleep";
 	overrun-character = <0x00>;
 	memory-regions = <&ram3x_cpuapp>;
 	slow@0 {
