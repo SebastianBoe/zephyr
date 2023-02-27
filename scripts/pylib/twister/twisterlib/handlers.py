@@ -776,8 +776,7 @@ class FpgaDeviceHandler(DeviceHandler):
         """
 
         cmd = [
-            "nrfjprog", "--snr", os.environ.get('FPGA_SEGGER_ID'),
-            "-f", "nrf54", "--pinreset"
+            "nrfjprog", "--snr", os.environ.get('FPGA_SEGGER_ID'), "--pinreset"
         ]
         try:
             logger.info(f'reset_target: Executing:\n{cmd}')
