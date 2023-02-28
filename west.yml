@@ -94,7 +94,7 @@ manifest:
         - hal
     - name: sdk-hal_nordic-next
       remote: nrfconnect
-      revision: a667e5dcd7f0b6d5f0c045270722262d1645b04e
+      revision: bd778709f1968cafe2a2429aeea249ef353af7d5
       path: modules/hal/nordic_haltium
       submodules: true
       groups:
