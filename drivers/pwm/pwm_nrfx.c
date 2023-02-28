@@ -76,9 +76,9 @@ static bool pwm_period_check_and_set(const struct device *dev,
 			data->prescaler     = prescaler;
 
 			nrfx_pwm_config_t reconf = config->initial_config;
-			reconf.nrfy_config.base_clock = data->prescaler;
-			reconf.nrfy_config.top_value  = (uint16_t)countertop;
-			reconf.skip_gpio_cfg          = true;
+			reconf.base_clock    = data->prescaler;
+			reconf.top_value     = (uint16_t)countertop;
+			reconf.skip_gpio_cfg = true;
 
 			nrfx_pwm_reconfigure(&config->pwm, &reconf);
 			return true;
@@ -125,7 +125,7 @@ static int pwm_nrfx_set_cycles(const struct device *dev, uint32_t channel,
 	 * are effectively doubled by the up-down count, so halve them here
 	 * to compensate.
 	 */
-	if (config->initial_config.nrfy_config.count_mode == NRF_PWM_MODE_UP_AND_DOWN) {
+	if (config->initial_config.count_mode == NRF_PWM_MODE_UP_AND_DOWN) {
 		period_cycles /= 2;
 		pulse_cycles /= 2;
 	}
@@ -335,13 +335,13 @@ static int pwm_nrfx_pm_action(const struct device *dev,
 		.pwm = NRFX_PWM_INSTANCE(idx),				      \
 		.initial_config = {					      \
 			.skip_gpio_cfg = true,				      \
-			.nrfy_config.base_clock = NRF_PWM_CLK_1MHz,	      \
-			.nrfy_config.count_mode = (PWM_PROP(idx, center_aligned) \
+			.base_clock = NRF_PWM_CLK_1MHz,			      \
+			.count_mode = (PWM_PROP(idx, center_aligned)	      \
 				       ? NRF_PWM_MODE_UP_AND_DOWN	      \
 				       : NRF_PWM_MODE_UP),		      \
-			.nrfy_config.top_value = 1000,			      \
-			.nrfy_config.load_mode = NRF_PWM_LOAD_INDIVIDUAL,     \
-			.nrfy_config.step_mode = NRF_PWM_STEP_TRIGGERED,      \
+			.top_value = 1000,				      \
+			.load_mode = NRF_PWM_LOAD_INDIVIDUAL,		      \
+			.step_mode = NRF_PWM_STEP_TRIGGERED,		      \
 		},							      \
 		.seq.values.p_raw = pwm_nrfx_##idx##_data.seq_values,	      \
 		.seq.length = NRF_PWM_CHANNEL_COUNT,			      \
