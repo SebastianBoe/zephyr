@@ -141,7 +141,7 @@ static bool switch_to_spim(void)
 		NRF_SPIM_PIN_NOT_CONNECTED,
 		NRF_SPIM_PIN_NOT_CONNECTED,
 		NRF_DT_GPIOS_TO_PSEL(SPIM_NODE, cs_gpios));
-	spim_config.nrfy_config.frequency = NRF_SPIM_FREQ_1M;
+	spim_config.frequency = NRF_SPIM_FREQ_1M;
 	spim_config.miso_pull = NRF_GPIO_PIN_PULLDOWN;
 
        ret = pinctrl_apply_state(PINCTRL_DT_DEV_CONFIG_GET(SPIM_NODE),
@@ -221,9 +221,9 @@ static bool switch_to_uarte(void)
 	nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(
 		NRF_UARTE_PSEL_DISCONNECTED,
 		NRF_UARTE_PSEL_DISCONNECTED);
-	uarte_config.nrfy_config.baudrate = NRF_UARTE_BAUDRATE_1000000;
+	uarte_config.baudrate = NRF_UARTE_BAUDRATE_1000000;
 	uarte_config.skip_gpio_cfg = true;
-	uarte_config.nrfy_config.skip_psel_cfg = true;
+	uarte_config.skip_psel_cfg = true;
 
 	ret = pinctrl_apply_state(PINCTRL_DT_DEV_CONFIG_GET(UARTE_NODE),
 				  PINCTRL_STATE_DEFAULT);
