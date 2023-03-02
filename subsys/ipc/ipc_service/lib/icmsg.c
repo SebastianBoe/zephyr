@@ -224,7 +224,7 @@ int icmsg_open(const struct icmsg_config_t *conf,
 
 	dev_data->tx_ib = spsc_pbuf_init((void *)conf->tx_shm_addr,
 					 conf->tx_shm_size,
-					 SPSC_PBUF_CACHE);
+					 0);
 	dev_data->rx_ib = (void *)conf->rx_shm_addr;
 
 	int ret = spsc_pbuf_write(dev_data->tx_ib, magic, sizeof(magic));
