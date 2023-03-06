@@ -1,0 +1,5 @@
+# This TOML configuration adds configurations for UICR that are currently
+# unable to be set through devicetree.
+
+[gpio_own_5]
+PIN_0 = "Own"
