@@ -155,13 +155,14 @@ class TestInstance:
                 handler = QEMUHandler(self, "qemu")
                 handler.args.append(f"QEMU_PIPE={handler.get_fifo()}")
                 handler.ready = True
-            elif 'CONFIG_EMULATOR_SYSTEMC=y' in options.extra_args:
-                handler = SystemcHandler(self, "systemc")
             else:
                 handler = SimulationHandler(self, self.platform.simulation)
 
             if self.platform.simulation_exec and shutil.which(self.platform.simulation_exec):
                 handler.ready = True
+        elif 'CONFIG_EMULATOR_SYSTEMC=y' in options.extra_args:
+            handler = SystemcHandler(self, "systemc")
+            handler.ready = True
         elif self.testsuite.type == "unit":
             handler = BinaryHandler(self, "unit")
             handler.binary = os.path.join(self.build_dir, "testbinary")
