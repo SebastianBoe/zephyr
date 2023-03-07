@@ -7,9 +7,10 @@
 #ifndef CORE_PORTME_H
 #define CORE_PORTME_H
 
-#include <zephyr.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#include <zephyr/kernel.h>
 
 /* Basic coremark configuration */
 #ifndef HAS_FLOAT
