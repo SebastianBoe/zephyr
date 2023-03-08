@@ -682,6 +682,7 @@ class FpgaDeviceHandler(DeviceHandler):
 
         self.timeout = math.ceil(self.timeout * 1.2)
         self.testplan = None
+        self.family = "nrf54"
 
     def monitor_serial(self, ser, halt_fileno, harness):
         if harness.is_pytest:
@@ -704,7 +705,7 @@ class FpgaDeviceHandler(DeviceHandler):
         logger.debug("Waiting for TC start")
 
         # reset the target
-        if not self.reset_target():
+        if not self.reset_target(self.family):
             self.set_state("failed", 0)
             self.instance.reason = "Failed (trigger reset failed)"
             ser.close()
@@ -768,7 +769,7 @@ class FpgaDeviceHandler(DeviceHandler):
         log_out_fp.close()
 
     @staticmethod
-    def reset_target():
+    def reset_target(family):
         """
         Reset the target by calling
         nrfjprog --snr FPGA_SEGGER_ID -f nrf54 --pinreset
@@ -776,7 +777,7 @@ class FpgaDeviceHandler(DeviceHandler):
         """
 
         cmd = [
-            "nrfjprog", "--snr", os.environ.get('FPGA_SEGGER_ID'), "--pinreset"
+            "nrfjprog", "--snr", os.environ.get('FPGA_SEGGER_ID'), "-f", family, "--pinreset"
         ]
         try:
             logger.info(f'reset_target: Executing:\n{cmd}')
@@ -848,6 +849,17 @@ class FpgaDeviceHandler(DeviceHandler):
 
         if pre_script:
             self.run_custom_script(pre_script, 30)
+
+        # check family for nrfjprog
+        if 'nrf54h' in hardware.platform:
+            self.family = "nrf54h"
+        elif 'nrf54l' in hardware.platform:
+            self.family = "nrf54l"
+        elif 'nrf92' in hardware.platform:
+            self.family = "nrf92"
+        else:
+            pass
+
         # flash target
         if 'app' in hardware.platform:
             hexes = {
