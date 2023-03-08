@@ -16,6 +16,14 @@ PIN_2 = "Own"
 PIN_0 = "NonSecure"
 PIN_2 = "NonSecure"
 
+[gpio_own_0]
+PIN_8 = "Own"
+PIN_10 = "Own"
+
+[gpio_secure_0]
+PIN_8 = "NonSecure"
+PIN_10 = "NonSecure"
+
 [gpiote_ch_secure_0]
 CH_0 = "NonSecure"
 CH_2 = "NonSecure"

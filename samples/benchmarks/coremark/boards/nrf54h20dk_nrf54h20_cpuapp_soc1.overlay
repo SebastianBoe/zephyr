@@ -1,10 +1,13 @@
 /*
  * Copyright (c) 2023 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ * SPDX-License-Identifier: Apache-2.0
  */
 
  #include "../app.overlay"
+
+ /delete-node/ &led1;
+ /delete-node/ &button1;
 
  /{
 	allocatable_ram {
@@ -27,6 +30,15 @@
 			perm-read;
 			perm-write;
 		};
+	};
+
+	chosen {
+		zephyr,sram = &cpuapp_ram0;
+	};
+
+	aliases {
+		/delete-property/ sw1;
+		/delete-property/ led1;
 	};
 
 	/* Configure PPR code region. Allow to execute from defined

@@ -3,11 +3,15 @@
 
 [gpio_own_5]
 PIN_1 = "Own"
-PIN_3 = "Own"
 
 [gpio_secure_5]
 PIN_1 = "NonSecure"
-PIN_3 = "NonSecure"
+
+[gpio_own_0]
+PIN_9 = "Own"
+
+[gpio_secure_0]
+PIN_9 = "NonSecure"
 
 [gpiote_ch_secure_0]
 CH_1 = "NonSecure"

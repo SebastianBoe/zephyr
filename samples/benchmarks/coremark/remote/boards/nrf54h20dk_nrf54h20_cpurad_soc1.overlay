@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ * SPDX-License-Identifier: Apache-2.0
  */
 
  / {
@@ -16,8 +16,8 @@
 	buttons {
 		compatible = "gpio-keys";
 		button1: button_1 {
-			gpios = < &gpio9 0x03 (GPIO_PULL_UP | GPIO_ACTIVE_LOW) >;
-			label = "Push button 2";
+			gpios = <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Push button 1";
 		};
 
 	};
@@ -29,6 +29,10 @@
 };
 
 &gpio9 {
+	status = "okay";
+};
+
+&gpio0 {
 	status = "okay";
 };
 
