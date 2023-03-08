@@ -848,7 +848,7 @@ class FpgaDeviceHandler(DeviceHandler):
         post_script = hardware.post_script
 
         if pre_script:
-            self.run_custom_script(pre_script, 30)
+            self.run_custom_script(pre_script, 60)
 
         # check family for nrfjprog
         if 'nrf54h' in hardware.platform:
