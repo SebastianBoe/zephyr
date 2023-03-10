@@ -33,8 +33,6 @@
 &uart135 {
     status = "okay";
     memory-regions = <&ram3x_cpuapp>;
-    tx-pin = <7>;
-    rx-pin = <6>;
 };
 
 &global_peripherals {
