@@ -6,12 +6,21 @@
 
 &spi130 {
 	status = "okay";
-	sck-pin = <32>;
-	miso-pin = <40>;
-	mosi-pin = <41>;
+	sck-pin = <0>;
+	miso-pin = <6>;
+	mosi-pin = <7>;
 	overrun-character = <0x00>;
 	memory-regions = <&ram3x_cpuapp>;
-	label = "SPI_130";
+	slow@0 {
+		compatible = "test-spi-loopback-slow";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_K(500)>;
+	};
+	fast@0 {
+		compatible = "test-spi-loopback-fast";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(8)>;
+	};
 };
 
 &gpio0 {
