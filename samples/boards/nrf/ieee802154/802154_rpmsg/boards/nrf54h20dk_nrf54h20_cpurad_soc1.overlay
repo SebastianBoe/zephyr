@@ -37,4 +37,8 @@
     status = "okay";
 };
 
+&systick {
+	status = "okay";
+};
+
 ipc0: &ipc_cpuapp { };
