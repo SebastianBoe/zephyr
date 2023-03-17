@@ -1,0 +1,47 @@
+&timer120 {
+	zli;
+};
+
+&timer121 {
+	zli;
+};
+
+&timer130 {
+	zli;
+};
+
+&timer131 {
+	zli;
+};
+
+&timer132 {
+	zli;
+};
+
+&timer133 {
+	zli;
+};
+
+&timer134 {
+	zli;
+};
+
+&timer135 {
+	zli;
+};
+
+&timer136 {
+	zli;
+};
+
+&timer137 {
+	zli;
+};
+
+&rtc130 {
+	zli;
+};
+
+&rtc131 {
+	zli;
+};
