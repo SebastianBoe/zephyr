@@ -4,17 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <ztest.h>
+#include <zephyr/ztest.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
+#if CONFIG_SOC_NRF54H20
 #include <internal/nrfs_backend.h>
 #include <internal/backends/nrfs_backend_ipc_service.h>
+#endif
 
 void test_temp_driver_test(void)
 {
+#if CONFIG_SOC_NRF54H20
 	nrfs_backend_wait_for_connection(K_FOREVER);
-
 	const struct device *temp_dev = DEVICE_DT_GET(DT_NODELABEL(temp_nrfs));
+#else
+ 	const struct device *temp_dev = DEVICE_DT_GET(DT_NODELABEL(temp));
+#endif
 
 	zassert_not_null(temp_dev, "Device object is NULL.");
 	zassert_true(device_is_ready(temp_dev), "Device is not ready.");
