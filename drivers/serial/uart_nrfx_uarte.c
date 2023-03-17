@@ -768,7 +768,7 @@ static int uarte_nrfx_tx(const struct device *dev, const uint8_t *buf,
 	data->async->tx_buf = buf;
 	nrfy_uarte_int_enable(uarte, NRF_UARTE_INT_TXSTOPPED_MASK);
 
-	if (nrf_dma_accesible_check(uarte, buf)) {
+	if (nrf_dma_accessible_check(uarte, buf)) {
 		data->async->xfer_buf = buf;
 		data->async->xfer_len = len;
 	} else {
