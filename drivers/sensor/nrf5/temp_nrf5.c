@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 ARM Ltd.
- * Copyright (c) 2019 Nordic Semiconductor ASA
+ * Copyright (c) 2019 - 2023 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -27,9 +27,12 @@ struct temp_nrf5_data {
 	struct k_sem device_sync_sem;
 	struct k_mutex mutex;
 	int32_t sample;
+#if !CONFIG_SOC_NRF54L15
 	struct onoff_manager *clk_mgr;
+#endif
 };
 
+#if !CONFIG_SOC_NRF54L15
 static void hfclk_on_callback(struct onoff_manager *mgr,
 			      struct onoff_client *cli,
 			      uint32_t state,
@@ -37,11 +40,14 @@ static void hfclk_on_callback(struct onoff_manager *mgr,
 {
 	nrf_temp_task_trigger(NRF_TEMP, NRF_TEMP_TASK_START);
 }
+#endif
 
 static int temp_nrf5_sample_fetch(const struct device *dev,
 				  enum sensor_channel chan)
 {
 	struct temp_nrf5_data *data = dev->data;
+
+#if !CONFIG_SOC_NRF54L15
 	struct onoff_client cli;
 	int r;
 
@@ -49,6 +55,7 @@ static int temp_nrf5_sample_fetch(const struct device *dev,
 	if (data->clk_mgr == NULL) {
 		return -EAGAIN;
 	}
+#endif
 
 	if (chan != SENSOR_CHAN_ALL && chan != SENSOR_CHAN_DIE_TEMP) {
 		return -ENOTSUP;
@@ -56,14 +63,20 @@ static int temp_nrf5_sample_fetch(const struct device *dev,
 
 	k_mutex_lock(&data->mutex, K_FOREVER);
 
+#if !CONFIG_SOC_NRF54L15
 	sys_notify_init_callback(&cli.notify, hfclk_on_callback);
 	r = onoff_request(data->clk_mgr, &cli);
 	__ASSERT_NO_MSG(r >= 0);
+#else
+	nrf_temp_task_trigger(NRF_TEMP, NRF_TEMP_TASK_START);
+#endif
 
 	k_sem_take(&data->device_sync_sem, K_FOREVER);
 
+#if !CONFIG_SOC_NRF54L15
 	r = onoff_release(data->clk_mgr);
 	__ASSERT_NO_MSG(r >= 0);
+#endif
 
 	data->sample = nrf_temp_result_get(NRF_TEMP);
 	LOG_DBG("sample: %d", data->sample);
@@ -113,10 +126,12 @@ static int temp_nrf5_init(const struct device *dev)
 {
 	struct temp_nrf5_data *data = dev->data;
 
+#if !CONFIG_SOC_NRF54L15
 	/* A null clk_mgr indicates sensor has not been initialized */
 	data->clk_mgr =
 		z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
 	__ASSERT_NO_MSG(data->clk_mgr);
+#endif
 
 	k_sem_init(&data->device_sync_sem, 0, K_SEM_MAX_LIMIT);
 	k_mutex_init(&data->mutex);
