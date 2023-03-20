@@ -3,16 +3,26 @@
 
 import argparse
 from pathlib import Path
+import pickle
 import re
 import sys
-from typing import Optional, List
+from typing import Optional, List, Dict, Tuple
 
-from runners.core import ZephyrBinaryRunner, RunnerCaps, RunnerConfig
+from devicetree import edtlib
+from runners.core import ZephyrBinaryRunner, RunnerCaps, RunnerConfig, BuildConfiguration
 
 
 _UICR_ADDR = {
     "CP_APPLICATION": 0x0FFF8000,
     "CP_NETWORK": 0x0FFFA000,
+}
+
+_DOM2COP = {
+    "application": "CP_APPLICATION",
+    "radiocore": "CP_NETWORK",
+    "ppr": "CP_APPLICATION",
+    "secure": "CP_SECURE",
+    "sysctrl": "CP_APPLICATION",
 }
 
 
@@ -23,20 +33,12 @@ class NrfJprog54ProgrammerBinaryRunner(ZephyrBinaryRunner):
         self,
         cfg: RunnerConfig,
         dev_id: Optional[str],
-        bicr: Optional[str],
-        secdom: Optional[str],
-        sysctrl: Optional[str],
-        radio: Optional[str],
-        ppr: Optional[str],
+        erase_storage: Optional[bool],
     ) -> None:
         super().__init__(cfg)
 
         self._dev_id = dev_id
-        self._bicr = Path(bicr) if bicr else None
-        self._secdom = Path(secdom) if secdom else None
-        self._sysctrl = Path(sysctrl) if sysctrl else None
-        self._radio = Path(radio) if radio else None
-        self._ppr = Path(ppr) if ppr else None
+        self._erase_storage = erase_storage
 
         self.require("nrfjprog")
         self._check_version()
@@ -51,11 +53,8 @@ class NrfJprog54ProgrammerBinaryRunner(ZephyrBinaryRunner):
 
     @classmethod
     def do_add_parser(cls, parser):
-        parser.add_argument("--bicr", help="Path to BICR")
-        parser.add_argument("--secdom", help="Path to secure domain image")
-        parser.add_argument("--sysctrl", help="Path to system controller image")
-        parser.add_argument("--radio", help="Path to radio core image")
-        parser.add_argument("--ppr", help="Path to PPR image")
+        parser.add_argument("--erase-storage", action="store_true",
+                            help="Erase storage partition/s")
 
     @classmethod
     def do_create(
@@ -64,81 +63,31 @@ class NrfJprog54ProgrammerBinaryRunner(ZephyrBinaryRunner):
         return NrfJprog54ProgrammerBinaryRunner(
             cfg,
             dev_id=args.dev_id,
-            bicr=args.bicr,
-            secdom=args.secdom,
-            sysctrl=args.sysctrl,
-            radio=args.radio,
-            ppr=args.ppr,
+            erase_storage=args.erase_storage,
         )
 
     def do_run(self, command: str, **kwargs):
         if command != "flash":
             raise RuntimeError(f"Unsupported command: {command}")
 
-        secdom = self._secdom or (
-            Path(self.cfg.build_dir)
-            / "secdom"
-            / "src"
-            / "secdom-build"
-            / "zephyr"
-            / "zephyr.hex"
-        )
-
-        sysctrl = self._sysctrl or (
-            Path(self.cfg.build_dir)
-            / "sysctrl"
-            / "src"
-            / "sysctrl-build"
-            / "zephyr"
-            / "uicr_merged.hex"
-        )
-
-        radio = (
-            self._radio
-            or Path(self.cfg.build_dir) / "hci_rpmsg" / "zephyr" / "uicr_merged.hex"
-        )
-
-        ppr = self._ppr or Path(self.cfg.build_dir) / "remote" / "zephyr" / "zephyr.hex"
-
-        app = Path(self.cfg.build_dir) / "zephyr" / "uicr_merged.hex"
-        if not app.exists():
-            raise FileNotFoundError(f"Application firmware image not found: {app}")
+        images, storage = self._discover()
 
         self.logger.info("Clearing UICRs")
         self._clear_uicr("CP_NETWORK")
         self._clear_uicr("CP_APPLICATION")
 
-        try:
-            if self.build_conf.get("CONFIG_SOC_DOMAIN_NAME") == "application":
-                self.logger.info("Programming application core")
-                self._program("CP_APPLICATION", app)
+        if self._erase_storage and storage:
+            self.logger.info("Erasing storage")
+            self._nrfjprog([
+                "--erasepage",
+                f"0x{storage[0]:08x}-0x{storage[1]:08x}"
+            ])
 
-                if radio.exists():
-                    self.logger.info("Programming radio core")
-                    self._program("CP_NETWORK", radio)
-            else:
-                self.logger.info("Programming radio core")
-                self._program("CP_NETWORK", app)
+        for domain, image in images.items():
+            self.logger.info(f"Programming {domain} image")
+            self._program(_DOM2COP[domain], image)
 
-            if ppr.exists():
-                self.logger.info("Programming PPR core")
-                # NOTE: s/CP_APPLICATION/CP_PPR once programmer is fixed
-                self._program("CP_APPLICATION", ppr)
-
-            if secdom.exists():
-                self.logger.info("Programming secure domain")
-                self._program("CP_SECURE", secdom)
-
-            if sysctrl.exists():
-                self.logger.info("Programming system controller")
-                # NOTE: s/CP_APPLICATION/CP_SYSCTRL once programmer is fixed
-                self._program("CP_APPLICATION", sysctrl)
-        finally:
-            if self._bicr:
-                self.logger.info("Programming BICR")
-                self._program("CP_APPLICATION", self._bicr)
-
-        self._reset()
+        self._nrfjprog(["--pinreset"])
 
     def _check_version(self) -> None:
         version = self.check_output(["nrfjprog", "--version"])
@@ -149,6 +98,32 @@ class NrfJprog54ProgrammerBinaryRunner(ZephyrBinaryRunner):
         if nrfjprog_v < (10, 21, 0) or m.group(4) not in ("internal", "haltium"):
             raise RuntimeError(f"Unsupported nrfjprog version: {version[0]}")
 
+    def _discover(self) -> Tuple[Dict[str, Path], Optional[Tuple[int, int]]]:
+        images = dict()
+        storage = None
+
+        for p in Path(self.cfg.build_dir).glob("**/zephyr/zephyr.hex"):
+            domain = BuildConfiguration(p.parents[1]).get("CONFIG_SOC_DOMAIN_NAME")
+
+            with open(p.parent / "edt.pickle", "rb") as f:
+                edt = pickle.load(f)
+
+            s = edt.label2node.get("storage_partition")
+            if s:
+                start = s.parent.parent.regs[0].addr | s.regs[0].addr
+                size = s.regs[0].size
+                storage = (start, start + size)
+
+            merged_image = p.parent / "uicr_merged.hex"
+            if merged_image.exists():
+                image = merged_image
+            else:
+                image = p
+
+            images[domain] = image
+
+        return images, storage
+
     def _nrfjprog(self, args: List[str]) -> None:
         cmd = ["nrfjprog", "-f", "nrf54h"]
         if self._dev_id:
@@ -157,15 +132,12 @@ class NrfJprog54ProgrammerBinaryRunner(ZephyrBinaryRunner):
 
         self.check_call(cmd)
 
-    def _reset(self) -> None:
-        self._nrfjprog(["--pinreset"])
-
     def _clear_uicr(self, coprocessor: str) -> None:
         cmd = [
             "--coprocessor",
             coprocessor,
             "--erasepage",
-            f"{_UICR_ADDR[coprocessor]}",
+            f"0x{_UICR_ADDR[coprocessor]:08x}",
         ]
 
         self._nrfjprog(cmd)
