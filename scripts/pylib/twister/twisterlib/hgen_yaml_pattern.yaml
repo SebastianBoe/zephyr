@@ -1,0 +1,118 @@
+normalboot: false
+sysctrl:
+    firmware: zephyr.hex
+    targetmemory: mram
+    memoffset: 0
+    startpc: 503595008
+    autostart: true
+    loadfirmware: true
+app:
+    firmware: zephyr.elf
+    startpc: 504012800
+    autostart: false
+    clk: 320000000
+secure:
+    firmware: zephyr.elf
+    startpc: 503328768
+    autostart: false
+    clk: 320000000
+wifi0:
+    firmware: zephyr.hex
+    targetmemory: wifiram0
+    memoffset: 0
+    startpc: 587202560
+    autostart: false
+    loadfirmware: false
+wifi1:
+    firmware: zephyr.hex
+    targetmemory: wifiram1
+    memoffset: 0
+    startpc: 587268096
+    autostart: false
+    loadfirmware: false
+flpr:
+    firmware: zephyr.hex
+    targetmemory: ram21
+    memoffset: 0
+    startpc: 797507584
+    autostart: false
+    loadfirmware: false
+ppr:
+    firmware: zephyr.hex
+    targetmemory: ram30
+    memoffset: 0
+    startpc: 801112064
+    autostart: false
+    loadfirmware: false
+ficr:
+    firmware: ./generator/icr/ficr.vmem32
+    targetmemory: mram
+    memoffset: 57344
+    startpc: 268427264
+    autostart: false
+    loadfirmware: false
+uicr:
+    firmware: ./generator/icr/uicr.vmem32
+    targetmemory: mram
+    memoffset: 32768
+    startpc: 268402688
+    autostart: false
+    loadfirmware: false
+uoicr:
+    firmware: ./generator/icr/uoicr.vmem32
+    targetmemory: otp
+    memoffset: 0
+    startpc: 797179904
+    autostart: false
+    loadfirmware: false
+UARTE:
+    0:
+        write_to_console: false
+        file: uarte_130.txt
+        write_to_file: false
+        port: 6130
+        host: localhost
+        write_to_socket: false
+    1:
+        write_to_console: false
+        file: uarte_131.txt
+        write_to_file: false
+        port: 6131
+        host: localhost
+        write_to_socket: false
+    2:
+        write_to_console: false
+        file: uarte_132.txt
+        write_to_file: false
+        port: 6132
+        host: localhost
+        write_to_socket: false
+    3:
+        write_to_console: false
+        file: uarte_133.txt
+        write_to_file: false
+        port: 6133
+        host: localhost
+        write_to_socket: false
+    4:
+        write_to_console: false
+        file: uarte_134.txt
+        write_to_file: false
+        port: 6134
+        host: localhost
+        write_to_socket: false
+    5:
+        write_to_console: true
+        file: uarte_135.txt
+        write_to_file: false
+        port: 7135
+        host: localhost
+        write_to_socket: false
+    6:
+        write_to_console: true
+        file: uarte_136.txt
+        write_to_file: false
+        port: 7136
+        host: localhost
+        write_to_socket: false
+

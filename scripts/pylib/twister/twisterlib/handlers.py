@@ -19,8 +19,12 @@ import select
 import shutil
 import re
 import psutil
+import yaml
+from typing import List
+from pathlib import Path
 from twisterlib.environment import ZEPHYR_BASE
 from twisterlib.error import TwisterException
+from twisterlib.harness import Console
 sys.path.insert(0, os.path.join(ZEPHYR_BASE, "scripts/pylib/build_helpers"))
 from domains import Domains
 
@@ -991,7 +995,6 @@ class FpgaDeviceHandler(DeviceHandler):
             self.make_device_available(serial_device)
 
 class SystemcHandler(Handler):
-
     def __init__(self, instance, type_str):
         """Constructor
         @param instance Test Instance
@@ -999,6 +1002,88 @@ class SystemcHandler(Handler):
         super().__init__(instance, type_str)
         self.call_west_flash = False
         self.timeout = math.ceil(self.timeout * 2.0)
+
+    def _set_haltium_tlm_yaml_configuration_file(self):
+        """
+        Haltium TLM uses different yaml format than Moonlight
+        """
+
+        with open(self.yaml_file, "r+", encoding="utf-8") as yaml_stream:
+            yaml_content = yaml.load(yaml_stream, Loader=yaml.FullLoader)
+            yaml_stream.truncate(0)
+            yaml_stream.seek(0)
+            yaml_content["sysctrl"]["firmware"] = f"{self.build_dir}/zephyr/zephyr.hex"
+            yaml_content["sysctrl"]["startpc"] = 0x1E044000
+            yaml_content["sysctrl"]["autostart"] = True
+            yaml_content["sysctrl"]["loadfirmware"] = True
+            yaml.dump(yaml_content, yaml_stream, sort_keys=False, indent=4)
+
+    def _get_simulator_command(self, platform_name: str) -> List[str]:
+        """
+        Get HGEN/MOONLIGHT-TLM command
+        """
+        command: List[str] = []
+        if "nrf54l15_cpuapp" in platform_name:
+            command = ["moonlight-tlm"] + ["-c"] + [str(self.yaml_file)]  # + ["-L1"]
+        elif "nrf54h20_cpusys" in platform_name:
+            hgen_executable = str(Path(os.getenv("WORKSPACE")) / "hgen" / "hgen")
+            command = [hgen_executable] + ["-c"] + [str(self.yaml_file)]  # + ["-L1"]
+
+        else:
+            raise ValueError(f"Platform not supported: {platform_name}")
+
+        return command
+
+    def _copy_simluation_config_files(self, source_directory: Path, working_directory: Path):
+        """
+        Copy required simulation files
+        """
+        for file_name in os.listdir(source_directory):
+            if "yaml" in file_name or "txt" in file_name or "cfg" in file_name:
+                src_file_path = os.path.join(source_directory, file_name)
+                dst_file_path = Path(working_directory) / file_name
+                if os.path.exists(dst_file_path):
+                    os.remove(dst_file_path)
+                shutil.copyfile(src_file_path, dst_file_path)
+
+    def _setup_simluator_and_get_workdir(self, platform_name: str) -> Path:
+        """
+        Monlight-tlm and Haltium-tlm requires different handling
+        :return: working directory
+        """
+        if "nrf54h20_cpusys" in platform_name:
+            # Lilium - Haltium-tlm
+            working_directory = Path(os.getenv("WORKSPACE")) / "hgen"
+            self.yaml_file = (
+                Path(os.getenv("PWD"))
+                / "zephyr"
+                / "scripts"
+                / "pylib"
+                / "twister"
+                / "twisterlib"
+                / "hgen_yaml_pattern.yaml"
+            )
+            self._set_haltium_tlm_yaml_configuration_file()
+            self._copy_simluation_config_files(working_directory, working_directory.parent)
+            os.environ["LD_LIBRARY_PATH"] = f"{working_directory}"
+        elif "nrf54l15_cpuapp" in platform_name:
+            # Moonlight - Moonlight-tlm
+            working_directory = self.build_dir
+            self.yaml_file = Path(self.build_dir) / "test.yaml"
+
+            # do not change (original code)
+            for file in os.listdir(os.environ['WORKSPACE']):
+                if file.endswith('txt') or file.endswith('yaml') or file.endswith('cfg'):
+                    shutil.copyfile(f"{os.environ['WORKSPACE']}/{file}", f"{self.build_dir}/{file}")
+
+            self.yaml_file = self.build_dir + '/test.yaml'
+            with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
+                f.write(f"normalboot 0\ncpu:\napp:\nhex: {self.build_dir}/zephyr/zephyr.elf\ntargetmemory: rramc\nmemoffset: 0x0\nstartpc: 0x10000000\nautostart: yes\nloadhex: yes\nclk: 192000000\n")
+            os.symlink(os.environ['WORKSPACE'] + "/libs", self.build_dir + "/libs")
+        else:
+            raise ValueError(f"Platform not supported: {platform_name}")
+
+        return working_directory
 
     def try_kill_process_by_pid(self):
         if self.pid_fn:
@@ -1013,7 +1098,7 @@ class SystemcHandler(Handler):
     def _output_reader(self, proc):
         self.line = proc.stdout.readline()
 
-    def _output_handler(self, proc, harness):
+    def _output_handler(self, proc: subprocess.Popen, harness: Console):
         if harness.is_pytest:
             harness.handle(None)
             return
@@ -1031,10 +1116,12 @@ class SystemcHandler(Handler):
             if not reader_t.is_alive():
                 if self.line != b"":
                     line = self.line
-                    logger.debug("OUTPUT: {0}".format(line.decode('utf-8', errors="ignore").rstrip()))
-                    log_out_fp.write(line.decode('utf-8', errors="ignore"))
+                    logger.debug(
+                        "OUTPUT: {0}".format(line.decode("utf-8", errors="ignore").rstrip())
+                    )
+                    log_out_fp.write(line.decode("utf-8", errors="ignore"))
                     log_out_fp.flush()
-                    harness.handle(line.decode('utf-8', errors="ignore").rstrip())
+                    harness.handle(line.decode("utf-8", errors="ignore").rstrip())
                     if harness.state:
                         if not timeout_extended or harness.capture_coverage:
                             timeout_extended = True
@@ -1055,40 +1142,36 @@ class SystemcHandler(Handler):
         log_out_fp.close()
 
     def handle(self):
-
         harness_name = self.instance.testsuite.harness.capitalize()
         harness_import = HarnessImporter(harness_name)
         harness = harness_import.instance
         harness.configure(self.instance)
 
-        env = os.environ.copy()
+        working_directory = self._setup_simluator_and_get_workdir(self.instance.platform.name)
+        command = self._get_simulator_command(self.instance.platform.name)
 
-        for file in os.listdir(env['WORKSPACE']):
-            if file.endswith('txt') or file.endswith('yaml') or file.endswith('cfg'):
-                shutil.copyfile(f"{env['WORKSPACE']}/{file}", f"{self.build_dir}/{file}")
-
-        self.yaml_file = self.build_dir + '/test.yaml'
-        os.symlink(env['WORKSPACE']+"/libs", self.build_dir + "/libs")
-
-        if 'nrf54l15_cpuapp' in self.instance.platform.name:
-            command = ['moonlight-tlm'] + ['-c'] + [self.yaml_file]
-            with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
-                f.write(f"normalboot 0\ncpu:\napp:\nhex: {self.build_dir}/zephyr/zephyr.elf\ntargetmemory: rramc\nmemoffset: 0x0\nstartpc: 0x10000000\nautostart: yes\nloadhex: yes\nclk: 192000000\n")
-        elif 'nrf54h20_cpusys' in self.instance.platform.name:
-            command = ['hgen'] + ['-c'] + [self.yaml_file]
-            with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
-                f.write(f"normalboot 0\ncpu:\nsysctrl:\nhex: {self.build_dir}/zephyr/zephyr.hex\ntargetmemory: mram\nmemoffset: 0x0\nstartpc: 0x1E044000\nautostart: yes\nloadhex: yes\n")
-
-        logger.info("Spawning process: " +
-                     " ".join(shlex.quote(word) for word in command) + os.linesep +
-                     "in directory: " + self.build_dir)
+        logger.info(
+            "Spawning process: "
+            + " ".join(shlex.quote(word) for word in command)
+            + os.linesep
+            + "in directory: "
+            + self.build_dir
+        )
 
         start_time = time.time()
 
-        with subprocess.Popen(command, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE, cwd=self.build_dir, env=env) as proc:
-            logger.debug("Spawning SystemC Handler Thread for %s" % self.name)
-            t = threading.Thread(target=self._output_handler, args=(proc, harness,), daemon=True)
+        with subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_directory, env=os.environ.copy()
+        ) as proc:
+            logger.debug(f"Spawning SystemC Handler Thread for {self.name}")
+            t = threading.Thread(
+                target=self._output_handler,
+                args=(
+                    proc,
+                    harness,
+                ),
+                daemon=True,
+            )
             t.start()
             t.join()
             if t.is_alive():
@@ -1404,3 +1487,4 @@ class QEMUHandler(Handler):
 
     def get_fifo(self):
         return self.fifo_fn
+
