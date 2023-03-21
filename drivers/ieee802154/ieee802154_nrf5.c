@@ -25,7 +25,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <zephyr/debug/stack.h>
 
 #include <soc.h>
-#if !defined(CONFIG_BOARD_NRF54H20DK_NRF54H20_CPUAPP)
+#if !defined(CONFIG_SOC_NRF54H20)
 #include <soc_secure.h>
 #endif
 #include <zephyr/device.h>
@@ -115,7 +115,7 @@ static void nrf5_get_eui64(uint8_t *mac)
 {
 	uint64_t factoryAddress = {0};
 	uint32_t index = 0;
-#if !defined(CONFIG_BOARD_NRF54H20DK_NRF54H20_CPUAPP)
+#if !defined(CONFIG_SOC_NRF54H20)
 #if !defined(CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE)
 	uint32_t deviceid[2];
 
