@@ -51,6 +51,10 @@
 	};
 };
 
+&button0 {
+	label = "Push button 1";
+};
+
 &mram0 {
 	/* Expand to include PPR */
 	reg = <0x1e0aa000 DT_SIZE_K(576)>;

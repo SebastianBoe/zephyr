@@ -9,7 +9,6 @@
 		compatible = "gpio-leds";
 		led1: led_1 {
 			gpios = < &gpio9 0x01 GPIO_ACTIVE_HIGH >;
-			label = "Green LED 1";
 		};
 	};
 
@@ -17,7 +16,7 @@
 		compatible = "gpio-keys";
 		button1: button_1 {
 			gpios = <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-			label = "Push button 1";
+			label = "Push button 2";
 		};
 
 	};
