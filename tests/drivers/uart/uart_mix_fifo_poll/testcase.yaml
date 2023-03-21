@@ -21,6 +21,7 @@ tests:
       - CONFIG_UART_0_ENHANCED_POLL_OUT=n
 
   drivers.uart.uart_mix_poll_async_api:
+    filter: CONFIG_SERIAL_SUPPORT_ASYNC
     extra_configs:
       - CONFIG_UART_ASYNC_API=y
       - CONFIG_UART_0_INTERRUPT_DRIVEN=n
@@ -30,6 +31,7 @@ tests:
       - CONFIG_UART_0_ENHANCED_POLL_OUT=n
 
   drivers.uart.uart_mix_poll_async_api_const:
+    filter: CONFIG_SERIAL_SUPPORT_ASYNC
     extra_args: TEST_CONST_BUFFER=1
     extra_configs:
       - CONFIG_UART_ASYNC_API=y
@@ -41,6 +43,7 @@ tests:
       - CONFIG_UART_ASYNC_TX_CACHE_SIZE=2
 
   drivers.uart.uart_mix_poll_async_api_low_power:
+    filter: CONFIG_SERIAL_SUPPORT_ASYNC
     extra_configs:
       - CONFIG_UART_ASYNC_API=y
       - CONFIG_UART_0_INTERRUPT_DRIVEN=n
@@ -63,6 +66,7 @@ tests:
       - CONFIG_UART_0_ENHANCED_POLL_OUT=y
 
   drivers.uart.uart_mix_poll_async_api_with_ppi:
+    filter: CONFIG_SERIAL_SUPPORT_ASYNC
     extra_configs:
       - CONFIG_UART_ASYNC_API=y
       - CONFIG_UART_0_INTERRUPT_DRIVEN=n
@@ -72,6 +76,7 @@ tests:
       - CONFIG_UART_0_ENHANCED_POLL_OUT=y
 
   drivers.uart.uart_mix_poll_async_api_with_ppi_low_power:
+    filter: CONFIG_SERIAL_SUPPORT_ASYNC
     extra_configs:
       - CONFIG_UART_ASYNC_API=y
       - CONFIG_UART_0_INTERRUPT_DRIVEN=n
