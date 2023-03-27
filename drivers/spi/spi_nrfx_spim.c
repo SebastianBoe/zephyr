@@ -66,9 +66,10 @@ static inline uint32_t get_nrf_spim_frequency(uint32_t frequency)
 {
 	/* Get the highest supported frequency not exceeding the requested one.
 	 */
-	if (frequency >= MHZ(32) && NRF_SPIM_HAS_32_MHZ_FREQ) {
+	if ((frequency >= MHZ(32)) && ((NRF_SPIM_HAS_32_MHZ_FREQ) || (NRF_SPIM_HAS_PRESCALER))) {
 		return MHZ(32);
-	} else if (frequency >= MHZ(16) && NRF_SPIM_HAS_16_MHZ_FREQ) {
+	} else if ((frequency >= MHZ(16)) &&
+		   ((NRF_SPIM_HAS_16_MHZ_FREQ) || (NRF_SPIM_HAS_PRESCALER))) {
 		return MHZ(16);
 	} else if (frequency >= MHZ(8)) {
 		return MHZ(8);
@@ -652,6 +653,26 @@ SPI_NRFX_SPIM_DEFINE(3);
 
 #ifdef CONFIG_SPI_4_NRF_SPIM
 SPI_NRFX_SPIM_DEFINE(4);
+#endif
+
+#ifdef CONFIG_SPI_00_NRF_SPIM
+SPI_NRFX_SPIM_DEFINE(00);
+#endif
+
+#ifdef CONFIG_SPI_20_NRF_SPIM
+SPI_NRFX_SPIM_DEFINE(20);
+#endif
+
+#ifdef CONFIG_SPI_21_NRF_SPIM
+SPI_NRFX_SPIM_DEFINE(21);
+#endif
+
+#ifdef CONFIG_SPI_22_NRF_SPIM
+SPI_NRFX_SPIM_DEFINE(22);
+#endif
+
+#ifdef CONFIG_SPI_30_NRF_SPIM
+SPI_NRFX_SPIM_DEFINE(30);
 #endif
 
 #ifdef CONFIG_SPI_120_NRF_SPIM
