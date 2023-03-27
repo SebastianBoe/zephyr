@@ -135,6 +135,36 @@ config SPI_4_NRF_RX_DELAY
 	  edge of SCK (leading or trailing, depending on the CPHA setting used)
 	  until the input serial data on MISO is actually sampled.
 
+config SPI_00_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM00
+	select NRFX_SPIM00
+	help
+	  Enable nRF SPI Master with EasyDMA on port 00.
+
+config SPI_20_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM20
+	select NRFX_SPIM20
+	help
+	  Enable nRF SPI Master with EasyDMA on port 20.
+
+config SPI_21_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM21
+	select NRFX_SPIM21
+	help
+	  Enable nRF SPI Master with EasyDMA on port 21.
+
+config SPI_22_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM22
+	select NRFX_SPIM22
+	help
+	  Enable nRF SPI Master with EasyDMA on port 22.
+
+config SPI_30_NRF_SPIM
+	def_bool HAS_HW_NRF_SPIM30
+	select NRFX_SPIM30
+	help
+	  Enable nRF SPI Master with EasyDMA on port 30.
+
 config SPI_120_NRF_SPIM
 	def_bool HAS_HW_NRF_SPIM120
 	select NRFX_SPIM120

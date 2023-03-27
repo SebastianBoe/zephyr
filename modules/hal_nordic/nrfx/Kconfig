@@ -276,6 +276,31 @@ config NRFX_SPIM4
 	depends on $(dt_nodelabel_has_compat,spi4,$(DT_COMPAT_NORDIC_NRF_SPIM))
 	select NRFX_SPIM
 
+config NRFX_SPIM00
+	bool "SPIM00 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi00,$(DT_COMPAT_NORDIC_NRF_SPIM))
+	select NRFX_SPIM
+
+config NRFX_SPIM20
+	bool "SPIM20 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi20,$(DT_COMPAT_NORDIC_NRF_SPIM))
+	select NRFX_SPIM
+
+config NRFX_SPIM21
+	bool "SPIM21 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi21,$(DT_COMPAT_NORDIC_NRF_SPIM))
+	select NRFX_SPIM
+
+config NRFX_SPIM22
+	bool "SPIM22 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi22,$(DT_COMPAT_NORDIC_NRF_SPIM))
+	select NRFX_SPIM
+
+config NRFX_SPIM30
+	bool "SPIM30 driver instance"
+	depends on $(dt_nodelabel_has_compat,spi30,$(DT_COMPAT_NORDIC_NRF_SPIM))
+	select NRFX_SPIM
+
 config NRFX_SPIM120
 	bool "SPIM120 driver instance"
 	depends on $(dt_nodelabel_has_compat,spi120,$(DT_COMPAT_NORDIC_NRF_SPIM))

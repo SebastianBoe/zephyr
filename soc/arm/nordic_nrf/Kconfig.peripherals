@@ -209,6 +209,21 @@ config HAS_HW_NRF_SPIM3
 config HAS_HW_NRF_SPIM4
 	def_bool $(dt_nodelabel_enabled_with_compat,spi4,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
+config HAS_HW_NRF_SPIM00
+	def_bool $(dt_nodelabel_enabled_with_compat,spi00,$(DT_COMPAT_NORDIC_NRF_SPIM))
+
+config HAS_HW_NRF_SPIM20
+	def_bool $(dt_nodelabel_enabled_with_compat,spi20,$(DT_COMPAT_NORDIC_NRF_SPIM))
+
+config HAS_HW_NRF_SPIM21
+	def_bool $(dt_nodelabel_enabled_with_compat,spi21,$(DT_COMPAT_NORDIC_NRF_SPIM))
+
+config HAS_HW_NRF_SPIM22
+	def_bool $(dt_nodelabel_enabled_with_compat,spi22,$(DT_COMPAT_NORDIC_NRF_SPIM))
+
+config HAS_HW_NRF_SPIM30
+	def_bool $(dt_nodelabel_enabled_with_compat,spi30,$(DT_COMPAT_NORDIC_NRF_SPIM))
+
 config HAS_HW_NRF_SPIM120
 	def_bool $(dt_nodelabel_enabled_with_compat,spi120,$(DT_COMPAT_NORDIC_NRF_SPIM))
 
