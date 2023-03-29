@@ -32,7 +32,8 @@ BUILD_ASSERT(((NRF_DRIVE_S0S1 == NRF_GPIO_PIN_S0S1) &&
 
 #if DT_HAS_COMPAT_STATUS_OKAY(nordic_nrf_uart)
 #define NRF_PSEL_UART(reg, line) ((NRF_UART_Type *)reg)->PSEL##line
-#elif DT_HAS_COMPAT_STATUS_OKAY(nordic_nrf_uarte)
+#elif DT_HAS_COMPAT_STATUS_OKAY(nordic_nrf_uarte) || \
+	DT_HAS_COMPAT_STATUS_OKAY(nordic_nrf_uarte_v2)
 #define NRF_PSEL_UART(reg, line) ((NRF_UARTE_Type *)reg)->PSEL.line
 #endif
 
