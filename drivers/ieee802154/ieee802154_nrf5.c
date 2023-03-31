@@ -25,7 +25,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <zephyr/debug/stack.h>
 
 #include <soc.h>
-#if !defined(CONFIG_SOC_NRF54H20)
+#if !defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_SOC_NRF54L15)
 #include <soc_secure.h>
 #endif
 #include <zephyr/device.h>
@@ -79,7 +79,7 @@ static struct nrf5_802154_data nrf5_data;
 #else
 #if defined(CONFIG_SOC_NRF5340_CPUAPP) || defined(CONFIG_SOC_NRF5340_CPUNET)
 #define EUI64_ADDR (NRF_FICR->INFO.DEVICEID)
-#elif defined(CONFIG_SOC_NRF54H20_CPUAPP) || defined(CONFIG_SOC_NRF54H20_CPURAD)
+#elif defined(CONFIG_SOC_NRF54H20_CPUAPP) || defined(CONFIG_SOC_NRF54H20_CPURAD) || defined(CONFIG_SOC_NRF54L15)
 /* TODO: Replace with the DEVICE ID value on nRF54. This value is not available
  * in the current FICR structuretype definition.
  */
@@ -115,7 +115,7 @@ static void nrf5_get_eui64(uint8_t *mac)
 {
 	uint64_t factoryAddress = {0};
 	uint32_t index = 0;
-#if !defined(CONFIG_SOC_NRF54H20)
+#if !defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_SOC_NRF54L15)
 #if !defined(CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE)
 	uint32_t deviceid[2];
 
