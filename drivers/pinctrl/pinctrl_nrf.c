@@ -90,6 +90,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 		uint32_t write = NO_WRITE;
 		nrf_gpio_pin_dir_t dir;
 		nrf_gpio_pin_input_t input;
+#if NRF_GPIO_HAS_CLOCKPIN
+		bool clockpin = false;
+#endif
 
 		if (pin == NRF_PIN_DISCONNECTED) {
 			pin = 0xFFFFFFFFU;
@@ -113,6 +116,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			write = 1U;
 			dir = NRF_GPIO_PIN_DIR_OUTPUT;
 			input = NRF_GPIO_PIN_INPUT_DISCONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_UART_CTS:
 			NRF_PSEL_UART(reg, CTS) = pin;
@@ -126,6 +132,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			write = 0U;
 			dir = NRF_GPIO_PIN_DIR_OUTPUT;
 			input = NRF_GPIO_PIN_INPUT_CONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_SPIM_MOSI:
 			NRF_PSEL_SPIM(reg, MOSI) = pin;
@@ -144,6 +153,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			NRF_PSEL_SPIS(reg, SCK) = pin;
 			dir = NRF_GPIO_PIN_DIR_INPUT;
 			input = NRF_GPIO_PIN_INPUT_CONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_SPIS_MOSI:
 			NRF_PSEL_SPIS(reg, MOSI) = pin;
@@ -175,6 +187,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			}
 			dir = NRF_GPIO_PIN_DIR_INPUT;
 			input = NRF_GPIO_PIN_INPUT_CONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_TWIM_SDA:
 			NRF_PSEL_TWIM(reg, SDA) = pin;
@@ -333,6 +348,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 
 			nrf_gpio_cfg(pin, dir, input, NRF_GET_PULL(pins[i]),
 				     drive, NRF_GPIO_PIN_NOSENSE);
+#if NRF_GPIO_HAS_CLOCKPIN
+			nrf_gpio_pin_clock_set(pin, clockpin);
+#endif
 		}
 	}
 
