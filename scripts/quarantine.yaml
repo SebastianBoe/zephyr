@@ -131,6 +131,12 @@
   platforms:
     - nrf52840dk_nrf52840
 
+- scenarios:
+    - testing.ztest.ztress
+  platforms:
+    - qemu_riscv32
+  comment: "https://projecttools.nordicsemi.no/jira/browse/NRFX-3586"
+
 # Already reported, but will not be fixed (look at the discussion):
 # https://github.com/zephyrproject-rtos/zephyr/issues/44947
 - scenarios:
