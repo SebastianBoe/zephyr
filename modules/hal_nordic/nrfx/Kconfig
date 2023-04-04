@@ -559,6 +559,11 @@ config NRFX_TWIM3
 	depends on $(dt_nodelabel_has_compat,i2c3,$(DT_COMPAT_NORDIC_NRF_TWIM))
 	select NRFX_TWIM
 
+config NRFX_TWIM120
+	bool "TWIM120 driver instance"
+	depends on $(dt_nodelabel_has_compat,i2c120,$(DT_COMPAT_NORDIC_NRF_TWIM))
+	select NRFX_TWIM
+
 config NRFX_TWIS
 	bool
 

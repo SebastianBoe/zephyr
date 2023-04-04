@@ -350,6 +350,9 @@ config HAS_HW_NRF_TWIM2
 config HAS_HW_NRF_TWIM3
 	def_bool $(dt_nodelabel_enabled_with_compat,i2c3,$(DT_COMPAT_NORDIC_NRF_TWIM))
 
+config HAS_HW_NRF_TWIM120
+	def_bool $(dt_nodelabel_enabled_with_compat,i2c120,$(DT_COMPAT_NORDIC_NRF_TWIM))
+
 config HAS_HW_NRF_TWIS0
 	def_bool $(dt_nodelabel_enabled_with_compat,i2c0,$(DT_COMPAT_NORDIC_NRF_TWIS))
 
