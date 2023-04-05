@@ -1,0 +1,24 @@
+normalboot: false
+app:
+    firmware: zephyr.elf
+    targetmemory: rramc
+    startpc: 268435456
+    autostart: true
+    clk: 192000000
+flpr:
+    firmware: vpr.hex
+    targetmemory: ram
+    memoffset: 0
+    startpc: 805339136
+    autostart: false
+    loadfirmware: false
+UARTE:
+    0:
+        write_to_console: true
+        in_filename: uarte_default.txt
+        out_filename: uarte_default.txt
+        write_to_file: false
+        port: 0
+        host: localhost
+        write_to_socket: false
+        toggle_pins: true

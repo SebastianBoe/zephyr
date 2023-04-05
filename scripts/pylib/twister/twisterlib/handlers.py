@@ -1003,11 +1003,10 @@ class SystemcHandler(Handler):
         self.call_west_flash = False
         self.timeout = math.ceil(self.timeout * 2.0)
 
-    def _set_haltium_tlm_yaml_configuration_file(self):
+    def _set_hgen_yaml_configuration_file(self):
         """
-        Haltium TLM uses different yaml format than Moonlight
+        Prepare hgen yaml configuration file
         """
-
         with open(self.yaml_file, "r+", encoding="utf-8") as yaml_stream:
             yaml_content = yaml.load(yaml_stream, Loader=yaml.FullLoader)
             yaml_stream.truncate(0)
@@ -1018,20 +1017,30 @@ class SystemcHandler(Handler):
             yaml_content["sysctrl"]["loadfirmware"] = True
             yaml.dump(yaml_content, yaml_stream, sort_keys=False, indent=4)
 
+    def _set_mgen_yaml_configuration_file(self):
+        """
+        Prepare mgen yaml configuration file
+        """
+        with open(self.yaml_file, "r+", encoding="utf-8") as yaml_stream:
+            yaml_content = yaml.load(yaml_stream, Loader=yaml.FullLoader)
+            yaml_stream.truncate(0)
+            yaml_stream.seek(0)
+            yaml_content["app"]["firmware"] = f"{self.build_dir}/zephyr/zephyr.elf"
+            yaml_content["app"]["startpc"] = 0x10000000
+            yaml_content["app"]["autostart"] = True
+            yaml_content["app"]["clk"] = 192000000
+            yaml.dump(yaml_content, yaml_stream, sort_keys=False, indent=4)
+
     def _get_simulator_command(self, platform_name: str) -> List[str]:
         """
         Get HGEN/MOONLIGHT-TLM command
         """
         command: List[str] = []
         if "nrf54l15_cpuapp" in platform_name:
-            command = ["moonlight-tlm"] + ["-c"] + [str(self.yaml_file)]  # + ["-L1"]
+            executable = str(Path(os.getenv("WORKSPACE")) / "mgen" / "mgen")
         elif "nrf54h20_cpusys" in platform_name:
-            hgen_executable = str(Path(os.getenv("WORKSPACE")) / "hgen" / "hgen")
-            command = [hgen_executable] + ["-c"] + [str(self.yaml_file)]  # + ["-L1"]
-
-        else:
-            raise ValueError(f"Platform not supported: {platform_name}")
-
+            executable = str(Path(os.getenv("WORKSPACE")) / "hgen" / "hgen")
+        command = [executable] + ["-c"] + [str(self.yaml_file)]
         return command
 
     def _copy_simluation_config_files(self, source_directory: Path, working_directory: Path):
@@ -1048,11 +1057,10 @@ class SystemcHandler(Handler):
 
     def _setup_simluator_and_get_workdir(self, platform_name: str) -> Path:
         """
-        Monlight-tlm and Haltium-tlm requires different handling
+        Hgen and Mgen requires different handling
         :return: working directory
         """
         if "nrf54h20_cpusys" in platform_name:
-            # Lilium - Haltium-tlm
             working_directory = Path(os.getenv("WORKSPACE")) / "hgen"
             self.yaml_file = (
                 Path(os.getenv("PWD"))
@@ -1063,26 +1071,24 @@ class SystemcHandler(Handler):
                 / "twisterlib"
                 / "hgen_yaml_pattern.yaml"
             )
-            self._set_haltium_tlm_yaml_configuration_file()
+            self._set_hgen_yaml_configuration_file()
             self._copy_simluation_config_files(working_directory, working_directory.parent)
             os.environ["LD_LIBRARY_PATH"] = f"{working_directory}"
         elif "nrf54l15_cpuapp" in platform_name:
-            # Moonlight - Moonlight-tlm
-            working_directory = self.build_dir
-            self.yaml_file = Path(self.build_dir) / "test.yaml"
-
-            # do not change (original code)
-            for file in os.listdir(os.environ['WORKSPACE']):
-                if file.endswith('txt') or file.endswith('yaml') or file.endswith('cfg'):
-                    shutil.copyfile(f"{os.environ['WORKSPACE']}/{file}", f"{self.build_dir}/{file}")
-
-            self.yaml_file = self.build_dir + '/test.yaml'
-            with open(self.yaml_file, 'w', encoding = 'utf-8') as f:
-                f.write(f"normalboot 0\ncpu:\napp:\nhex: {self.build_dir}/zephyr/zephyr.elf\ntargetmemory: rramc\nmemoffset: 0x0\nstartpc: 0x10000000\nautostart: yes\nloadhex: yes\nclk: 192000000\n")
-            os.symlink(os.environ['WORKSPACE'] + "/libs", self.build_dir + "/libs")
+            working_directory = Path(os.getenv("WORKSPACE")) / "mgen"
+            self.yaml_file = (
+                Path(os.getenv("PWD"))
+                / "zephyr"
+                / "scripts"
+                / "pylib"
+                / "twister"
+                / "twisterlib"
+                / "mgen_yaml_pattern.yaml"
+            )
+            self._set_mgen_yaml_configuration_file()
+            os.environ["LD_LIBRARY_PATH"] = f"{working_directory}"
         else:
             raise ValueError(f"Platform not supported: {platform_name}")
-
         return working_directory
 
     def try_kill_process_by_pid(self):
@@ -1159,7 +1165,6 @@ class SystemcHandler(Handler):
         )
 
         start_time = time.time()
-
         with subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_directory, env=os.environ.copy()
         ) as proc:
@@ -1487,4 +1492,3 @@ class QEMUHandler(Handler):
 
     def get_fifo(self):
         return self.fifo_fn
-
