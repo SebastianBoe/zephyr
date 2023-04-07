@@ -140,7 +140,7 @@ static int qdec_nrfx_trigger_set(const struct device *dev,
 static void qdec_nrfx_event_handler(nrfx_qdec_event_t event)
 {
 	sensor_trigger_handler_t handler;
-	const struct sensor_trigger *trig;
+	const struct sensor_trigger *trig,
 	unsigned int key;
 
 	switch (event.type) {
@@ -149,15 +149,11 @@ static void qdec_nrfx_event_handler(nrfx_qdec_event_t event)
 
 		key = irq_lock();
 		handler = qdec_nrfx_data.data_ready_handler;
+		trig = qdec_nrfx_data.data_ready_trigger;
 		irq_unlock(key);
 
 		if (handler) {
-			struct sensor_trigger trig = {
-				.type = SENSOR_TRIG_DATA_READY,
-				.chan = SENSOR_CHAN_ROTATION,
-			};
-
-			handler(DEVICE_DT_INST_GET(0), &trig);
+			handler(DEVICE_DT_INST_GET(0), trig);
 		}
 		break;
 
