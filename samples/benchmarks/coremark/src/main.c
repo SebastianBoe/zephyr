@@ -131,7 +131,7 @@ int main(void)
 		k_sem_give(&start_coremark);
 	}
 	else {
-		LOG_INF("Press %s to start the test ...",  BUTTON_LABEL);
+		LOG_INF("%s to start the test ...",  BUTTON_LABEL);
 	}
 
 	while (true) {
@@ -148,7 +148,7 @@ int main(void)
 		coremark_run();
 		gpio_pin_set_dt(&status_led, GPIO_ACTIVE_HIGH);
 
-		LOG_INF("Coremark finished! Press %s to restart ...\n", BUTTON_LABEL);
+		LOG_INF("Coremark finished! %s to restart the test ...\n", BUTTON_LABEL);
 
 		coremark_in_progress = false;
 	};
