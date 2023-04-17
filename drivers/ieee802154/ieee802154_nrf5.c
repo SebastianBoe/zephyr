@@ -27,6 +27,8 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #include <soc.h>
 #if !defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_SOC_NRF54L15)
 #include <soc_secure.h>
+#else
+#include <nrfx.h>
 #endif
 #include <zephyr/device.h>
 #include <zephyr/init.h>
@@ -115,24 +117,29 @@ static void nrf5_get_eui64(uint8_t *mac)
 {
 	uint64_t factoryAddress = {0};
 	uint32_t index = 0;
-#if !defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_SOC_NRF54L15)
 #if !defined(CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE)
-	uint32_t deviceid[2];
+	uint32_t deviceid[2] = {0, 0};
 
 	/* Set the MAC Address Block Larger (MA-L) formerly called OUI. */
 	mac[index++] = (IEEE802154_NRF5_VENDOR_OUI >> 16) & 0xff;
 	mac[index++] = (IEEE802154_NRF5_VENDOR_OUI >> 8) & 0xff;
 	mac[index++] = IEEE802154_NRF5_VENDOR_OUI & 0xff;
 
+#if !defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_SOC_NRF54L15)
 	soc_secure_read_deviceid(deviceid);
-
+#endif
+#if defined(CONFIG_SOC_NRF54H20)
+	/* Use BLE.ADDR for setting EUI64, as this is currently the only feasible
+	   way for getting a to some extent unique device identifier*/
+	deviceid[EUI64_ADDR_LOW] = NRF_FICR->BLE.ADDR[0];
+	deviceid[EUI64_ADDR_HIGH] = NRF_FICR->BLE.ADDR[1];
+#endif
 	factoryAddress = (uint64_t)deviceid[EUI64_ADDR_HIGH] << 32;
 	factoryAddress |= deviceid[EUI64_ADDR_LOW];
-#else
+#else /* !defined(CONFIG_IEEE802154_NRF5_UICR_EUI64_ENABLE) */
 	/* Use device identifier assigned during the production. */
 	factoryAddress = (uint64_t)EUI64_ADDR[EUI64_ADDR_HIGH] << 32;
 	factoryAddress |= EUI64_ADDR[EUI64_ADDR_LOW];
-#endif
 #endif
 	memcpy(mac + index, &factoryAddress, sizeof(factoryAddress) - index);
 }
