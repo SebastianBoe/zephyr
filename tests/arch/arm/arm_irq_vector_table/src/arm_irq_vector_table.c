@@ -74,10 +74,18 @@ BUILD_ASSERT(RTC1_IRQn == 22,
  */
 #define _ISR_OFFSET 8
 
-#elif defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#elif defined(CONFIG_SOC_PLATFORM_HALTIUM) || defined(CONFIG_SOC_PLATFORM_NRF54L)
 #undef _ISR_OFFSET
+#if defined(CONFIG_SOC_PLATFORM_HALTIUM)
 // Interrupt lines 96-98 is the first set of consecutive interrupts implemented in Haltium.
 #define _ISR_OFFSET 96
+#elif defined(CONFIG_SOC_PLATFORM_NRF54L)
+// Interrupt lines 28-30 is the first set of consecutive interrupts implemented in Moonlight.
+#define _ISR_OFFSET 28
+#endif
+
+/* Get interrupt number of serial used as zephyr console */
+#define ZEPHYR_CONSOLE_IRQ_NUM DT_IRQN(DT_CHOSEN(zephyr_console))
 
 #include <zephyr/device.h>
 extern void uarte_nrfx_isr_int(void *);
@@ -91,7 +99,7 @@ void uarte_isr(void)
 	uarte_nrfx_isr_int((void *)uart_console_dev);
 }
 
-#endif /* CONFIG_SOC_PLATFORM_HALTIUM */
+#endif /* CONFIG_SOC_PLATFORM_HALTIUM || CONFIG_SOC_PLATFORM_NRF54L */
 
 
 struct k_sem sem[3];
@@ -232,17 +240,10 @@ vth __irq_vector_table _irq_vector_table[] = {
 	rtc_nrf_isr
 };
 #endif
-#elif defined(CONFIG_SOC_PLATFORM_HALTIUM)
+#elif defined(CONFIG_SOC_PLATFORM_HALTIUM) || defined(CONFIG_SOC_PLATFORM_NRF54L)
 vth __irq_vector_table _irq_vector_table[] = {
 	[_ISR_OFFSET]isr0, isr1, isr2,
-	[SERIAL0_IRQn]uarte_isr,
-	[SERIAL1_IRQn]uarte_isr,
-	[SERIAL2_IRQn]uarte_isr,
-	[SERIAL3_IRQn]uarte_isr,
-	[SERIAL4_IRQn]uarte_isr,
-	[SERIAL5_IRQn]uarte_isr,
-	[SERIAL6_IRQn]uarte_isr,
-	[SERIAL7_IRQn]uarte_isr
+	[ZEPHYR_CONSOLE_IRQ_NUM]uarte_isr
 };
 #endif
 #elif defined(CONFIG_SOC_SERIES_CC13X2_CC26X2) || defined(CONFIG_SOC_SERIES_CC13X2X7_CC26X2X7)
