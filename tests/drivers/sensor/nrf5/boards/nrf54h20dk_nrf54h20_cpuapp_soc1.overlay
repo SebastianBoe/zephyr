@@ -8,7 +8,7 @@
 
 /{
     chosen {
-        zephyr,console = &uart135;
+        zephyr,console = &uart136;
     };
 
     ipc_to_cpusys: ipc_to_cpusys {
@@ -26,7 +26,7 @@
     status = "okay";
 };
 
-&uart135 {
+&uart136 {
     status = "okay";
     memory-regions = <&ram3x_cpuapp>;
 };
