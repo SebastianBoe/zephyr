@@ -1,1 +1,5 @@
 * @nika-nordic @masz-nordic @emob-nordic @pdunaj
+/drivers/*/*nrf*                          @anangl @gmarull
+/dts/arm/nordic/                          @anangl @gmarull
+/modules/hal_nordic/                      @anangl @gmarull
+/soc/arm/nordic_nrf/                      @anangl @gmarull
