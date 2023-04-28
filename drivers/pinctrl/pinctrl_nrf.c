@@ -105,6 +105,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			write = 1U;
 			dir = NRF_GPIO_PIN_DIR_OUTPUT;
 			input = NRF_GPIO_PIN_INPUT_DISCONNECT;
+#if defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_HW_REVISION_SOC1) && defined(NRF_GPIO_HAS_CLOCKPIN)
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_UART_RX:
 			NRF_PSEL_UART(reg, RXD) = pin;
