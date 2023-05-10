@@ -2437,6 +2437,12 @@ endfunction()
 # OUTPUT_VARIABLE: the result is normally stored in place, but
 #                  an alternative variable to store the result
 #                  can be provided with this.
+#
+# NCS_SEARCH_PATH: nRF Connect SDK specific search path for
+#                  directories to search in when argument
+#                  files are relative paths
+#                  (DO NOT UPSTREAM: NCS should be converted
+#                  to use snippets instead)
 function(zephyr_list transform list_var action)
   # Parse arguments.
   if(NOT "${transform}" STREQUAL "TRANSFORM")
@@ -2446,7 +2452,8 @@ function(zephyr_list transform list_var action)
     message(FATAL_ERROR "the third argument must be NORMALIZE_PATHS")
   endif()
   set(single_args OUTPUT_VARIABLE)
-  cmake_parse_arguments(ZEPHYR_LIST "" "${single_args}" "" ${ARGN})
+  set(multi_args NCS_SEARCH_PATH)
+  cmake_parse_arguments(ZEPHYR_LIST "" "${single_args}" "${multi_args}" ${ARGN})
   if(DEFINED ZEPHYR_LIST_OUTPUT_VARIABLE)
     set(out_var ${ZEPHYR_LIST_OUTPUT_VARIABLE})
   else()
@@ -2460,7 +2467,28 @@ function(zephyr_list transform list_var action)
   string(REPLACE " " ";" input_raw_list "${input_expanded}")
   foreach(file ${input_raw_list})
     file(TO_CMAKE_PATH "${file}" cmake_path_file)
-    list(APPEND ret ${cmake_path_file})
+
+    # Keep absolute paths as-is. Convert relative paths to absolute
+    # paths by searching in ZEPHYR_LIST_NCS_SEARCH_PATH, if it is
+    # defined.
+    set(resolved_path "")
+    if (IS_ABSOLUTE ${cmake_path_file})
+      set(resolved_path ${cmake_path_file})
+    elseif(ZEPHYR_LIST_NCS_SEARCH_PATH)
+      foreach(search_path_dir ${ZEPHYR_LIST_NCS_SEARCH_PATH})
+        file(TO_CMAKE_PATH "${search_path_dir}/${cmake_path_file}" candidate_path)
+        if (EXISTS ${candidate_path})
+          set(resolved_path ${candidate_path})
+          break()
+        endif()
+      endforeach()
+    endif()
+
+    # Add the final path to the return variable.
+    if ("${resolved_path}" STREQUAL "")
+      message(FATAL_ERROR "File ${file} does not exist.")
+    endif()
+    list(APPEND ret ${resolved_path})
   endforeach()
 
   set(${out_var} ${ret} PARENT_SCOPE)

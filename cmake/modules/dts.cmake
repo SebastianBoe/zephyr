@@ -156,8 +156,25 @@ set(dts_files
   )
 
 if(DTC_OVERLAY_FILE)
+  list(APPEND
+    RELATIVE_OVERLAY_DIRS
+    ${APPLICATION_SOURCE_DIR}
+  )
+  # Gather existing overlay directories as defined through project CMake files
+  foreach(dir ${CUSTOM_DTS_OVERLAY_DIR_LIST})
+    file(TO_CMAKE_PATH "${dir}" cmake_path_custom_overlay_dir)
+    if (EXISTS ${cmake_path_custom_overlay_dir})
+      message(STATUS "Found devicetree overlay directory: ${cmake_path_custom_overlay_dir}")
+      list(APPEND
+        RELATIVE_OVERLAY_DIRS
+        ${cmake_path_custom_overlay_dir}
+        )
+    endif()
+  endforeach()
+
   zephyr_list(TRANSFORM DTC_OVERLAY_FILE NORMALIZE_PATHS
-              OUTPUT_VARIABLE DTC_OVERLAY_FILE_AS_LIST)
+              OUTPUT_VARIABLE DTC_OVERLAY_FILE_AS_LIST
+              NCS_SEARCH_PATH ${RELATIVE_OVERLAY_DIRS})
   list(APPEND
     dts_files
     ${DTC_OVERLAY_FILE_AS_LIST}
