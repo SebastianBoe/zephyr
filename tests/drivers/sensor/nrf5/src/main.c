@@ -8,7 +8,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
 
-#if CONFIG_SOC_NRF54H20
+#if defined(CONFIG_HAS_NRF_TEMP_NRFS)
 #define TEMP_SENSOR_NODE_ID       DT_NODELABEL(temp_nrfs)
 #else
 #define TEMP_SENSOR_NODE_ID       DT_NODELABEL(temp)
@@ -34,15 +34,19 @@ void test_temp_driver_test(void)
 	struct sensor_value val;
 	sensor_value_from_double(&val, 0);
 	zassert_ok(sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &val), "Get temperature fail.");
-	zassert_true(sensor_value_to_double(&val) > -40, "Temperature out of range %d [C]",
-		     sensor_value_to_double(&val));
+#if !defined(CONFIG_TEMP_SENSOR_NO_ANALOG_PART)
+	double temp_val = sensor_value_to_double(&val);
+	zassert_true(temp_val > -40, "Temperature out of range %d [C]", temp_val);
+#endif
 
 	zassert_ok(sensor_sample_fetch(temp_dev), "Cannot fetch a sample from temperature sensor.");
 
 	sensor_value_from_double(&val, 0);
 	zassert_ok(sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &val), "Get temperature fail.");
-	zassert_true(sensor_value_to_double(&val) > -40, "Temperature out of range %d [C]",
-		     sensor_value_to_double(&val));
+#if !defined(CONFIG_TEMP_SENSOR_NO_ANALOG_PART)
+	temp_val = sensor_value_to_double(&val);
+	zassert_true(temp_val > -40, "Temperature out of range %d [C]", temp_val);
+#endif
 }
 
 void test_main(void)
