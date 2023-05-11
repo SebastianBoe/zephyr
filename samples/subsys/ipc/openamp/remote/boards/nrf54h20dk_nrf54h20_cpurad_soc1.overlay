@@ -12,8 +12,8 @@
 		zephyr,ipc = &bellboard0;
 	};
 
-	gram: memory@3F000000 {
+	gram: memory@2f000000 {
 		compatible = "mmio-sram";
-		reg = <0x3F000000 0x8000>;
+		reg = <0x2f000000 0x8000>;
 	};
 };
