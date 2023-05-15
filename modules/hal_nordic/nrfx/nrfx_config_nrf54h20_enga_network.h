@@ -5,8 +5,8 @@
  */
 
 
-#ifndef NRFX_CONFIG_LILIUMSOC1_NETWORK_H__
-#define NRFX_CONFIG_LILIUMSOC1_NETWORK_H__
+#ifndef NRFX_CONFIG_NRF54H20_ENGA_NETWORK_H__
+#define NRFX_CONFIG_NRF54H20_ENGA_NETWORK_H__
 
 // <e> NRFX_DPPI_ENABLED - nrfx_dppi - DPPI allocator.
 //==========================================================
@@ -74,4 +74,4 @@
 
 // </e>
 
-#endif // NRFX_CONFIG_LILIUMSOC1_NETWORK_H__
+#endif // NRFX_CONFIG_NRF54H20_ENGA_NETWORK_H__
