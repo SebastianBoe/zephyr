@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef NRFX_CONFIG_LILIUMFP1_GLOBAL_H__
-#define NRFX_CONFIG_LILIUMFP1_GLOBAL_H__
+#ifndef NRFX_CONFIG_NRF54H20_GLOBAL_H__
+#define NRFX_CONFIG_NRF54H20_GLOBAL_H__
 
 #include <zephyr/devicetree.h>
 
@@ -1996,4 +1996,4 @@
 #define NRFX_TBM_DEFAULT_CONFIG_IRQ_PRIORITY 7
 #endif
 
-#endif // NRFX_CONFIG_LILIUMFP1_GLOBAL_H__
+#endif // NRFX_CONFIG_NRF54H20_GLOBAL_H__

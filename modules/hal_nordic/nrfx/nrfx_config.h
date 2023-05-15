@@ -633,13 +633,13 @@
     #elif defined(NRF_RADIOCORE)
         #include <nrfx_config_nrf54h20_enga_network.h>
     #endif
-#elif defined(LILIUMFP1_XXAA)
-    #include <nrfx_config_liliumfp1_global.h>
+#elif defined(NRF54H20_XXAA)
+    #include <nrfx_config_nrf54h20_global.h>
 
     #if defined(NRF_APPLICATION)
-        #include <nrfx_config_liliumfp1_application.h>
+        #include <nrfx_config_nrf54h20_application.h>
     #elif defined(NRF_RADIOCORE)
-        #include <nrfx_config_liliumfp1_network.h>
+        #include <nrfx_config_nrf54h20_network.h>
     #endif
 #elif defined(MOONLIGHT_XXAA)
     #include <nrfx_config_moonlight_application.h>
