@@ -62,36 +62,28 @@ struct spi_nrfx_config {
 
 static void event_handler(const nrfx_spim_evt_t *p_event, void *p_context);
 
-static inline nrf_spim_frequency_t get_nrf_spim_frequency(uint32_t frequency)
+static inline uint32_t get_nrf_spim_frequency(uint32_t frequency)
 {
 	/* Get the highest supported frequency not exceeding the requested one.
 	 */
-	if (frequency < 250000) {
-		return NRF_SPIM_FREQ_125K;
-	} else if (frequency < 500000) {
-		return NRF_SPIM_FREQ_250K;
-	} else if (frequency < 1000000) {
-		return NRF_SPIM_FREQ_500K;
-	} else if (frequency < 2000000) {
-		return NRF_SPIM_FREQ_1M;
-	} else if (frequency < 4000000) {
-		return NRF_SPIM_FREQ_2M;
-	} else if (frequency < 8000000) {
-		return NRF_SPIM_FREQ_4M;
-/* Only the devices with HS-SPI can use SPI clock higher than 8 MHz and
- * have SPIM_FREQUENCY_FREQUENCY_M32 defined in their own bitfields.h
- */
-#if defined(SPIM_FREQUENCY_FREQUENCY_M32)
-	} else if (frequency < 16000000) {
-		return NRF_SPIM_FREQ_8M;
-	} else if (frequency < 32000000) {
-		return NRF_SPIM_FREQ_16M;
+	if (frequency >= MHZ(32) && NRF_SPIM_HAS_32_MHZ_FREQ) {
+		return MHZ(32);
+	} else if (frequency >= MHZ(16) && NRF_SPIM_HAS_16_MHZ_FREQ) {
+		return MHZ(16);
+	} else if (frequency >= MHZ(8)) {
+		return MHZ(8);
+	} else if (frequency >= MHZ(4)) {
+		return MHZ(4);
+	} else if (frequency >= MHZ(2)) {
+		return MHZ(2);
+	} else if (frequency >= MHZ(1)) {
+		return MHZ(1);
+	} else if (frequency >= KHZ(500)) {
+		return KHZ(500);
+	} else if (frequency >= KHZ(250)) {
+		return KHZ(250);
 	} else {
-		return NRF_SPIM_FREQ_32M;
-#else
-	} else {
-		return NRF_SPIM_FREQ_8M;
-#endif
+		return KHZ(125);
 	}
 }
 
@@ -181,7 +173,8 @@ static int configure(const struct device *dev,
 	config = dev_config->def_config;
 
 	/* Limit the frequency to that supported by the SPIM instance. */
-	config.frequency = get_nrf_spim_frequency(MIN(spi_cfg->frequency, max_freq));
+	config.frequency = get_nrf_spim_frequency(MIN(spi_cfg->frequency,
+						      max_freq));
 	config.mode      = get_nrf_spim_mode(spi_cfg->operation);
 	config.bit_order = get_nrf_spim_bit_order(spi_cfg->operation);
 
