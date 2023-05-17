@@ -873,6 +873,10 @@ class FpgaDeviceHandler(DeviceHandler):
             hexes = {
                 'dut_rad': [self.build_dir + '/zephyr/zephyr.hex']
             }
+        elif 'mod' in hardware.platform:
+            hexes = {
+                'dut_mod': [self.build_dir + '/zephyr/zephyr.hex']
+            }
         elif 'sec' in hardware.platform:
             hexes = {
                 'CP_SECURE': [self.build_dir + '/zephyr/zephyr.hex']
