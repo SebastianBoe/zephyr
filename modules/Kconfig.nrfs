@@ -34,6 +34,7 @@ config NRFS_MAX_BACKEND_PACKET_SIZE
 config NRFS_BACKEND_RX_TASK_STACK_SIZE
 	int "Stack size used for incoming messages task"
 	range 128 16384
+	default 2048 if LOG
 	default 512
 
 config NRFS_BACKEND_TX_TASK_STACK_SIZE
@@ -82,3 +83,9 @@ config NRFS_BACKEND_SERVICE_START_DELAY_MS
 	range 0 1000000
 	default 10 if EMULATOR_SYSTEMC
 	default 0
+
+config NRFS_DVFS_LOCAL_DOMAIN
+	bool "Local domain that supports dvfs"
+	default y if SOC_NRF54H20_CPUAPP
+	default y if SOC_NRF54H20_CPUSEC
+	default n
