@@ -683,10 +683,16 @@ class FpgaDeviceHandler(DeviceHandler):
         @param instance Test Instance
         """
         super().__init__(instance, type_str)
-
-        self.timeout = math.ceil(self.timeout * 1.2)
+        # determine family for nrfjprog
+        if 'nrf54l' in instance.platform.name:
+            self.family = "nrf54l"
+        elif 'nrf92' in instance.platform.name:
+            self.family = "nrf92"
+        else:
+            self.family = "nrf54h"
+        timeout_multiplier = 6 if self.family == "nrf92" else 2
+        self.timeout = math.ceil(self.timeout * timeout_multiplier)
         self.testplan = None
-        self.family = "nrf54"
 
     def monitor_serial(self, ser, halt_fileno, harness):
         if harness.is_pytest:
@@ -854,16 +860,6 @@ class FpgaDeviceHandler(DeviceHandler):
         if pre_script:
             self.run_custom_script(pre_script, 60)
 
-        # check family for nrfjprog
-        if 'nrf54h' in hardware.platform:
-            self.family = "nrf54h"
-        elif 'nrf54l' in hardware.platform:
-            self.family = "nrf54l"
-        elif 'nrf92' in hardware.platform:
-            self.family = "nrf92"
-        else:
-            pass
-
         # flash target
         if 'app' in hardware.platform:
             hexes = {
@@ -881,6 +877,10 @@ class FpgaDeviceHandler(DeviceHandler):
             hexes = {
                 'CP_SECURE': [self.build_dir + '/zephyr/zephyr.hex']
             }
+            if self.family == "nrf92":
+                hexes['CP_PUBKEY'] = [self.build_dir + '/zephyr/imprimatur/public_key.hex']
+                hexes['CP_SICR'] = [self.build_dir + '/zephyr/imprimatur/sicr.hex']
+                hexes['CP_SIGNATURE'] = [self.build_dir + '/zephyr/imprimatur/signature.hex']
         elif 'sys' in hardware.platform:
             hexes = {
                 'dut_sysctrl': [self.build_dir + '/zephyr/zephyr.hex']
