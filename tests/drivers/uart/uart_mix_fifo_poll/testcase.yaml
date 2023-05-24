@@ -27,7 +27,6 @@ tests:
       - CONFIG_UART_0_ASYNC=y
       - CONFIG_UART_0_NRF_HW_ASYNC=y
       - CONFIG_UART_0_NRF_HW_ASYNC_TIMER=2
-      - CONFIG_NRFX_TIMER2=y
       - CONFIG_UART_0_ENHANCED_POLL_OUT=n
 
   drivers.uart.uart_mix_poll_async_api_const:
@@ -38,7 +37,6 @@ tests:
       - CONFIG_UART_0_ASYNC=y
       - CONFIG_UART_0_NRF_HW_ASYNC=y
       - CONFIG_UART_0_NRF_HW_ASYNC_TIMER=2
-      - CONFIG_NRFX_TIMER2=y
       - CONFIG_UART_0_ENHANCED_POLL_OUT=n
       - CONFIG_UART_ASYNC_TX_CACHE_SIZE=2
 
@@ -50,7 +48,6 @@ tests:
       - CONFIG_UART_0_NRF_HW_ASYNC=y
       - CONFIG_UART_0_NRF_ASYNC_LOW_POWER=y
       - CONFIG_UART_0_NRF_HW_ASYNC_TIMER=2
-      - CONFIG_NRFX_TIMER2=y
       - CONFIG_UART_0_ENHANCED_POLL_OUT=n
 
   drivers.uart.uart_mix_poll_with_ppi:
@@ -72,7 +69,6 @@ tests:
       - CONFIG_UART_0_ASYNC=y
       - CONFIG_UART_0_NRF_HW_ASYNC=y
       - CONFIG_UART_0_NRF_HW_ASYNC_TIMER=2
-      - CONFIG_NRFX_TIMER2=y
       - CONFIG_UART_0_ENHANCED_POLL_OUT=y
 
   drivers.uart.uart_mix_poll_async_api_with_ppi_low_power:
@@ -83,5 +79,4 @@ tests:
       - CONFIG_UART_0_NRF_HW_ASYNC=y
       - CONFIG_UART_0_NRF_ASYNC_LOW_POWER=y
       - CONFIG_UART_0_NRF_HW_ASYNC_TIMER=2
-      - CONFIG_NRFX_TIMER2=y
       - CONFIG_UART_0_ENHANCED_POLL_OUT=y
