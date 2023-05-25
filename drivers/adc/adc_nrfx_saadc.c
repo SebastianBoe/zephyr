@@ -16,20 +16,25 @@ LOG_MODULE_REGISTER(adc_nrfx_saadc);
 
 #define DT_DRV_COMPAT nordic_nrf_saadc
 
+#if !(NRF_SAADC_HAS_AIN_AS_PIN)
 BUILD_ASSERT((NRF_SAADC_AIN0 == NRF_SAADC_INPUT_AIN0) &&
-	     (NRF_SAADC_AIN1 == NRF_SAADC_INPUT_AIN1) &&
-	     (NRF_SAADC_AIN2 == NRF_SAADC_INPUT_AIN2) &&
-	     (NRF_SAADC_AIN3 == NRF_SAADC_INPUT_AIN3) &&
-	     (NRF_SAADC_AIN4 == NRF_SAADC_INPUT_AIN4) &&
-	     (NRF_SAADC_AIN5 == NRF_SAADC_INPUT_AIN5) &&
-	     (NRF_SAADC_AIN6 == NRF_SAADC_INPUT_AIN6) &&
-	     (NRF_SAADC_AIN7 == NRF_SAADC_INPUT_AIN7) &&
-	     (NRF_SAADC_AIN7 == NRF_SAADC_INPUT_AIN7) &&
+		     (NRF_SAADC_AIN1 == NRF_SAADC_INPUT_AIN1) &&
+		     (NRF_SAADC_AIN2 == NRF_SAADC_INPUT_AIN2) &&
+		     (NRF_SAADC_AIN3 == NRF_SAADC_INPUT_AIN3) &&
+		     (NRF_SAADC_AIN4 == NRF_SAADC_INPUT_AIN4) &&
+		     (NRF_SAADC_AIN5 == NRF_SAADC_INPUT_AIN5) &&
+		     (NRF_SAADC_AIN6 == NRF_SAADC_INPUT_AIN6) &&
+		     (NRF_SAADC_AIN7 == NRF_SAADC_INPUT_AIN7) &&
+		     (NRF_SAADC_AIN7 == NRF_SAADC_INPUT_AIN7)
 #if defined(SAADC_CH_PSELP_PSELP_VDDHDIV5)
-	     (NRF_SAADC_VDDHDIV5 == NRF_SAADC_INPUT_VDDHDIV5) &&
+		     && (NRF_SAADC_VDDHDIV5 == NRF_SAADC_INPUT_VDDHDIV5)
 #endif
-	     (NRF_SAADC_VDD == NRF_SAADC_INPUT_VDD),
+#if defined(SAADC_CH_PSELP_PSELP_VDD)
+		     && (NRF_SAADC_VDD == NRF_SAADC_INPUT_VDD)
+#endif
+		     ,
 	     "Definitions from nrf-adc.h do not match those from nrf_saadc.h");
+#endif
 
 struct driver_data {
 	struct adc_context ctx;
@@ -43,15 +48,65 @@ static struct driver_data m_data = {
 	ADC_CONTEXT_INIT_SYNC(m_data, ctx),
 };
 
+/* Helper function to convert acquisition time to register TACQ value. */
+static int adc_convert_acq_time(uint16_t acquisition_time, nrf_saadc_acqtime_t *p_tacq_val)
+{
+#if NRF_SAADC_HAS_ACQTIME_ENUM
+	switch (acquisition_time) {
+	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 3):
+		*p_tacq_val = NRF_SAADC_ACQTIME_3US;
+		break;
+	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5):
+		*p_tacq_val = NRF_SAADC_ACQTIME_5US;
+		break;
+	case ADC_ACQ_TIME_DEFAULT:
+	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10):
+		*p_tacq_val = NRF_SAADC_ACQTIME_10US;
+		break;
+	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 15):
+		*p_tacq_val = NRF_SAADC_ACQTIME_15US;
+		break;
+	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 20):
+		*p_tacq_val = NRF_SAADC_ACQTIME_20US;
+		break;
+	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40):
+		*p_tacq_val = NRF_SAADC_ACQTIME_40US;
+		break;
+	default:
+		return -EINVAL;
+	}
+#else
+#define MINIMUM_ACQ_TIME_IN_NS 125
+#define DEFAULT_ACQ_TIME_IN_NS 10000
+
+	nrf_saadc_acqtime_t tacq = 0;
+	uint16_t acq_time =
+		(acquisition_time == ADC_ACQ_TIME_DEFAULT
+			 ? DEFAULT_ACQ_TIME_IN_NS
+			 : (ADC_ACQ_TIME_VALUE(acquisition_time) *
+			    (ADC_ACQ_TIME_UNIT(acquisition_time) == ADC_ACQ_TIME_MICROSECONDS
+				     ? 1000
+				     : 1)));
+
+	tacq = (nrf_saadc_acqtime_t)(acq_time / MINIMUM_ACQ_TIME_IN_NS) - 1;
+	if ((tacq > SAADC_CH_CONFIG_TACQ_Max) || (acq_time < MINIMUM_ACQ_TIME_IN_NS)) {
+		return -EINVAL;
+	} else {
+		*p_tacq_val = tacq;
+	}
+#endif
+
+	return 0;
+}
 
 /* Implementation of the ADC driver API function: adc_channel_setup. */
 static int adc_nrfx_channel_setup(const struct device *dev,
 				  const struct adc_channel_cfg *channel_cfg)
 {
 	nrf_saadc_channel_config_t config = {
-		.resistor_p = NRF_SAADC_RESISTOR_DISABLED,
-		.resistor_n = NRF_SAADC_RESISTOR_DISABLED,
-		.burst      = NRF_SAADC_BURST_DISABLED,
+		.resistor_p     = NRF_SAADC_RESISTOR_DISABLED,
+		.resistor_n     = NRF_SAADC_RESISTOR_DISABLED,
+		.burst          = NRF_SAADC_BURST_DISABLED,
 	};
 	uint8_t channel_id = channel_cfg->channel_id;
 
@@ -60,21 +115,36 @@ static int adc_nrfx_channel_setup(const struct device *dev,
 	}
 
 	switch (channel_cfg->gain) {
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_6)
 	case ADC_GAIN_1_6:
 		config.gain = NRF_SAADC_GAIN1_6;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_5)
 	case ADC_GAIN_1_5:
 		config.gain = NRF_SAADC_GAIN1_5;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_4)
 	case ADC_GAIN_1_4:
 		config.gain = NRF_SAADC_GAIN1_4;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_3)
 	case ADC_GAIN_1_3:
 		config.gain = NRF_SAADC_GAIN1_3;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_2)
 	case ADC_GAIN_1_2:
 		config.gain = NRF_SAADC_GAIN1_2;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_GAIN_Gain2_3)
+	case ADC_GAIN_2_3:
+		config.gain = NRF_SAADC_GAIN2_3;
+		break;
+#endif
 	case ADC_GAIN_1:
 		config.gain = NRF_SAADC_GAIN1;
 		break;
@@ -90,38 +160,29 @@ static int adc_nrfx_channel_setup(const struct device *dev,
 	}
 
 	switch (channel_cfg->reference) {
+#if defined(SAADC_CH_CONFIG_REFSEL_Internal)
 	case ADC_REF_INTERNAL:
 		config.reference = NRF_SAADC_REFERENCE_INTERNAL;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_REFSEL_VDD1_4)
 	case ADC_REF_VDD_1_4:
 		config.reference = NRF_SAADC_REFERENCE_VDD4;
 		break;
+#endif
+#if defined(SAADC_CH_CONFIG_REFSEL_External)
+	case ADC_REF_EXTERNAL0:
+		config.reference = NRF_SAADC_REFERENCE_EXTERNAL;
+		break;
+#endif
 	default:
 		LOG_ERR("Selected ADC reference is not valid");
 		return -EINVAL;
 	}
 
-	switch (channel_cfg->acquisition_time) {
-	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 3):
-		config.acq_time = NRF_SAADC_ACQTIME_3US;
-		break;
-	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5):
-		config.acq_time = NRF_SAADC_ACQTIME_5US;
-		break;
-	case ADC_ACQ_TIME_DEFAULT:
-	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10):
-		config.acq_time = NRF_SAADC_ACQTIME_10US;
-		break;
-	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 15):
-		config.acq_time = NRF_SAADC_ACQTIME_15US;
-		break;
-	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 20):
-		config.acq_time = NRF_SAADC_ACQTIME_20US;
-		break;
-	case ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40):
-		config.acq_time = NRF_SAADC_ACQTIME_40US;
-		break;
-	default:
+	int ret = adc_convert_acq_time(channel_cfg->acquisition_time, &config.acq_time);
+	if (ret)
+	{
 		LOG_ERR("Selected ADC acquisition time is not valid");
 		return -EINVAL;
 	}
