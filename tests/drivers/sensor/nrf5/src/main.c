@@ -34,7 +34,7 @@ void test_temp_driver_test(void)
 	struct sensor_value val;
 	sensor_value_from_double(&val, 0);
 	zassert_ok(sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &val), "Get temperature fail.");
-#if !defined(CONFIG_TEMP_SENSOR_NO_ANALOG_PART)
+#if !defined(CONFIG_NO_ANALOG_PART)
 	double temp_val = sensor_value_to_double(&val);
 	zassert_true(temp_val > -40, "Temperature out of range %d [C]", temp_val);
 #endif
@@ -43,7 +43,7 @@ void test_temp_driver_test(void)
 
 	sensor_value_from_double(&val, 0);
 	zassert_ok(sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &val), "Get temperature fail.");
-#if !defined(CONFIG_TEMP_SENSOR_NO_ANALOG_PART)
+#if !defined(CONFIG_NO_ANALOG_PART)
 	temp_val = sensor_value_to_double(&val);
 	zassert_true(temp_val > -40, "Temperature out of range %d [C]", temp_val);
 #endif
