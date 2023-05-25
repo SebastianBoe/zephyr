@@ -67,10 +67,12 @@ static void check_samples(int expected_count)
 	for (i = 0; i < BUFFER_SIZE; i++) {
 		int16_t sample_value = m_sample_buffer[i];
 
-		TC_PRINT("0x%04x ", sample_value);
 		if (i < expected_count) {
+			TC_PRINT("[%d] 0x%04x, ", i, sample_value);
+#if !defined(CONFIG_NO_ANALOG_PART)
 			zassert_not_equal(INVALID_ADC_VALUE, sample_value,
 				"[%u] should be filled", i);
+#endif
 		} else {
 			zassert_equal(INVALID_ADC_VALUE, sample_value,
 				"[%u] should be empty", i);
