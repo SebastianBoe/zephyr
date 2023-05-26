@@ -72,7 +72,7 @@ static void set_comparator(int32_t chan, uint32_t cyc)
 
 static bool event_check(int32_t chan)
 {
-	return nrfy_rtc_cc_get(RTC, NRF_RTC_CHANNEL_EVENT_ADDR(chan));
+	return nrfy_rtc_cc_get(RTC, chan);
 }
 
 static void event_clear(int32_t chan)
