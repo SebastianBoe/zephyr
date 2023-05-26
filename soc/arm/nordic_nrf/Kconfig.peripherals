@@ -515,6 +515,9 @@ config HAS_HW_NRF_WDT30
 config HAS_HW_NRF_WDT31
 	def_bool $(dt_nodelabel_enabled_with_compat,wdt31,$(DT_COMPAT_NORDIC_NRF_WDT))
 
+config HAS_HW_NRF_WDT130
+	def_bool $(dt_nodelabel_enabled_with_compat,wdt130,$(DT_COMPAT_NORDIC_NRF_WDT))
+
 # Virtual peripherials assigned to nrfs API
 config HAS_NRF_TEMP_NRFS
 	def_bool $(dt_compat_enabled,$(DT_COMPAT_NORDIC_NRF_TEMP_NRFS))
