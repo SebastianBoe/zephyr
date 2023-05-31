@@ -1005,7 +1005,7 @@ class SystemcHandler(Handler):
         """
         super().__init__(instance, type_str)
         self.call_west_flash = False
-        self.timeout = math.ceil(self.timeout * 2.25)
+        self.timeout = math.ceil(self.timeout * 3.0)
 
     def _set_hgen_yaml_configuration_file(self):
         """
