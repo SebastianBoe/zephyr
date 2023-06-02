@@ -154,7 +154,7 @@ static void qdec_nrfx_event_handler(nrfx_qdec_event_t event, void *p_context)
 
 		key = irq_lock();
 		handler = data->data_ready_handler;
-		trig = qdec_nrfx_data.data_ready_trigger;
+		trig = data->data_ready_trigger;
 		irq_unlock(key);
 
 		if (handler) {
