@@ -8,9 +8,11 @@
 #define ZEPHYR_INCLUDE_DRIVERS_CLOCK_CONTROL_NRF_CLOCK_CONTROL_H_
 
 #include <zephyr/device.h>
-#include <hal/nrf_clock.h>
 #include <zephyr/sys/onoff.h>
 #include <zephyr/drivers/clock_control.h>
+#if DT_NODE_EXISTS(DT_NODELABEL(clock))
+#include <hal/nrf_clock.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
