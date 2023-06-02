@@ -33,10 +33,12 @@ struct timer_data {
  * derive from sources that have slews that sum to +/- 13%.
  */
 #define BUSY_TICK_SLEW_PPM 130000U
+#elif CONFIG_NRF_GRTC_TIMER
+/* On Nordic SoCs that use GRTC, allow maximum slew of 0.7%. */
+#define BUSY_TICK_SLEW_PPM 7000U
 #else
-/* On other platforms assume the clocks are almost perfectly aligned - maximum
- * allowed slew is 0.5%. */
-#define BUSY_TICK_SLEW_PPM 5000U
+/* On other platforms assume the clocks are perfectly aligned. */
+#define BUSY_TICK_SLEW_PPM 0U
 #endif
 #define PPM_DIVISOR 1000000U
 
