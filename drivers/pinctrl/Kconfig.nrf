@@ -8,3 +8,9 @@ config PINCTRL_NRF
 	select PINCTRL_STORE_REG
 	help
 	  nRF pin controller driver
+
+config PINCTRL_NRF_ENABLE_CLOCKPIN_FIX
+	bool
+	default y
+	depends on PINCTRL_NRF
+	depends on (SOC_NRF54H20 && !HW_REVISION_SOC1) || SOC_NRF9230

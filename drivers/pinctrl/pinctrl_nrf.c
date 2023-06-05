@@ -105,7 +105,7 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			write = 1U;
 			dir = NRF_GPIO_PIN_DIR_OUTPUT;
 			input = NRF_GPIO_PIN_INPUT_DISCONNECT;
-#if defined(CONFIG_SOC_NRF54H20) && !defined(CONFIG_HW_REVISION_SOC1) && defined(NRF_GPIO_HAS_CLOCKPIN)
+#if NRF_GPIO_HAS_CLOCKPIN && CONFIG_PINCTRL_NRF_ENABLE_CLOCKPIN_FIX
 			clockpin = true;
 #endif
 			break;
@@ -144,6 +144,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			write = 0U;
 			dir = NRF_GPIO_PIN_DIR_OUTPUT;
 			input = NRF_GPIO_PIN_INPUT_DISCONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN && CONFIG_PINCTRL_NRF_ENABLE_CLOCKPIN_FIX
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_SPIM_MISO:
 			NRF_PSEL_SPIM(reg, MISO) = pin;
@@ -169,6 +172,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			NRF_PSEL_SPIS(reg, MISO) = pin;
 			dir = NRF_GPIO_PIN_DIR_INPUT;
 			input = NRF_GPIO_PIN_INPUT_DISCONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN && CONFIG_PINCTRL_NRF_ENABLE_CLOCKPIN_FIX
+			clockpin = true;
+#endif
 			break;
 		case NRF_FUN_SPIS_CSN:
 			NRF_PSEL_SPIS(reg, CSN) = pin;
@@ -201,6 +207,9 @@ int pinctrl_configure_pins(const pinctrl_soc_pin_t *pins, uint8_t pin_cnt,
 			}
 			dir = NRF_GPIO_PIN_DIR_INPUT;
 			input = NRF_GPIO_PIN_INPUT_CONNECT;
+#if NRF_GPIO_HAS_CLOCKPIN && CONFIG_PINCTRL_NRF_ENABLE_CLOCKPIN_FIX
+			clockpin = true;
+#endif
 			break;
 #endif /* defined(NRF_PSEL_TWIM) */
 #if defined(NRF_PSEL_I2S)
