@@ -91,6 +91,13 @@ static int gpio_nrfx_pin_configure(const struct device *port, gpio_pin_t pin,
 	const struct gpio_nrfx_cfg *cfg = get_port_cfg(port);
 	nrfx_gpiote_pin_t abs_pin = NRF_GPIO_PIN_MAP(cfg->port_num, pin);
 
+#if defined(CONFIG_SOC_NRF54H20)
+	if ((cfg->port_num == 9) && (flags & GPIO_PULL_DOWN)) {
+		/* For NRF54H20 port P9 does not support PULL_DOWN feature. */
+		return -ENOTSUP;
+	}
+#endif
+
 	/* Get the GPIOTE channel associated with this pin, if any. It needs
 	 * to be freed when the pin is reconfigured or disconnected.
 	 */
