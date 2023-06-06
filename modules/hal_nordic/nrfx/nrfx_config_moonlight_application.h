@@ -1625,37 +1625,31 @@
 // <e> NRFX_TWIM_ENABLED - nrfx_twim - TWIM peripheral driver
 //==========================================================
 #ifndef NRFX_TWIM_ENABLED
-#define NRFX_TWIM_ENABLED 0
-#endif
-
-// <q> NRFX_TWIM00_ENABLED  - Enable TWIM00 instance
-
-#ifndef NRFX_TWIM00_ENABLED
-#define NRFX_TWIM00_ENABLED 0
+#define NRFX_TWIM_ENABLED 1
 #endif
 
 // <q> NRFX_TWIM20_ENABLED  - Enable TWIM20 instance
 
 #ifndef NRFX_TWIM20_ENABLED
-#define NRFX_TWIM20_ENABLED 0
+#define NRFX_TWIM20_ENABLED 1
 #endif
 
 // <q> NRFX_TWIM21_ENABLED  - Enable TWIM21 instance
 
 #ifndef NRFX_TWIM21_ENABLED
-#define NRFX_TWIM21_ENABLED 0
+#define NRFX_TWIM21_ENABLED 1
 #endif
 
 // <q> NRFX_TWIM22_ENABLED  - Enable TWIM22 instance
 
 #ifndef NRFX_TWIM22_ENABLED
-#define NRFX_TWIM22_ENABLED 0
+#define NRFX_TWIM22_ENABLED 1
 #endif
 
 // <q> NRFX_TWIM30_ENABLED  - Enable TWIM30 instance
 
 #ifndef NRFX_TWIM30_ENABLED
-#define NRFX_TWIM30_ENABLED 0
+#define NRFX_TWIM30_ENABLED 1
 #endif
 
 // <o> NRFX_TWIM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
