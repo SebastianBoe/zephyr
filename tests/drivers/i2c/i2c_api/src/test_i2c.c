@@ -22,6 +22,8 @@
 #define I2C_DEV_NODE	DT_ALIAS(i2c_1)
 #elif DT_NODE_HAS_STATUS(DT_ALIAS(i2c_2), okay)
 #define I2C_DEV_NODE	DT_ALIAS(i2c_2)
+#elif DT_NODE_HAS_STATUS(DT_NODELABEL(i2c21), okay)
+#define I2C_DEV_NODE	DT_NODELABEL(i2c21)
 #else
 #error "Please set the correct I2C device"
 #endif
