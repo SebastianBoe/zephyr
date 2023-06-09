@@ -6,6 +6,6 @@
 config SOC_SERIES_RISCV32_MIV
 	bool "Microsemi Mi-V implementation"
 	select RISCV
-	select SOC_FAMILY_RISCV_PRIVILEGE
+	select SOC_FAMILY_RISCV_PRIVILEGED
 	help
 	  Enable support for Microsemi Mi-V
