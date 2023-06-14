@@ -1503,14 +1503,14 @@ static int uarte_nrfx_poll_in(const struct device *dev, unsigned char *c)
 		.length   = 1
 	};
 
-	*c = *data->rx_data;
-
 	/* clear the interrupt */
 	if (!nrfy_uarte_events_process(uarte,
 				       NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_ENDRX),
 				       &xfer_desc)) {
 		return -1;
 	}
+
+	*c = *data->rx_data;
 
 	nrfy_uarte_task_trigger(uarte, NRF_UARTE_TASK_STARTRX);
 
