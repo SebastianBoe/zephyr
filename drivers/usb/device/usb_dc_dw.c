@@ -300,8 +300,13 @@ static int usb_dw_reset(void)
 				base->grstctl);
 			return -EIO;
 		}
+
 		usb_dw_udelay(1);
-	} while (base->grstctl & USB_DW_GRSTCTL_C_SFT_RST);
+	} while (base->grstctl & USB_DW_GRSTCTL_C_SFT_RST && !(base->grstctl & BIT(29)));
+
+	if (base->grstctl & BIT(29)) {
+		base->grstctl &= ~(USB_DW_GRSTCTL_C_SFT_RST | BIT(29));
+	}
 
 	/* Wait for 3 PHY Clocks */
 	usb_dw_udelay(100);
