@@ -34,8 +34,8 @@ struct timer_data {
  */
 #define BUSY_TICK_SLEW_PPM 130000U
 #elif CONFIG_NRF_GRTC_TIMER
-/* On Nordic SoCs that use GRTC, allow maximum slew of 0.7%. */
-#define BUSY_TICK_SLEW_PPM 7000U
+/* On Nordic SoCs that use GRTC, allow maximum slew of 1.6%. */
+#define BUSY_TICK_SLEW_PPM 16000U
 #else
 /* On other platforms assume the clocks are perfectly aligned. */
 #define BUSY_TICK_SLEW_PPM 0U
