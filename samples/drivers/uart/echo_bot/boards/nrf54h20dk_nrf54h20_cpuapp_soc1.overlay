@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/{
+	chosen {
+		zephyr,shell_uart = &uart136;
+	};
+};
+
+&uart136 {
+	status = "okay";
+	memory-regions = <&ram3x_cpuapp>;
+};
+
+&ram3x_cpuapp {
+	status = "okay";
+};
+
+&ram3x_dma_region {
+	compatible = "nordic,allocatable-ram";
+	perm-read;
+	perm-write;
+};
