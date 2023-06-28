@@ -1,16 +1,24 @@
 sample:
   description: Usage quadrature decoder sensor
   name: qdec_sensor
+common:
+  timeout: 5
+  harness: console
+  harness_config:
+    type: multi_line
+    ordered: true
+    regex:
+      - "Quadrature decoder sensor test"
+      - "Position = (.*) degrees"
 tests:
   sample.sensor.qdec_sensor:
     tags: sensors
     platform_allow: nucleo_f401re
-    timeout: 5
-    harness: console
     harness_config:
-      type: multi_line
-      ordered: true
-      regex:
-        - "Quadrature decoder sensor test"
-        - "Position = (.*) degrees"
       fixture: fixture_mech_encoder
+  sample.sensor.nrf_qdec_sensor:
+    platform_allow: nrf54h20dk_nrf54h20_cpuapp@soc1
+    integration_platforms:
+      - nrf54h20dk_nrf54h20_cpuapp@soc1
+    harness_config:
+      fixture: gpio_loopback
