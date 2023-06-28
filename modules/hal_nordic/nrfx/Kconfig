@@ -200,6 +200,16 @@ config NRFX_QDEC1
 	depends on $(dt_nodelabel_has_compat,qdec1,$(DT_COMPAT_NORDIC_NRF_QDEC))
 	select NRFX_QDEC
 
+config NRFX_QDEC130
+	bool "QDEC130 driver instance"
+	depends on $(dt_nodelabel_has_compat,qdec130,$(DT_COMPAT_NORDIC_NRF_QDEC))
+	select NRFX_QDEC
+
+config NRFX_QDEC131
+	bool "QDEC131 driver instance"
+	depends on $(dt_nodelabel_has_compat,qdec131,$(DT_COMPAT_NORDIC_NRF_QDEC))
+	select NRFX_QDEC
+
 config NRFX_QSPI
 	bool "QSPI driver"
 	depends on $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_QSPI))
