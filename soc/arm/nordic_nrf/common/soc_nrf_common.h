@@ -190,6 +190,16 @@
 		     DT_PINCTRL_HAS_NAME(node_id, sleep),		       \
 		     DT_NODE_PATH(node_id) " defined without sleep state")
 
+/**
+ * Error out the build if CONFIG_PM_DEVICE=y and pinctrl-1 state (sleep) is not
+ * defined.
+ *
+ * @param node_id node identifier
+ */
+#define NRF_DT_CHECK_NODE_HAS_PINCTRL_SLEEP(node_id)                                               \
+	BUILD_ASSERT(!IS_ENABLED(CONFIG_PM_DEVICE) || DT_PINCTRL_HAS_NAME(node_id, sleep),         \
+		     DT_NODE_PATH(node_id) " defined without sleep state")
+
 #endif /* !_ASMLANGUAGE */
 
 #endif
