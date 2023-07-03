@@ -27,7 +27,7 @@ LOG_MODULE_REGISTER(soc);
    Set general purpose retention register and reboot */
 void sys_arch_reboot(int type)
 {
-	nrf_power_gpregret_set(NRF_POWER, (uint8_t)type);
+	nrf_power_gpregret_set(NRF_POWER, 0, (uint8_t)type);
 	NVIC_SystemReset();
 }
 
