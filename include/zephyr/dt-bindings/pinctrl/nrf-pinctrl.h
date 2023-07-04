@@ -135,6 +135,7 @@
  */
 #if defined(CONFIG_SOC_SERIES_NRF54HX) ||                                     \
 	defined(CONFIG_SOC_SERIES_NRF54LX) ||                                 \
+	defined(CONFIG_SOC_SERIES_NRF71X) ||                                  \
 	defined(CONFIG_SOC_SERIES_NRF92X)
 
 /** Standard '0', standard '1'. */
