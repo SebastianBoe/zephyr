@@ -659,9 +659,6 @@ static int usb_dw_init(void)
 		}
 	}
 
-	/* Disable soft disconnect */
-	base->dctl &= ~USB_DW_DCTL_SFT_DISCON;
-
 	usb_dw_reg_dump();
 
 	return 0;
@@ -1134,6 +1131,11 @@ int usb_dc_ep_enable(const uint8_t ep)
 	    usb_dw_ctrl.out_ep_ctrl[ep_idx].cb != usb_transfer_ep_callback) {
 		/* Start reading now, except for transfer managed eps */
 		usb_dw_prep_rx(ep, 0);
+	}
+
+	if (ep == USB_CONTROL_EP_IN && usb_dw_ctrl.in_ep_ctrl[ep_idx].cb) {
+		/* Disable soft disconnect */
+		base->dctl &= ~USB_DW_DCTL_SFT_DISCON;
 	}
 
 	return 0;
