@@ -25,11 +25,12 @@
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/usb/usb_device.h>
 
-#include "usb_dw_registers.h"
-#include "usb_dc_dw_stm32.h"
-
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(usb_dc_dw, CONFIG_USB_DRIVER_LOG_LEVEL);
+
+#include "usb_dw_registers.h"
+#include "usb_dc_dw_stm32.h"
+#include "usb_dc_dw_usbhs.h"
 
 /* FIXME: The actual number of endpoints should be obtained from GHWCFG4. */
 enum usb_dw_in_ep_idx {
@@ -127,15 +128,25 @@ static int usb_dw_init_pinctrl(const struct usb_dw_config *const config)
 
 #define USB_DW_GET_COMPAT_QUIRK_NONE(n)	NULL
 
+#define USB_DW_GET_COMPAT_CLK_QUIRK_1(n)					\
+	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(n), nordic_nrf_usbhs),	\
+		    (clk_enable_nrf_usbhs),					\
+		    USB_DW_GET_COMPAT_QUIRK_NONE(n))
+
 #define USB_DW_GET_COMPAT_CLK_QUIRK_0(n)					\
 	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(n), st_stm32f4_fsotg),	\
 		    (clk_enable_st_stm32f4_fsotg_##n),				\
+		    (USB_DW_GET_COMPAT_CLK_QUIRK_1(n)))
+
+#define USB_DW_GET_COMPAT_PWR_QUIRK_1(n)					\
+	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(n), nordic_nrf_usbhs),	\
+		    (pwr_on_nrf_usbhs),						\
 		    USB_DW_GET_COMPAT_QUIRK_NONE(n))
 
 #define USB_DW_GET_COMPAT_PWR_QUIRK_0(n)					\
 	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(n), st_stm32f4_fsotg),	\
 		    (pwr_on_st_stm32f4_fsotg),					\
-		    USB_DW_GET_COMPAT_QUIRK_NONE(n))
+		    (USB_DW_GET_COMPAT_PWR_QUIRK_1(n)))
 
 #define USB_DW_PINCTRL_DT_INST_DEFINE(n)					\
 	COND_CODE_1(DT_INST_PINCTRL_HAS_NAME(n, default),			\
