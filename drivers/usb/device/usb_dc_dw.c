@@ -126,6 +126,10 @@ static int usb_dw_init_pinctrl(const struct usb_dw_config *const config)
 }
 #endif
 
+#define USB_DW_DT_INST_REG_ADDR(n)						\
+	COND_CODE_1(DT_NUM_REGS(DT_DRV_INST(n)), (DT_INST_REG_ADDR(n)),		\
+		    (DT_INST_REG_ADDR_BY_NAME(n, core)))
+
 #define USB_DW_GET_COMPAT_QUIRK_NONE(n)	NULL
 
 #define USB_DW_GET_COMPAT_CLK_QUIRK_1(n)					\
@@ -177,7 +181,7 @@ static int usb_dw_init_pinctrl(const struct usb_dw_config *const config)
 	}									\
 										\
 	static const struct usb_dw_config usb_dw_cfg_##n = {			\
-		.base = (struct usb_dw_reg *)DT_INST_REG_ADDR(n),		\
+		.base = (struct usb_dw_reg *)USB_DW_DT_INST_REG_ADDR(n),	\
 		.pcfg = USB_DW_PINCTRL_DT_INST_DEV_CONFIG_GET(n),		\
 		.irq_enable_func = usb_dw_irq_enable_func_##n,			\
 		.clk_enable_func = USB_DW_GET_COMPAT_CLK_QUIRK_0(n),		\
