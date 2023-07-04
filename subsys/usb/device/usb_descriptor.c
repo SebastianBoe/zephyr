@@ -301,6 +301,7 @@ static struct usb_cfg_data *usb_get_cfg_data(struct usb_if_descriptor *iface)
  * part is used for the USB Serial Number, as that part is usually having
  * more entropy.
  */
+#if defined CONFIG_HWINFO
 __weak uint8_t *usb_update_sn_string_descriptor(void)
 {
 	/*
@@ -329,6 +330,12 @@ __weak uint8_t *usb_update_sn_string_descriptor(void)
 
 	return sn;
 }
+#else
+__weak uint8_t *usb_update_sn_string_descriptor(void)
+{
+	return NULL;
+}
+#endif
 
 static void usb_fix_ascii_sn_string_descriptor(struct usb_sn_descriptor *sn)
 {

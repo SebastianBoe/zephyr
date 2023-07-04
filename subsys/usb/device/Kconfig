@@ -6,7 +6,7 @@
 menuconfig USB_DEVICE_STACK
 	bool "USB Device Support"
 	select USB_DEVICE_DRIVER
-	select HWINFO
+	imply HWINFO
 	help
 	  Enable USB device stack.
 
