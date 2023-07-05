@@ -55,7 +55,11 @@ enum usb_dw_out_ep_idx {
 #define USB_DW_CORE_RST_TIMEOUT_US	10000
 
 /* FIXME: The actual MPS depends on endpoint type and bus speed. */
+#ifdef CONFIG_USB_DW_USB_2_0
+#define DW_USB_MAX_PACKET_SIZE		512
+#else
 #define DW_USB_MAX_PACKET_SIZE		64
+#endif
 
 /* Number of SETUP back-to-back packets */
 #define USB_DW_SUP_CNT			1
