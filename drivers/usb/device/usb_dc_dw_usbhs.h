@@ -87,6 +87,13 @@ static inline int clk_enable_nrf_usbhs(void)
 	return 0;
 }
 
+static inline void irq_helper_nrf_usbhs(void)
+{
+	NRF_USBHS_Type *wrapper = UINT_TO_POINTER(USBHS_DT_WRAPPER_REG_ADDR(0));
+
+	wrapper->EVENTS_CORE = 0UL;
+}
+
 static inline int pwr_on_nrf_usbhs(struct usb_dw_reg *const base)
 {
 	return 0;

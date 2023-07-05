@@ -67,6 +67,7 @@ enum usb_dw_out_ep_idx {
 struct usb_dw_config {
 	struct usb_dw_reg *const base;
 	struct pinctrl_dev_config *const pcfg;
+	void (*irq_helper_func)(void);
 	void (*irq_enable_func)(const struct device *dev);
 	int (*clk_enable_func)(void);
 	int (*pwr_on_func)(struct usb_dw_reg *const base);
@@ -132,6 +133,11 @@ static int usb_dw_init_pinctrl(const struct usb_dw_config *const config)
 
 #define USB_DW_GET_COMPAT_QUIRK_NONE(n)	NULL
 
+#define USB_DW_GET_COMPAT_IRQ_QUIRK_0(n)					\
+	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(n), nordic_nrf_usbhs),	\
+		    (irq_helper_nrf_usbhs),					\
+		    USB_DW_GET_COMPAT_QUIRK_NONE(n))
+
 #define USB_DW_GET_COMPAT_CLK_QUIRK_1(n)					\
 	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(n), nordic_nrf_usbhs),	\
 		    (clk_enable_nrf_usbhs),					\
@@ -184,6 +190,7 @@ static int usb_dw_init_pinctrl(const struct usb_dw_config *const config)
 		.base = (struct usb_dw_reg *)USB_DW_DT_INST_REG_ADDR(n),	\
 		.pcfg = USB_DW_PINCTRL_DT_INST_DEV_CONFIG_GET(n),		\
 		.irq_enable_func = usb_dw_irq_enable_func_##n,			\
+		.irq_helper_func = USB_DW_GET_COMPAT_IRQ_QUIRK_0(n),		\
 		.clk_enable_func = USB_DW_GET_COMPAT_CLK_QUIRK_0(n),		\
 		.pwr_on_func = USB_DW_GET_COMPAT_PWR_QUIRK_0(n),		\
 	};									\
@@ -868,6 +875,10 @@ static void usb_dw_isr_handler(const void *unused)
 			 */
 			usb_dw_int_oep_handler();
 		}
+	}
+
+	if (usb_dw_cfg.irq_helper_func != NULL) {
+		usb_dw_cfg.irq_helper_func();
 	}
 }
 
