@@ -3,7 +3,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#if CONFIG_SOC_PLATFORM_HALTIUM
+#define DT_DRV_COMPAT nordic_nrf_gpio_v2
+#else
 #define DT_DRV_COMPAT nordic_nrf_gpio
+#endif
 
 #include <nrfx_gpiote.h>
 #include <string.h>
