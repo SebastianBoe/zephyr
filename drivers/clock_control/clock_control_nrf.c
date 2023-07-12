@@ -421,7 +421,7 @@ static int api_blocking_start(const struct device *dev,
 		return err;
 	}
 
-	return k_sem_take(&sem, K_MSEC(500));
+	return k_sem_take(&sem, K_MSEC(600));
 }
 
 static clock_control_subsys_t get_subsys(struct onoff_manager *mgr)
