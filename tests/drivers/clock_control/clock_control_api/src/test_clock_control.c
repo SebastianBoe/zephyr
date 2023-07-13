@@ -343,4 +343,20 @@ ZTEST(clock_control, test_double_stop)
 	test_all_instances(test_double_stop_on_instance, NULL);
 }
 
-ZTEST_SUITE(clock_control, NULL, NULL, NULL, NULL, NULL);
+/*
+ * Enable LF clock if it was not enabled before.
+ */
+static void clock_control_enable_lf(void *f)
+{
+	enum clock_control_status status;
+	const struct device *const dev = DEVICE_DT_GET_ONE(nordic_nrf_clock);
+	zassert_true(device_is_ready(dev), "Clock dev is not ready");
+
+	status = clock_control_get_status(dev, CLOCK_CONTROL_NRF_SUBSYS_LF);
+
+	if(status == CLOCK_CONTROL_STATUS_OFF) {
+		z_nrf_clock_control_lf_on(CLOCK_CONTROL_NRF_LF_START_STABLE);
+	}
+}
+
+ZTEST_SUITE(clock_control, NULL, NULL, clock_control_enable_lf, NULL, NULL);

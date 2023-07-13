@@ -187,4 +187,21 @@ ZTEST(nrf_clock_calibration, test_force_calibration)
 		CALIBRATION_PROCESS_TIME_MS);
 
 }
-ZTEST_SUITE(nrf_clock_calibration, NULL, NULL, NULL, NULL, NULL);
+
+/*
+ * Enable LF clock if it was not enabled before.
+ */
+static void clock_control_enable_lf(void *f)
+{
+	enum clock_control_status status;
+	const struct device *const dev = DEVICE_DT_GET_ONE(nordic_nrf_clock);
+	zassert_true(device_is_ready(dev), "Clock dev is not ready");
+
+	status = clock_control_get_status(dev, CLOCK_CONTROL_NRF_SUBSYS_LF);
+
+	if(status == CLOCK_CONTROL_STATUS_OFF) {
+		z_nrf_clock_control_lf_on(CLOCK_CONTROL_NRF_LF_START_STABLE);
+	}
+}
+
+ZTEST_SUITE(nrf_clock_calibration, NULL, NULL, clock_control_enable_lf, NULL, NULL);

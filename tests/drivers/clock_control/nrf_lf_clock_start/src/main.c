@@ -107,6 +107,22 @@ void *test_init(void)
 }
 ZTEST_SUITE(nrf_lf_clock_start, NULL, test_init, NULL, NULL, NULL);
 
+/*
+ * Enable LF clock if it was not enabled before.
+ */
+static void clock_control_enable_lf()
+{
+	enum clock_control_status status;
+	const struct device *const dev = DEVICE_DT_GET_ONE(nordic_nrf_clock);
+	zassert_true(device_is_ready(dev), "Clock dev is not ready");
+
+	status = clock_control_get_status(dev, CLOCK_CONTROL_NRF_SUBSYS_LF);
+
+	if(status == CLOCK_CONTROL_STATUS_OFF) {
+		z_nrf_clock_control_lf_on(CLOCK_CONTROL_NRF_LF_START_STABLE);
+	}
+}
+
 /* This test needs to read the LF clock state soon after the system clock is
  * started (to check if the starting routine waits for the LF clock or not),
  * so do it at the beginning of the POST_KERNEL stage (the system clock is
@@ -115,6 +131,10 @@ ZTEST_SUITE(nrf_lf_clock_start, NULL, test_init, NULL, NULL, NULL);
  */
 static int get_lfclk_state(void)
 {
+	/* For some platforms, LF clock is not enabled in PRE_KERNEL_2
+	 * and needs to be enabled here.
+	 */
+	clock_control_enable_lf();
 
 	/* Do clock state read as early as possible. When RC is already running
 	 * and XTAL has been started then LFSRCSTAT register content might be
