@@ -683,14 +683,15 @@ class FpgaDeviceHandler(DeviceHandler):
         @param instance Test Instance
         """
         super().__init__(instance, type_str)
+        self.family = "nrf54h"
+        timeout_multiplier = 2
         # determine family for nrfjprog
         if 'nrf54l' in instance.platform.name:
             self.family = "nrf54l"
+            timeout_multiplier = 3
         elif 'nrf92' in instance.platform.name:
             self.family = "nrf92"
-        else:
-            self.family = "nrf54h"
-        timeout_multiplier = 6 if self.family == "nrf92" else 2
+            timeout_multiplier = 7
         self.timeout = math.ceil(self.timeout * timeout_multiplier)
         self.testplan = None
 
