@@ -610,6 +610,12 @@
 #ifdef CONFIG_NRFX_WDT1
 #define NRFX_WDT1_ENABLED 1
 #endif
+#ifdef CONFIG_NRFX_WDT30
+#define NRFX_WDT30_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_WDT31
+#define NRFX_WDT31_ENABLED 1
+#endif
 
 #ifdef CONFIG_NRFX_TBM
 #define NRFX_TBM_ENABLED 1
