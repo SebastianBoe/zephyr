@@ -5,38 +5,42 @@
  */
 
 &pinctrl {
-    spi21_default: spi21_default {
-        group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 1, 0)>,
-                    <NRF_PSEL(SPIM_MISO, 1, 2)>,
-                    <NRF_PSEL(SPIM_MOSI, 1, 3)>;
-        };
-    };
+	spi00_default: spi00_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 2, 6)>,
+				<NRF_PSEL(SPIM_MISO, 2, 9)>,
+				<NRF_PSEL(SPIM_MOSI, 2, 8)>;
+		};
+	};
 
-    spi21_sleep: spi21_sleep {
-        group1 {
-            psels = <NRF_PSEL(SPIM_SCK, 1, 0)>,
-                    <NRF_PSEL(SPIM_MISO, 1, 2)>,
-                    <NRF_PSEL(SPIM_MOSI, 1, 3)>;
-            low-power-enable;
-        };
-    };
+	spi00_sleep: spi00_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 2, 6)>,
+				<NRF_PSEL(SPIM_MISO, 2, 9)>,
+				<NRF_PSEL(SPIM_MOSI, 2, 8)>;
+			low-power-enable;
+		};
+	};
 };
 
-&spi21 {
-    status = "okay";
-    pinctrl-0 = <&spi21_default>;
-    pinctrl-1 = <&spi21_sleep>;
-    pinctrl-names = "default", "sleep";
-    overrun-character = <0x00>;
-    slow@0 {
-        compatible = "test-spi-loopback-slow";
-        reg = <0>;
-        spi-max-frequency = <DT_FREQ_K(500)>;
-    };
-    fast@0 {
-        compatible = "test-spi-loopback-fast";
-        reg = <0>;
-        spi-max-frequency = <DT_FREQ_M(4)>;
-    };
+&spi00 {
+	status = "okay";
+	pinctrl-0 = <&spi00_default>;
+	pinctrl-1 = <&spi00_sleep>;
+	pinctrl-names = "default", "sleep";
+	overrun-character = <0x00>;
+	slow@0 {
+		compatible = "test-spi-loopback-slow";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(1)>;
+	};
+	fast@0 {
+		compatible = "test-spi-loopback-fast";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(4)>;
+	};
+};
+
+&gpio2 {
+	status = "okay";
 };
