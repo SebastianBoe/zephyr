@@ -64,4 +64,108 @@ config I2C_3_NRF_TWIM
 	  This peripheral accepts transfers from RAM only,
 	  if provided buffer is placed in flash, transfer will fail.
 
+config I2C_20_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM20
+	select NRFX_TWIM20
+	help
+	  Enable nRF TWI Master with EasyDMA on port 20.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_21_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM21
+	select NRFX_TWIM21
+	help
+	  Enable nRF TWI Master with EasyDMA on port 21.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_22_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM22
+	select NRFX_TWIM22
+	help
+	  Enable nRF TWI Master with EasyDMA on port 22.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_30_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM30
+	select NRFX_TWIM30
+	help
+	  Enable nRF TWI Master with EasyDMA on port 30.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_120_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM120
+	select NRFX_TWIM120
+	help
+	  Enable nRF TWI Master with EasyDMA on port 120.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_130_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM130
+	select NRFX_TWIM130
+	help
+	  Enable nRF TWI Master with EasyDMA on port 130.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_131_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM131
+	select NRFX_TWIM131
+	help
+	  Enable nRF TWI Master with EasyDMA on port 131.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_132_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM132
+	select NRFX_TWIM132
+	help
+	  Enable nRF TWI Master with EasyDMA on port 132.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_133_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM133
+	select NRFX_TWIM133
+	help
+	  Enable nRF TWI Master with EasyDMA on port 133.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_134_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM134
+	select NRFX_TWIM134
+	help
+	  Enable nRF TWI Master with EasyDMA on port 134.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_135_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM135
+	select NRFX_TWIM135
+	help
+	  Enable nRF TWI Master with EasyDMA on port 135.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_136_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM136
+	select NRFX_TWIM136
+	help
+	  Enable nRF TWI Master with EasyDMA on port 136.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
+config I2C_137_NRF_TWIM
+	def_bool HAS_HW_NRF_TWIM137
+	select NRFX_TWIM137
+	help
+	  Enable nRF TWI Master with EasyDMA on port 137.
+	  This peripheral accepts transfers from RAM only,
+	  if provided buffer is placed in flash, transfer will fail.
+
 endif # I2C_NRFX

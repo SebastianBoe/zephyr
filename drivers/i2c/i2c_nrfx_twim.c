@@ -419,7 +419,7 @@ static int i2c_nrfx_twim_init(const struct device *dev)
 		.twim_config = {					       \
 			.skip_gpio_cfg = true,				       \
 			.skip_psel_cfg = true,				       \
-			.frequency = I2C_FREQUENCY(idx),		       \
+			.frequency = I2C_FREQUENCY(idx)			       \
 		},							       \
 		.concat_buf_size = CONCAT_BUF_SIZE(idx),		       \
 		.flash_buf_max_size = FLASH_BUF_MAX_SIZE(idx),		       \
@@ -450,4 +450,56 @@ I2C_NRFX_TWIM_DEVICE(2);
 
 #ifdef CONFIG_I2C_3_NRF_TWIM
 I2C_NRFX_TWIM_DEVICE(3);
+#endif
+
+#ifdef CONFIG_I2C_20_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(20);
+#endif
+
+#ifdef CONFIG_I2C_21_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(21);
+#endif
+
+#ifdef CONFIG_I2C_22_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(22);
+#endif
+
+#ifdef CONFIG_I2C_30_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(30);
+#endif
+
+#ifdef CONFIG_I2C_120_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(120);
+#endif
+
+#ifdef CONFIG_I2C_130_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(130);
+#endif
+
+#ifdef CONFIG_I2C_131_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(131);
+#endif
+
+#ifdef CONFIG_I2C_132_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(132);
+#endif
+
+#ifdef CONFIG_I2C_133_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(133);
+#endif
+
+#ifdef CONFIG_I2C_134_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(134);
+#endif
+
+#ifdef CONFIG_I2C_135_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(135);
+#endif
+
+#ifdef CONFIG_I2C_136_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(136);
+#endif
+
+#ifdef CONFIG_I2C_137_NRF_TWIM
+I2C_NRFX_TWIM_DEVICE(137);
 #endif
