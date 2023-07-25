@@ -107,6 +107,9 @@
 #define TIMEOUTS 0
 #define WDT_TEST_MAX_WINDOW 3000U
 #endif
+#if defined(CONFIG_SOC_SERIES_NRF54LX)
+#define TIMEOUTS 0
+#endif
 
 #define WDT_TEST_STATE_IDLE        0
 #define WDT_TEST_STATE_CHECK_RESET 1
