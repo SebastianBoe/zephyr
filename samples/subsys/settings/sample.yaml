@@ -5,7 +5,7 @@ tests:
   sample.subsys.settings:
     tags: settings
     timeout: 10
-    platform_allow: qemu_x86 native_posix native_posix_64
+    platform_allow: qemu_x86 native_posix native_posix_64 nrf54l15dk_nrf54l15_cpuapp@soc1
     integration_platforms:
       - native_posix
     harness: console
