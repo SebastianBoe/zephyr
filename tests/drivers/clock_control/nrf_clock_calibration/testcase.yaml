@@ -2,5 +2,6 @@ tests:
   drivers.clock.nrf5_clock_calibration:
     tags: drivers clock
     platform_allow: nrf51dk_nrf51422 nrf52dk_nrf52832 nrf52840dk_nrf52840
+                        nrf54l15dk_nrf54l15_cpuapp@soc1
     integration_platforms:
       - nrf51dk_nrf51422
