@@ -80,7 +80,7 @@ BUILD_ASSERT(RTC1_IRQn == 22,
 // Interrupt lines 96-98 is the first set of consecutive interrupts implemented in Haltium.
 #define _ISR_OFFSET 96
 #elif defined(CONFIG_SOC_PLATFORM_NRF54L)
-// Interrupt lines 28-30 is the first set of consecutive interrupts implemented in Moonlight.
+// Interrupt lines 28-30 is the first set of consecutive interrupts implemented in Lumos.
 #define _ISR_OFFSET 28
 #endif
 
