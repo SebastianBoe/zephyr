@@ -738,8 +738,8 @@
     #elif defined(NRF_RADIOCORE)
         #include <nrfx_config_nrf54h20_network.h>
     #endif
-#elif defined(MOONLIGHT_XXAA)
-    #include <nrfx_config_moonlight_application.h>
+#elif defined(NRF54L15_ENGA_XXAA)
+    #include <nrfx_config_nrf54l15_application.h>
 #else
     #error "Unknown device."
 #endif
