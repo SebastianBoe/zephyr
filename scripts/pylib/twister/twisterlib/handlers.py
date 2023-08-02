@@ -819,7 +819,6 @@ class FpgaDeviceHandler(DeviceHandler):
             'lilium': HaltiumFlasher,
             'halti': HaltiumFlasher,
             'lumos': LumosFlasher,
-            'moonlight': LumosFlasher,
         }
 
         hardware = self.device_is_available(self.instance)
@@ -1035,7 +1034,7 @@ class SystemcHandler(Handler):
 
     def _get_simulator_command(self, platform_name: str) -> List[str]:
         """
-        Get HGEN/MOONLIGHT-TLM command
+        Get HGEN/LUMOS-TLM command
         """
         command: List[str] = []
         if "nrf54l15_cpuapp" in platform_name:
