@@ -722,8 +722,7 @@ class FpgaDeviceHandler(DeviceHandler):
             ser.close()
             return
 
-        result = ''
-        while 'Zephyr OS build' not in result:
+        while ser.isOpen():
             raw_read = None
             try:
                 raw_read = ser.readline()
@@ -735,13 +734,11 @@ class FpgaDeviceHandler(DeviceHandler):
                 pass
 
             if raw_read:
-                try:
-                    line = raw_read.replace(b'\x00', b'')  # workaround for unexpected NULLs in the output
-                    result += line.decode('utf-8', 'ignore')
-                except UnicodeDecodeError:
-                    logger.error(f'Fail to decode read data:\n{raw_read}')
+                line = raw_read.decode('utf-8', 'ignore').strip()
+                logger.debug("SKIPPING from DEVICE: {0}".format(line))
+                if 'Zephyr OS build' in line:
+                    logger.debug(f"Found TC start in {line}")
                     break
-        logger.debug(f"Found TC start in {result}")
 
         while ser.isOpen():
             readable, _, _ = select.select(readlist, [], [], self.timeout)
