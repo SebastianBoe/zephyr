@@ -691,7 +691,7 @@ class FpgaDeviceHandler(DeviceHandler):
             timeout_multiplier = 3
         elif 'nrf92' in instance.platform.name:
             self.family = "nrf92"
-            timeout_multiplier = 7
+            timeout_multiplier = 12
         self.timeout = math.ceil(self.timeout * timeout_multiplier)
         self.testplan = None
 
