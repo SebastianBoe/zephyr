@@ -76,3 +76,11 @@
 	owned-channels = <0 2 4 5 6 7>;
 	status = "okay";
 };
+
+&ieee802154_app {
+	status = "disabled";
+};
+
+&nordic_rng {
+	status = "disabled";
+};
