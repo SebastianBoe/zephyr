@@ -89,6 +89,22 @@ config HAS_HW_NRF_GPIO1
 config HAS_HW_NRF_GPIOTE
 	def_bool $(dt_compat_enabled,$(DT_COMPAT_NORDIC_NRF_GPIOTE))
 
+config HAS_HW_NRF_GPIOTE20
+	def_bool $(dt_nodelabel_enabled_with_compat,gpiote20,$(DT_COMPAT_NORDIC_NRF_GPIOTE)) || \
+		$(dt_nodelabel_enabled_with_compat,gpiote20,$(DT_COMPAT_NORDIC_NRF_GPIOTE_V2))
+
+config HAS_HW_NRF_GPIOTE30
+	def_bool $(dt_nodelabel_enabled_with_compat,gpiote30,$(DT_COMPAT_NORDIC_NRF_GPIOTE)) || \
+		$(dt_nodelabel_enabled_with_compat,gpiote30,$(DT_COMPAT_NORDIC_NRF_GPIOTE_V2))
+
+config HAS_HW_NRF_GPIOTE130
+	def_bool $(dt_nodelabel_enabled_with_compat,gpiote130,$(DT_COMPAT_NORDIC_NRF_GPIOTE)) || \
+		$(dt_nodelabel_enabled_with_compat,gpiote130,$(DT_COMPAT_NORDIC_NRF_GPIOTE_V2))
+
+config HAS_HW_NRF_GPIOTE131
+	def_bool $(dt_nodelabel_enabled_with_compat,gpiote131,$(DT_COMPAT_NORDIC_NRF_GPIOTE)) || \
+		$(dt_nodelabel_enabled_with_compat,gpiote131,$(DT_COMPAT_NORDIC_NRF_GPIOTE_V2))
+
 config HAS_HW_NRF_I2S0
 	def_bool $(dt_nodelabel_enabled_with_compat,i2s0,$(DT_COMPAT_NORDIC_NRF_I2S))
 
