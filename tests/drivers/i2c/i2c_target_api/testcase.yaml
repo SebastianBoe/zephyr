@@ -7,7 +7,7 @@ common:
 
 tests:
   drivers.i2c.target_api.dual_role:
-    platform_allow: nucleo_f091rc stm32f072b_disco nucleo_g071rb rpi_pico nrf54l15dk_nrf54l15_cpuapp@soc1
+    platform_allow: nucleo_f091rc stm32f072b_disco nucleo_g071rb rpi_pico
     integration_platforms:
       - nucleo_f091rc
     extra_configs:
