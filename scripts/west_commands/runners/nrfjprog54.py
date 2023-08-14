@@ -8,7 +8,7 @@ import re
 import sys
 from typing import Optional, List, Dict, Tuple
 
-from devicetree import edtlib
+from devicetree import edtlib # pylint: disable=unused-import
 from runners.core import ZephyrBinaryRunner, RunnerCaps, RunnerConfig, BuildConfiguration
 
 
@@ -90,20 +90,22 @@ class NrfJprog54ProgrammerBinaryRunner(ZephyrBinaryRunner):
         self._nrfjprog(["--pinreset"])
 
     def _check_version(self) -> None:
-        version = self.check_output(["nrfjprog", "--version"])
-        version = version.decode(sys.getdefaultencoding()).strip().splitlines()
+        version_output = self.check_output(["nrfjprog", "--version"])
+        version = version_output.decode(sys.getdefaultencoding()).strip().splitlines()
 
-        m = re.match(r"nrfjprog version: (\d+)\.(\d+)\.(\d+) (\w+)", version[0])
-        nrfjprog_v = tuple(int(i) for i in m.groups()[0:3])
-        if nrfjprog_v < (10, 21, 0) or m.group(4) not in ("internal", "haltium"):
-            raise RuntimeError(f"Unsupported nrfjprog version: {version[0]}")
+        if m:= re.match(r"nrfjprog version: (\d+)\.(\d+)\.(\d+) (\w+)", version[0]):
+            nrfjprog_v = tuple(int(i) for i in m.groups()[0:3])
+            if nrfjprog_v < (10, 21, 0) or m.group(4) not in ("internal", "haltium"):
+                raise RuntimeError(f"Unsupported nrfjprog version: {version[0]}")
+        else:
+            raise RuntimeError("Not possible to detect nrfjprog version")
 
     def _discover(self) -> Tuple[Dict[str, Path], Optional[Tuple[int, int]]]:
         images = dict()
         storage = None
 
         for p in Path(self.cfg.build_dir).glob("**/zephyr/zephyr.hex"):
-            domain = BuildConfiguration(p.parents[1]).get("CONFIG_SOC_DOMAIN_NAME")
+            domain = BuildConfiguration(str(p.parents[1])).get("CONFIG_SOC_DOMAIN_NAME")
 
             with open(p.parent / "edt.pickle", "rb") as f:
                 edt = pickle.load(f)
