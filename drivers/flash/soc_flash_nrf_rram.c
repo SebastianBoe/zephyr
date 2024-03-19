@@ -58,6 +58,30 @@ BUILD_ASSERT((PAGE_SIZE % (WRITE_LINE_SIZE) == 0),
 	     "erase-block-size must be a multiple of write-block-size");
 #endif
 
+#ifdef CONFIG_TRUSTED_EXECUTION_NONSECURE
+/* non-secure images cannot call nrf_rramc_config_set because
+ * NRF_RRAMC_NS does not exist.
+ *
+ * Instead, when TF-M boots, it will configure RRAMC with this static
+ * configuration:
+ *
+ * nrf_rramc_config_t config = {
+ *   .mode_write = true,
+ *   .write_buff_size = WRITE_BUFFER_SIZE
+ * };
+ *
+ * nrf_rramc_ready_next_timeout_t params = {
+ *   .value = CONFIG_NRF_RRAM_READYNEXT_TIMEOUT_VALUE,
+ *   .enable = true,
+ * };
+ *
+ * For more details see NCSDK-26982.
+ */
+#else
+#define CONFIGURE_RRAMC_FROM_ZEPHYR_DRIVER
+#endif
+
+
 #ifndef CONFIG_SOC_FLASH_NRF_RADIO_SYNC_NONE
 
 #if (WRITE_BUFFER_SIZE < 2)
@@ -105,9 +129,11 @@ static void commit_changes(size_t len)
 
 static void rram_write(off_t addr, const void *data, size_t len)
 {
+#ifdef CONFIGURE_RRAMC_FROM_ZEPHYR_DRIVER
 	nrf_rramc_config_t config = {.mode_write = true, .write_buff_size = WRITE_BUFFER_SIZE};
 
 	nrf_rramc_config_set(NRF_RRAMC, &config);
+#endif
 
 	if (data) {
 		memcpy((void *)addr, data, len);
@@ -121,8 +147,10 @@ static void rram_write(off_t addr, const void *data, size_t len)
 	commit_changes(len);
 #endif
 
+#ifdef CONFIGURE_RRAMC_FROM_ZEPHYR_DRIVER
 	config.mode_write = false;
 	nrf_rramc_config_set(NRF_RRAMC, &config);
+#endif
 }
 
 #ifndef CONFIG_SOC_FLASH_NRF_RADIO_SYNC_NONE
@@ -298,13 +326,16 @@ static int nrf_rram_init(const struct device *dev)
 	nrf_flash_sync_init();
 #endif /* !CONFIG_SOC_FLASH_NRF_RADIO_SYNC_NONE */
 
+#ifdef CONFIGURE_RRAMC_FROM_ZEPHYR_DRIVER
 #if CONFIG_NRF_RRAM_READYNEXT_TIMEOUT_VALUE > 0
 	nrf_rramc_ready_next_timeout_t params = {
 		.value = CONFIG_NRF_RRAM_READYNEXT_TIMEOUT_VALUE,
 		.enable = true,
 	};
+
 	nrf_rramc_ready_next_timeout_set(NRF_RRAMC, &params);
-#endif
+#endif /* CONFIG_NRF_RRAM_READYNEXT_TIMEOUT_VALUE > 0 */
+#endif /* CONFIGURE_RRAMC_FROM_ZEPHYR_DRIVER */
 
 	return 0;
 }
