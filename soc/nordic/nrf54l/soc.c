@@ -12,6 +12,8 @@
  * for the Nordic Semiconductor nRF54L family processor.
  */
 
+#include <autoconf.h>
+
 #include <zephyr/kernel.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/init.h>
@@ -36,14 +38,8 @@ LOG_MODULE_REGISTER(soc, CONFIG_SOC_LOG_LEVEL);
 #define HFXO_NODE DT_NODELABEL(hfxo)
 #endif
 
-static int nordicsemi_nrf54l_init(void)
+static inline void power_and_clock_configuration(void)
 {
-	/* Update the SystemCoreClock global variable with current core clock
-	 * retrieved from hardware state.
-	 */
-	SystemCoreClockUpdate();
-
-#if defined(NRF_APPLICATION)
 	/* Enable ICACHE */
 	sys_cache_instr_enable();
 
@@ -77,6 +73,8 @@ static int nordicsemi_nrf54l_init(void)
 	nrf_oscillators_lfxo_cap_set(NRF_OSCILLATORS, (nrf_oscillators_lfxo_cap_t)capvalue_k);
 #elif DT_ENUM_HAS_VALUE(LFXO_NODE, load_capacitors, external)
 	nrf_oscillators_lfxo_cap_set(NRF_OSCILLATORS, (nrf_oscillators_lfxo_cap_t)0);
+#else
+#error "yo"
 #endif
 
 #if DT_ENUM_HAS_VALUE(HFXO_NODE, load_capacitors, internal)
@@ -125,7 +123,30 @@ static int nordicsemi_nrf54l_init(void)
 #if defined(CONFIG_ELV_GRTC_LFXO_ALLOWED)
 	nrf_regulators_elv_mode_allow_set(NRF_REGULATORS, NRF_REGULATORS_ELV_ELVGRTCLFXO_MASK);
 #endif /* CONFIG_ELV_GRTC_LFXO_ALLOWED */
-#endif /* NRF_APPLICATION */
+}
+
+int nordicsemi_nrf54l_init(void)
+{
+	/* Update the SystemCoreClock global variable with current core clock
+	 * retrieved from hardware state.
+	 */
+#if defined(CONFIG_TRUSTED_EXECUTION_SECURE) || defined(__NRF_TFM__)
+	/* Currently not supported for non-secure */
+	SystemCoreClockUpdate();
+#endif
+	/* Enable ICACHE */
+	sys_cache_instr_enable();
+
+	/* NRF_REGULATORS and NRF_OSCILLATORS are configured to be secure
+	 * as NRF_REGULATORS.POFCON is needed by the secure domain to
+	 * prevent glitches when the power supply is attacked.
+	 *
+	 * NRF_OSCILLATORS is also configured as secure because of a HW limitation
+	 * that requires them to be configured with the same security property.
+	 */
+#if (defined(NRF_APPLICATION) && defined(CONFIG_TRUSTED_EXECUTION_SECURE)) || defined(__NRF_TFM__)
+	power_and_clock_configuration();
+#endif
 
 	return 0;
 }
